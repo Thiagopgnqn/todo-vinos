@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_API_URL || '/api';
+
 const client = axios.create({
-  baseURL: '/api',
+  baseURL: API_URL,
 });
 
 client.interceptors.request.use(
@@ -25,7 +27,7 @@ client.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken');
         if (!refreshToken) throw new Error('No refresh token');
         
-        const res = await axios.post('/api/auth/refresh', { token: refreshToken });
+        const res = await axios.post(`${API_URL}/auth/refresh`, { token: refreshToken });
         localStorage.setItem('accessToken', res.data.accessToken);
         
         originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
