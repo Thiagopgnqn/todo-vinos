@@ -4,6 +4,7 @@ import {
   FaChartBar, 
   FaWineBottle, 
   FaClipboardList, 
+  FaUsers,
   FaStore, 
   FaSignOutAlt, 
   FaArrowLeft,
@@ -24,6 +25,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
     { name: 'Dashboard', to: '/admin', icon: FaChartBar, end: true },
     { name: 'Productos', to: '/admin/productos', icon: FaWineBottle },
     { name: 'Pedidos', to: '/admin/pedidos', icon: FaClipboardList },
+    { name: 'Usuarios', to: '/admin/usuarios', icon: FaUsers },
   ];
 
   return (

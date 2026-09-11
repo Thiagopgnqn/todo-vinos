@@ -3,23 +3,25 @@ import { Link } from 'react-router-dom';
 import client from '../../api/client';
 import OrderTable from '../../components/admin/OrderTable';
 import Modal from '../../components/ui/Modal';
-import { FaWineBottle, FaClipboardList, FaClock, FaDollarSign } from 'react-icons/fa';
+import { FaWineBottle, FaClipboardList, FaClock, FaDollarSign, FaUsers } from 'react-icons/fa';
 
 const DashboardPage = () => {
-  const [stats, setStats] = useState({ totalProducts: 0, totalOrders: 0, pendingOrders: 0, totalRevenue: 0 });
+  const [stats, setStats] = useState({ totalProducts: 0, totalOrders: 0, pendingOrders: 0, totalRevenue: 0, totalUsers: 0 });
   const [recentOrders, setRecentOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [productsRes, ordersRes] = await Promise.all([
+        const [productsRes, ordersRes, usersRes] = await Promise.all([
           client.get('/products?limit=100'),
-          client.get('/orders?limit=100')
+          client.get('/orders?limit=100'),
+          client.get('/users').catch(() => ({ data: { users: [] } }))
         ]);
         
         const products = productsRes.data.products || productsRes.data || [];
         const orders = ordersRes.data.orders || ordersRes.data || [];
+        const users = usersRes.data.users || [];
         
         const pending = orders.filter(o => (o.status || '').toUpperCase() === 'PENDING');
         const revenue = orders
@@ -30,7 +32,8 @@ const DashboardPage = () => {
           totalProducts: productsRes.data.total || products.length,
           totalOrders: ordersRes.data.total || orders.length,
           pendingOrders: pending.length,
-          totalRevenue: revenue
+          totalRevenue: revenue,
+          totalUsers: users.length
         });
         
         setRecentOrders(orders.slice(0, 5));
@@ -42,9 +45,9 @@ const DashboardPage = () => {
   }, []);
 
   const cards = [
-    { title: 'Vinos en Catálogo', value: stats.totalProducts, icon: FaWineBottle, color: 'bg-purple-100 text-purple-700' },
-    { title: 'Total Pedidos', value: stats.totalOrders, icon: FaClipboardList, color: 'bg-blue-100 text-blue-700' },
-    { title: 'Pedidos Pendientes', value: stats.pendingOrders, icon: FaClock, color: 'bg-amber-100 text-amber-700' },
+    { title: 'Vinos en Catálogo', value: stats.totalProducts, icon: FaWineBottle, color: 'bg-purple-100 text-purple-700', link: '/admin/productos' },
+    { title: 'Total Pedidos', value: stats.totalOrders, icon: FaClipboardList, color: 'bg-blue-100 text-blue-700', link: '/admin/pedidos' },
+    { title: 'Usuarios Registrados', value: stats.totalUsers, icon: FaUsers, color: 'bg-emerald-100 text-emerald-700', link: '/admin/usuarios' },
     { title: 'Ingresos Estimados', value: `$${stats.totalRevenue.toLocaleString('es-AR')}`, icon: FaDollarSign, color: 'bg-green-100 text-green-700' },
   ];
 
@@ -58,17 +61,27 @@ const DashboardPage = () => {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {cards.map((card, idx) => (
-          <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center">
-            <div className={`p-4 rounded-xl ${card.color} mr-4`}>
-              <card.icon size={26} />
+        {cards.map((card, idx) => {
+          const content = (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex items-center hover:shadow-md transition-shadow">
+              <div className={`p-4 rounded-xl ${card.color} mr-4`}>
+                <card.icon size={26} />
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase font-semibold tracking-wider">{card.title}</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{card.value}</p>
+              </div>
             </div>
-            <div>
-              <p className="text-xs text-gray-500 uppercase font-semibold tracking-wider">{card.title}</p>
-              <p className="text-2xl font-bold text-gray-900 mt-1">{card.value}</p>
-            </div>
-          </div>
-        ))}
+          );
+
+          return card.link ? (
+            <Link key={idx} to={card.link} className="block group">
+              {content}
+            </Link>
+          ) : (
+            <div key={idx}>{content}</div>
+          );
+        })}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

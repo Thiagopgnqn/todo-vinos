@@ -20,6 +20,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import DashboardPage from './pages/admin/DashboardPage';
 import ProductsPage from './pages/admin/ProductsPage';
 import OrdersPage from './pages/admin/OrdersPage';
+import UsersPage from './pages/admin/UsersPage';
 
 const ProtectedAdminRoute = ({ children }) => {
   const { user, loading, isAdmin, logout } = useAuth();
@@ -107,6 +108,7 @@ function App() {
             <Route path="/admin" element={<ProtectedAdminRoute><DashboardPage /></ProtectedAdminRoute>} />
             <Route path="/admin/productos" element={<ProtectedAdminRoute><ProductsPage /></ProtectedAdminRoute>} />
             <Route path="/admin/pedidos" element={<ProtectedAdminRoute><OrdersPage /></ProtectedAdminRoute>} />
+            <Route path="/admin/usuarios" element={<ProtectedAdminRoute><UsersPage /></ProtectedAdminRoute>} />
           </Routes>
         </BrowserRouter>
       </CartProvider>

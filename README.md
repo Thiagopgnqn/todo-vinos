@@ -103,7 +103,8 @@ vinoteca/
 │   │   ├── controllers/                   # Controladores (manejo de requests HTTP)
 │   │   │   ├── auth.controller.js         # Registro, login, refresh token, perfil
 │   │   │   ├── order.controller.js        # Creación y gestión de pedidos
-│   │   │   └── product.controller.js      # CRUD y catálogo de productos
+│   │   │   ├── product.controller.js      # CRUD y catálogo de productos
+│   │   │   └── user.controller.js         # Gestión de usuarios y roles
 │   │   ├── middleware/                    # Middlewares de Express
 │   │   │   ├── admin.js                   # Verificación de rol de administrador
 │   │   │   ├── auth.js                    # Autenticación JWT y optionalAuth
@@ -114,11 +115,13 @@ vinoteca/
 │   │   │   ├── auth.routes.js             # Rutas de autenticación (/api/auth)
 │   │   │   ├── order.routes.js            # Rutas de pedidos (/api/orders)
 │   │   │   ├── product.routes.js          # Rutas de productos (/api/products)
-│   │   │   └── upload.routes.js           # Subida de imágenes (/api/upload)
+│   │   │   ├── upload.routes.js           # Subida de imágenes (/api/upload)
+│   │   │   └── user.routes.js             # Rutas de usuarios (/api/users)
 │   │   ├── services/                      # Lógica de negocio e interacción con BD
 │   │   │   ├── auth.service.js            # Lógica de usuarios y tokens
 │   │   │   ├── order.service.js           # Lógica de pedidos y stock
-│   │   │   └── product.service.js         # Filtros, paginación y CRUD de vinos
+│   │   │   ├── product.service.js         # Filtros, paginación y CRUD de vinos
+│   │   │   └── user.service.js            # Consultas, actualización de roles y baja de usuarios
 │   │   ├── utils/
 │   │   │   ├── jwt.js                     # Generación y verificación de tokens JWT
 │   │   │   └── whatsapp.js                # Generador de enlaces y mensaje de WhatsApp
@@ -140,7 +143,9 @@ vinoteca/
 │   │   │   │   ├── AdminSidebar.jsx       # Barra lateral de navegación admin (responsive)
 │   │   │   │   ├── OrderTable.jsx         # Tabla y tarjetas de pedidos para admin
 │   │   │   │   ├── ProductForm.jsx        # Formulario de alta/edición de vino con upload de foto
-│   │   │   │   └── ProductTable.jsx       # Listado de productos con acciones de edición
+│   │   │   │   ├── ProductTable.jsx       # Listado de productos con acciones de edición
+│   │   │   │   ├── UserForm.jsx           # Formulario para editar usuario y asignar rol
+│   │   │   │   └── UserTable.jsx          # Listado y tarjetas de usuarios con acciones
 │   │   │   ├── auth/                      # Formularios de autenticación
 │   │   │   │   ├── LoginForm.jsx          # Formulario de inicio de sesión
 │   │   │   │   └── RegisterForm.jsx       # Formulario de registro de cliente
@@ -176,9 +181,10 @@ vinoteca/
 │   │   │   └── useProducts.js             # Hook para consulta de productos
 │   │   ├── pages/                         # Vistas / Páginas de la aplicación
 │   │   │   ├── admin/
-│   │   │   │   ├── DashboardPage.jsx      # Panel principal con estadísticas de ventas
+│   │   │   │   ├── DashboardPage.jsx      # Panel principal con estadísticas y accesos directos
 │   │   │   │   ├── OrdersPage.jsx         # Gestión de pedidos y estados
-│   │   │   │   └── ProductsPage.jsx       # Gestión de inventario de vinos
+│   │   │   │   ├── ProductsPage.jsx       # Gestión de inventario de vinos
+│   │   │   │   └── UsersPage.jsx          # Gestión de usuarios y asignación de roles
 │   │   │   ├── CartPage.jsx               # Vista completa del carrito
 │   │   │   ├── CatalogPage.jsx            # Catálogo con filtros y búsqueda
 │   │   │   ├── CheckoutPage.jsx           # Vista de confirmación de pedido
@@ -233,6 +239,14 @@ vinoteca/
 | Método | Ruta | Acceso | Descripción |
 |--------|------|--------|-------------|
 | POST | `/image` | Admin | Subir imagen |
+
+### Users (`/api/users`)
+| Método | Ruta | Acceso | Descripción |
+|--------|------|--------|-------------|
+| GET | `/` | Admin | Listar todos los usuarios registrados |
+| GET | `/:id` | Admin | Obtener datos detallados de un usuario |
+| PUT | `/:id` | Admin | Modificar nombre, email, teléfono o rol (CUSTOMER / ADMIN) |
+| DELETE | `/:id` | Admin | Eliminar cuenta de usuario (con protecciones de seguridad) |
 
 ---
 
