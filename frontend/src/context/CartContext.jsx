@@ -1,4 +1,5 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useCallback } from 'react';
+import Toast from '../components/ui/Toast';
 
 export const CartContext = createContext();
 
@@ -12,6 +13,12 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
+  const [notification, setNotification] = useState({ show: false, message: '' });
+
+  const closeNotification = useCallback(() => {
+    setNotification({ show: false, message: '' });
+  }, []);
+
   const addToCart = (product, quantity) => {
     setItems((prev) => {
       const existing = prev.find((item) => item.product.id === product.id || item.product._id === product._id);
@@ -24,6 +31,7 @@ export const CartProvider = ({ children }) => {
       }
       return [...prev, { product, quantity: Math.min(quantity, product.stock) }];
     });
+    setNotification({ show: true, message: `${product.name} agregado al carrito` });
   };
 
   const removeFromCart = (productId) => {
@@ -51,6 +59,11 @@ export const CartProvider = ({ children }) => {
       value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, cartCount, cartTotal }}
     >
       {children}
+      <Toast
+        show={notification.show}
+        message={notification.message}
+        onClose={closeNotification}
+      />
     </CartContext.Provider>
   );
 };
