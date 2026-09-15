@@ -90,9 +90,9 @@ const ProtectedAdminRoute = ({ children }) => {
 
 function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
           <Routes>
             <Route path="/" element={<Layout />}>
               <Route index element={<HomePage />} />
@@ -110,9 +110,9 @@ function App() {
             <Route path="/admin/pedidos" element={<ProtectedAdminRoute><OrdersPage /></ProtectedAdminRoute>} />
             <Route path="/admin/usuarios" element={<ProtectedAdminRoute><UsersPage /></ProtectedAdminRoute>} />
           </Routes>
-        </BrowserRouter>
-      </CartProvider>
-    </AuthProvider>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

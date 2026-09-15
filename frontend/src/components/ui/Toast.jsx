@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { FaCheckCircle, FaTimes, FaShoppingCart, FaWineBottle } from 'react-icons/fa';
 
 const Toast = ({ show, message, product, onClose, duration = 3500 }) => {
@@ -88,13 +89,14 @@ const Toast = ({ show, message, product, onClose, duration = 3500 }) => {
 
           {/* Botones de acción rápida */}
           <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2.5">
-            <a
-              href="/carrito"
+            <Link
+              to="/carrito"
+              onClick={handleClose}
               className="flex-1 inline-flex items-center justify-center space-x-2 bg-wine hover:bg-wine/90 active:scale-98 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-all shadow-md"
             >
               <FaShoppingCart size={14} />
               <span>Ver Carrito</span>
-            </a>
+            </Link>
             <button
               type="button"
               onClick={handleClose}
