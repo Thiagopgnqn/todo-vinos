@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import useProducts from '../hooks/useProducts';
 import ProductGrid from '../components/catalog/ProductGrid';
 import Button from '../components/ui/Button';
+import useSEO from '../hooks/useSEO';
 import { FaTruck, FaAward, FaUserTie } from 'react-icons/fa';
 
 const categories = [
@@ -14,6 +15,12 @@ const categories = [
 
 const HomePage = () => {
   const { products, loading, fetchProducts } = useProducts();
+
+  useSEO({
+    title: 'Todo Vinos — Vinoteca Online | Selección Exclusiva de Vinos Argentinos',
+    description: 'Comprá vinos argentinos online: Malbec, Cabernet, Chardonnay y Espumantes con envíos seguros y precios especiales por transferencia bancaria.',
+    keywords: 'vinoteca online, comprar vino argentina, malbec mendoza, todo vinos, vino tinto, bodega, vinos finos',
+  });
 
   useEffect(() => {
     fetchProducts({ limit: 4 });

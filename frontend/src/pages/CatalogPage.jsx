@@ -4,6 +4,7 @@ import useProducts from '../hooks/useProducts';
 import ProductGrid from '../components/catalog/ProductGrid';
 import FilterSidebar from '../components/catalog/FilterSidebar';
 import SearchBar from '../components/catalog/SearchBar';
+import useSEO from '../hooks/useSEO';
 import { FaFilter, FaTimes, FaSortAmountDown } from 'react-icons/fa';
 
 const CatalogPage = () => {
@@ -21,6 +22,18 @@ const CatalogPage = () => {
     if (searchParams.get('maxPrice')) init.maxPrice = searchParams.get('maxPrice');
     if (searchParams.get('sort')) init.sort = searchParams.get('sort');
     return init;
+  });
+
+  // Dynamic SEO based on active filters
+  const typeFilterText = filters.type?.length === 1 ? `Vinos ${filters.type[0]}` : null;
+  const pageTitle = typeFilterText
+    ? `${typeFilterText} — Catálogo Online | Todo Vinos`
+    : 'Catálogo de Vinos — Tintos, Blancos y Espumantes | Todo Vinos';
+
+  useSEO({
+    title: pageTitle,
+    description: `Explorá nuestro catálogo de ${typeFilterText || 'vinos argentinos'}. Filtros por varietal, bodega y rango de precio. Envíos a todo el país.`,
+    keywords: `catalogo de vinos, comprar vinos online, ${filters.type?.join(', ') || 'vinos tintos, vinos blancos, espumantes'}, bodega mendoza`,
   });
 
   // Calculate total active filters count

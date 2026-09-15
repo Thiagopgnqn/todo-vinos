@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import client from '../api/client';
 import useCart from '../hooks/useCart';
+import useSEO from '../hooks/useSEO';
 import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
 import Badge from '../components/ui/Badge';
@@ -49,10 +50,42 @@ const ProductPage = () => {
     addToCart(product, quantity);
   };
 
-  const imageUrl = product.imageUrl || product.image;
-  const typeKey = (product.type || 'TINTO').toUpperCase();
+  const imageUrl = product?.imageUrl || product?.image;
+  const typeKey = (product?.type || 'TINTO').toUpperCase();
   const bgGradient = wineTypeGradients[typeKey] || 'from-gray-700 to-gray-900';
-  const priceFormatted = Number(product.price).toLocaleString('es-AR');
+  const priceFormatted = Number(product?.price || 0).toLocaleString('es-AR');
+
+  // Dynamic SEO & Google Product Rich Snippets
+  useSEO(product ? {
+    title: `${product.name} ${product.winery ? `- ${product.winery}` : ''}`,
+    description: product.description 
+      ? product.description.slice(0, 155)
+      : `Comprá ${product.name} (${product.type}) al mejor precio en Todo Vinos. Envíos directos a todo el país.`,
+    keywords: `${product.name}, ${product.type}, ${product.varietal || ''}, ${product.winery || ''}, vino argentino, comprar vino`,
+    image: imageUrl,
+    type: 'product',
+    structuredData: {
+      '@context': 'https://schema.org/',
+      '@type': 'Product',
+      name: product.name,
+      image: imageUrl ? [imageUrl] : [],
+      description: product.description || `Vino ${product.name} de ${product.winery || 'Todo Vinos'}.`,
+      brand: {
+        '@type': 'Brand',
+        name: product.winery || 'Todo Vinos',
+      },
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'ARS',
+        price: Number(product.price),
+        availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+        seller: {
+          '@type': 'Organization',
+          name: 'Todo Vinos',
+        },
+      },
+    },
+  } : {});
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -1,0 +1,16 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+Allow: /catalogo
+Allow: /producto/
+
+# Deshabilitar rastreo de rutas privadas y administrativas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /checkout
+Disallow: /login
+Disallow: /registro
+
+# Sitemap
+Sitemap: https://todovinos.com/sitemap.xml
+
