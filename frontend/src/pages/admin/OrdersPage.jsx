@@ -99,7 +99,7 @@ const OrdersPage = () => {
               <div>
                 <h4 className="text-xs uppercase font-bold text-gray-500 tracking-wider mb-2">Entrega</h4>
                 <p className="text-sm font-semibold text-gray-900">
-                  {selectedOrder.deliveryMethod === 'DELIVERY' ? '🚚 Envío a domicilio' : '🏪 Retiro en local'}
+                  🚚 Envío a domicilio
                 </p>
                 {selectedOrder.customerAddress && (
                   <p className="text-sm text-gray-600 mt-1">{selectedOrder.customerAddress}</p>

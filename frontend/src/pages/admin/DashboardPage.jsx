@@ -112,7 +112,7 @@ const DashboardPage = () => {
               <p><strong>Cliente:</strong> {selectedOrder.customerName || selectedOrder.name}</p>
               <p><strong>Teléfono:</strong> {selectedOrder.customerPhone || selectedOrder.phone}</p>
               <p><strong>Email:</strong> {selectedOrder.customerEmail || selectedOrder.email}</p>
-              <p><strong>Entrega:</strong> {selectedOrder.deliveryMethod === 'DELIVERY' ? `Envío a: ${selectedOrder.customerAddress}` : 'Retiro en local'}</p>
+              <p><strong>Entrega:</strong> Envío a: {selectedOrder.customerAddress || 'Sin dirección'}</p>
             </div>
 
             <div className="pt-2 flex justify-between font-bold text-lg">

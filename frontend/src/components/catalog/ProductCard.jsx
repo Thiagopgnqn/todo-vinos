@@ -63,13 +63,20 @@ const ProductCard = ({ product }) => {
           <h3 className="font-playfair font-bold text-lg text-gray-900 mb-1 leading-tight line-clamp-2">{product.name}</h3>
           <p className="text-sm text-gray-500 mb-3">{product.varietal} {product.year ? `• ${product.year}` : ''}</p>
           
-          <div className="mt-auto flex items-baseline justify-between pt-2 border-t border-gray-100">
-            <div>
-              <span className="text-xs text-gray-400 font-normal mr-1">$</span>
-              <span className="text-xl font-bold text-wine">{priceFormatted}</span>
+          <div className="mt-auto pt-2 border-t border-gray-100">
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-xs text-gray-400 font-normal mr-1">$</span>
+                <span className="text-xl font-bold text-wine">{priceFormatted}</span>
+              </div>
+              {product.stock > 0 && product.stock <= 5 && (
+                <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded">¡Últimas {product.stock}!</span>
+              )}
             </div>
-            {product.stock > 0 && product.stock <= 5 && (
-              <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded">¡Últimas {product.stock}!</span>
+            {product.transferPrice && (
+              <p className="text-xs text-green-700 font-medium mt-1">
+                Transferencia: <span className="font-bold">${Number(product.transferPrice).toLocaleString('es-AR')}</span>
+              </p>
             )}
           </div>
         </div>

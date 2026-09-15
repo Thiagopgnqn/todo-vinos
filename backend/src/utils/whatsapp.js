@@ -4,9 +4,9 @@ export const generateWhatsAppLink = (order, items) => {
   let message = `*Nuevo Pedido #${order.id}*\n\n`;
   message += `*Cliente:* ${order.customerName}\n`;
   message += `*Teléfono:* ${order.customerPhone}\n`;
-  message += `*Entrega:* ${order.deliveryMethod === 'DELIVERY' ? 'Envío a domicilio' : 'Retiro por local'}\n`;
+  message += `*Entrega:* Envío a domicilio\n`;
   
-  if (order.deliveryMethod === 'DELIVERY' && order.customerAddress) {
+  if (order.customerAddress) {
     message += `*Dirección:* ${order.customerAddress}\n`;
   }
 

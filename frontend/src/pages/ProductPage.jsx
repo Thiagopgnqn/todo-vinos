@@ -89,7 +89,7 @@ const ProductPage = () => {
             <h1 className="font-playfair text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>
             <p className="text-lg text-gold font-medium mb-6">{product.winery}</p>
             
-            <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-200">
+            <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200">
               <div>
                 <span className="text-sm text-gray-500 mr-1">$</span>
                 <span className="text-4xl font-bold text-wine">{priceFormatted}</span>
@@ -98,6 +98,13 @@ const ProductPage = () => {
                 {product.stock > 0 ? `Stock disponible: ${product.stock} un.` : 'Sin stock'}
               </p>
             </div>
+            {product.transferPrice && (
+              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 flex items-center gap-2">
+                <span className="text-sm text-green-700">💳 Precio por transferencia:</span>
+                <span className="text-lg font-bold text-green-700">${Number(product.transferPrice).toLocaleString('es-AR')}</span>
+              </div>
+            )}
+            {!product.transferPrice && <div className="mb-6" />}
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-gray-700 mb-6 bg-gray-50 p-4 rounded-lg">
               <div><span className="text-xs text-gray-400 block uppercase font-medium">Varietal</span> <span className="font-semibold">{product.varietal}</span></div>

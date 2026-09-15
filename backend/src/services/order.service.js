@@ -3,7 +3,15 @@ import { generateWhatsAppLink } from '../utils/whatsapp.js';
 
 const prisma = new PrismaClient();
 
+const MIN_ORDER_BOTTLES = 6;
+
 export const createOrder = async (data, userId) => {
+  // Business rule: minimum 6 bottles per order
+  const totalBottles = data.items.reduce((sum, item) => sum + item.quantity, 0);
+  if (totalBottles < MIN_ORDER_BOTTLES) {
+    throw new Error(`El pedido mínimo es de ${MIN_ORDER_BOTTLES} botellas. Tenés ${totalBottles} en tu carrito.`);
+  }
+
   return prisma.$transaction(async (tx) => {
     let total = 0;
     const itemsData = [];

@@ -4,6 +4,7 @@ export const createProductSchema = z.object({
   name: z.string().min(2),
   description: z.string().min(10),
   price: z.number().positive(),
+  transferPrice: z.number().positive().optional().nullable(),
   stock: z.number().int().nonnegative(),
   type: z.enum(['TINTO', 'BLANCO', 'ROSADO', 'ESPUMANTE']),
   varietal: z.string().min(2),

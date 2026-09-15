@@ -5,10 +5,11 @@ import client from '../../api/client';
 import useCart from '../../hooks/useCart';
 import useAuth from '../../hooks/useAuth';
 import AddressMap from './AddressMap';
-import { FaWhatsapp, FaStore, FaTruck, FaCheckCircle } from 'react-icons/fa';
+import { FaWhatsapp, FaCheckCircle } from 'react-icons/fa';
+const MIN_ORDER_BOTTLES = 6;
 
 const CheckoutForm = () => {
-  const { items, cartTotal, clearCart } = useCart();
+  const { items, cartTotal, cartCount, clearCart } = useCart();
   const { user } = useAuth();
   
   const [formData, setFormData] = useState({
@@ -16,7 +17,7 @@ const CheckoutForm = () => {
     customerPhone: '',
     customerEmail: '',
     customerAddress: '',
-    deliveryMethod: 'PICKUP',
+    deliveryMethod: 'DELIVERY',
     comments: '',
   });
 
@@ -43,13 +44,19 @@ const CheckoutForm = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (cartCount < MIN_ORDER_BOTTLES) {
+      setError(`El pedido mínimo es de ${MIN_ORDER_BOTTLES} botellas. Tenés ${cartCount} en tu carrito.`);
+      setLoading(false);
+      return;
+    }
     
     try {
       const orderData = {
         customerName: formData.customerName.trim(),
         customerPhone: formData.customerPhone.trim(),
         customerEmail: formData.customerEmail.trim(),
-        customerAddress: formData.deliveryMethod === 'DELIVERY' ? formData.customerAddress.trim() : undefined,
+        customerAddress: formData.customerAddress.trim(),
         deliveryMethod: formData.deliveryMethod,
         comments: formData.comments?.trim() || undefined,
         items: items.map(item => ({
@@ -150,76 +157,25 @@ const CheckoutForm = () => {
       </div>
 
       <div className="border-t border-gray-100 pt-6">
-        <h2 className="font-playfair text-xl sm:text-2xl font-bold text-gray-900 mb-1">2. Forma de Entrega</h2>
-        <p className="text-xs text-gray-500 mb-4">Seleccioná cómo querés recibir tus vinos</p>
+        <h2 className="font-playfair text-xl sm:text-2xl font-bold text-gray-900 mb-1">2. Dirección de Envío</h2>
+        <p className="text-xs text-gray-500 mb-4">Indicá dónde querés recibir tus vinos</p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <label 
-            className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all ${
-              formData.deliveryMethod === 'PICKUP' 
-                ? 'border-wine bg-wine/5 shadow-xs' 
-                : 'border-gray-200 hover:border-gray-300 bg-white'
-            }`}
-          >
-            <input 
-              type="radio" 
-              name="deliveryMethod" 
-              value="PICKUP" 
-              checked={formData.deliveryMethod === 'PICKUP'} 
-              onChange={handleChange} 
-              className="text-wine focus:ring-wine mt-1" 
-            />
-            <div className="ml-3">
-              <span className="flex items-center text-sm font-bold text-gray-900">
-                <FaStore className="mr-1.5 text-wine" /> Retiro en Local
-              </span>
-              <p className="text-xs text-gray-500 mt-1">Gratis &bull; Coordinamos horario por WhatsApp</p>
-            </div>
-          </label>
-
-          <label 
-            className={`flex items-start p-4 rounded-xl border-2 cursor-pointer transition-all ${
-              formData.deliveryMethod === 'DELIVERY' 
-                ? 'border-wine bg-wine/5 shadow-xs' 
-                : 'border-gray-200 hover:border-gray-300 bg-white'
-            }`}
-          >
-            <input 
-              type="radio" 
-              name="deliveryMethod" 
-              value="DELIVERY" 
-              checked={formData.deliveryMethod === 'DELIVERY'} 
-              onChange={handleChange} 
-              className="text-wine focus:ring-wine mt-1" 
-            />
-            <div className="ml-3">
-              <span className="flex items-center text-sm font-bold text-gray-900">
-                <FaTruck className="mr-1.5 text-wine" /> Envío a Domicilio
-              </span>
-              <p className="text-xs text-gray-500 mt-1">Embalaje especial seguro</p>
-            </div>
-          </label>
+        <div className="space-y-1">
+          <Input 
+            label="Dirección completa y localidad" 
+            name="customerAddress" 
+            required 
+            value={formData.customerAddress} 
+            onChange={handleChange} 
+            placeholder="Ej: Av. Santa Fe 1234, Piso 4B, Córdoba"
+          />
+          <AddressMap 
+            address={formData.customerAddress}
+            onAddressConfirmed={(data) => {
+              console.log('Dirección confirmada:', data);
+            }}
+          />
         </div>
-        
-        {formData.deliveryMethod === 'DELIVERY' && (
-          <div className="mt-4 pt-2 space-y-1">
-            <Input 
-              label="Dirección completa y localidad" 
-              name="customerAddress" 
-              required 
-              value={formData.customerAddress} 
-              onChange={handleChange} 
-              placeholder="Ej: Av. Santa Fe 1234, Piso 4B, Córdoba"
-            />
-            <AddressMap 
-              address={formData.customerAddress}
-              onAddressConfirmed={(data) => {
-                // Address confirmed by user on map
-                console.log('Dirección confirmada:', data);
-              }}
-            />
-          </div>
-        )}
       </div>
 
       <div className="border-t border-gray-100 pt-6">

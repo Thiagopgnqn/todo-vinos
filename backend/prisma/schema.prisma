@@ -25,6 +25,7 @@ model Product {
   name         String
   description  String
   price        Decimal
+  transferPrice Decimal?
   stock        Int
   imageUrl     String?
   type         String      // TINTO | BLANCO | ROSADO | ESPUMANTE

@@ -4,17 +4,19 @@ import useCart from '../hooks/useCart';
 import CheckoutForm from '../components/checkout/CheckoutForm';
 import { FaLock } from 'react-icons/fa';
 
+const MIN_ORDER_BOTTLES = 6;
+
 const CheckoutPage = () => {
-  const { items, cartTotal } = useCart();
+  const { items, cartTotal, cartCount } = useCart();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 || cartCount < MIN_ORDER_BOTTLES) {
       navigate('/carrito');
     }
-  }, [items, navigate]);
+  }, [items, cartCount, navigate]);
 
-  if (items.length === 0) return null;
+  if (items.length === 0 || cartCount < MIN_ORDER_BOTTLES) return null;
 
   return (
     <div className="bg-gray-50 min-h-screen py-12">

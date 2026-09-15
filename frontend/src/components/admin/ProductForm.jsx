@@ -10,6 +10,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
     name: '', 
     description: '', 
     price: '', 
+    transferPrice: '',
     stock: '', 
     type: 'TINTO', 
     varietal: '',
@@ -32,6 +33,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
         name: initialData.name || '',
         description: initialData.description || '',
         price: initialData.price || '',
+        transferPrice: initialData.transferPrice || '',
         stock: initialData.stock || '',
         type: (initialData.type || 'TINTO').toUpperCase(),
         varietal: initialData.varietal || '',
@@ -50,6 +52,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
         name: '', 
         description: '', 
         price: '', 
+        transferPrice: '',
         stock: '', 
         type: 'TINTO', 
         varietal: '',
@@ -123,6 +126,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
       name: formData.name.trim(),
       description: formData.description.trim(),
       price: parseFloat(formData.price),
+      transferPrice: formData.transferPrice ? parseFloat(formData.transferPrice) : null,
       stock: parseInt(formData.stock, 10),
       type: formData.type.toUpperCase(),
       varietal: formData.varietal.trim(),
@@ -148,8 +152,9 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
     <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto px-1 pr-2">
       <Input label="Nombre del Vino" name="name" required value={formData.name} onChange={handleChange} placeholder="Ej: Gran Reserva Malbec" />
       
-      <div className="grid grid-cols-2 gap-4">
-        <Input label="Precio ($)" type="number" name="price" required value={formData.price} onChange={handleChange} min="0" step="1" placeholder="Ej: 8500" />
+      <div className="grid grid-cols-3 gap-4">
+        <Input label="Precio Publicado ($)" type="number" name="price" required value={formData.price} onChange={handleChange} min="0" step="1" placeholder="Ej: 8500" />
+        <Input label="Precio Transferencia ($)" type="number" name="transferPrice" value={formData.transferPrice} onChange={handleChange} min="0" step="1" placeholder="Opcional" />
         <Input label="Stock (unidades)" type="number" name="stock" required value={formData.stock} onChange={handleChange} min="0" placeholder="Ej: 50" />
       </div>
 
