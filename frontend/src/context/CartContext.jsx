@@ -13,10 +13,10 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cart', JSON.stringify(items));
   }, [items]);
 
-  const [notification, setNotification] = useState({ show: false, message: '' });
+  const [notification, setNotification] = useState({ show: false, message: '', product: null });
 
   const closeNotification = useCallback(() => {
-    setNotification({ show: false, message: '' });
+    setNotification({ show: false, message: '', product: null });
   }, []);
 
   const addToCart = (product, quantity) => {
@@ -31,7 +31,16 @@ export const CartProvider = ({ children }) => {
       }
       return [...prev, { product, quantity: Math.min(quantity, product.stock) }];
     });
-    setNotification({ show: true, message: `${product.name} agregado al carrito` });
+    setNotification({
+      show: true,
+      message: `${product.name} agregado al carrito`,
+      product: {
+        name: product.name,
+        price: product.price,
+        imageUrl: product.imageUrl || product.image,
+        winery: product.winery,
+      },
+    });
   };
 
   const removeFromCart = (productId) => {
@@ -62,6 +71,7 @@ export const CartProvider = ({ children }) => {
       <Toast
         show={notification.show}
         message={notification.message}
+        product={notification.product}
         onClose={closeNotification}
       />
     </CartContext.Provider>
