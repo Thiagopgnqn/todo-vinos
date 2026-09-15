@@ -1,14 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../ui/Button';
+import client from '../../api/client';
 import { FaTimes, FaCheck, FaTrash } from 'react-icons/fa';
 
+const TYPE_ICONS = {
+  tinto: '🍷',
+  blanco: '🥂',
+  rosado: '🌸',
+  espumante: '✨',
+  organico: '🌿',
+  'orgánico': '🌿',
+  naranjo: '🍊',
+  dulce: '🍯',
+  postre: '🍰',
+};
+
+const DEFAULT_TYPES = [
+  { label: 'Tinto', value: 'Tinto', icon: '🍷' },
+  { label: 'Blanco', value: 'Blanco', icon: '🥂' },
+  { label: 'Rosado', value: 'Rosado', icon: '🌸' },
+  { label: 'Espumante', value: 'Espumante', icon: '✨' },
+];
+
 const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
-  const types = [
-    { label: 'Tinto', value: 'TINTO', icon: '🍷' },
-    { label: 'Blanco', value: 'BLANCO', icon: '🥂' },
-    { label: 'Rosado', value: 'ROSADO', icon: '🌸' },
-    { label: 'Espumante', value: 'ESPUMANTE', icon: '✨' },
-  ];
+  const [types, setTypes] = useState(DEFAULT_TYPES);
+
+  useEffect(() => {
+    const fetchWineTypes = async () => {
+      try {
+        const res = await client.get('/wine-types');
+        if (res.data && res.data.length > 0) {
+          const dynamicTypes = res.data.map(t => ({
+            label: t.name,
+            value: t.name,
+            icon: TYPE_ICONS[t.name.toLowerCase()] || '🍷',
+          }));
+          setTypes(dynamicTypes);
+        }
+      } catch (err) {
+        console.error('Error fetching wine types in filter sidebar:', err);
+      }
+    };
+    fetchWineTypes();
+  }, []);
+
   const varietals = ['Malbec', 'Cabernet Sauvignon', 'Chardonnay', 'Torrontés', 'Pinot Noir', 'Syrah'];
 
   // Local state for price inputs to avoid fetching on every keystroke
@@ -22,8 +57,9 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
 
   const handleTypeChange = (typeValue) => {
     const currentTypes = filters.type || [];
-    const newTypes = currentTypes.includes(typeValue)
-      ? currentTypes.filter(t => t !== typeValue)
+    const exists = currentTypes.some(t => t.toLowerCase() === typeValue.toLowerCase());
+    const newTypes = exists
+      ? currentTypes.filter(t => t.toLowerCase() !== typeValue.toLowerCase())
       : [...currentTypes, typeValue];
     setFilters(prev => ({ ...prev, type: newTypes, page: 1 }));
   };
@@ -70,7 +106,7 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
         </h4>
         <div className="grid grid-cols-2 sm:grid-cols-1 gap-2">
           {types.map(type => {
-            const isChecked = (filters.type || []).includes(type.value);
+            const isChecked = (filters.type || []).some(t => t.toLowerCase() === type.value.toLowerCase());
             return (
               <label 
                 key={type.value} 

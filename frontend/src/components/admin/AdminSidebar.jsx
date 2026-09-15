@@ -5,6 +5,7 @@ import {
   FaWineBottle, 
   FaClipboardList, 
   FaUsers,
+  FaTags,
   FaStore, 
   FaSignOutAlt, 
   FaArrowLeft,
@@ -24,6 +25,7 @@ const AdminSidebar = ({ isOpen, onClose }) => {
   const navItems = [
     { name: 'Dashboard', to: '/admin', icon: FaChartBar, end: true },
     { name: 'Productos', to: '/admin/productos', icon: FaWineBottle },
+    { name: 'Tipos de Vino', to: '/admin/tipos', icon: FaTags },
     { name: 'Pedidos', to: '/admin/pedidos', icon: FaClipboardList },
     { name: 'Usuarios', to: '/admin/usuarios', icon: FaUsers },
   ];

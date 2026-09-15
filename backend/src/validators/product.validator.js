@@ -6,7 +6,7 @@ export const createProductSchema = z.object({
   price: z.number().positive(),
   transferPrice: z.number().positive().optional().nullable(),
   stock: z.number().int().nonnegative(),
-  type: z.enum(['TINTO', 'BLANCO', 'ROSADO', 'ESPUMANTE']),
+  type: z.string().trim().min(1, 'El tipo de vino es requerido'),
   varietal: z.string().min(2),
   year: z.number().int().positive(),
   winery: z.string().min(2),

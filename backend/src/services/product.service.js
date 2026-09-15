@@ -7,7 +7,18 @@ export const getProducts = async (filters) => {
   
   const where = { active: true };
 
-  if (type) where.type = type;
+  if (type) {
+    const rawTypes = type.split(',').map(t => t.trim()).filter(Boolean);
+    const expandedTypes = Array.from(new Set(
+      rawTypes.flatMap(t => [
+        t,
+        t.toUpperCase(),
+        t.toLowerCase(),
+        t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(),
+      ])
+    ));
+    where.type = { in: expandedTypes };
+  }
   if (varietal) where.varietal = varietal;
   if (winery) where.winery = winery;
   if (region) where.region = region;

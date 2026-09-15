@@ -12,6 +12,7 @@ import productRoutes from './routes/product.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import userRoutes from './routes/user.routes.js';
+import wineTypeRoutes from './routes/wineType.routes.js';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/wine-types', wineTypeRoutes);
 
 // Error handler
 app.use(errorHandler);

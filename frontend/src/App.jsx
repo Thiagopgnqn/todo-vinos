@@ -19,6 +19,7 @@ import NotFoundPage from './pages/NotFoundPage';
 
 import DashboardPage from './pages/admin/DashboardPage';
 import ProductsPage from './pages/admin/ProductsPage';
+import WineTypesPage from './pages/admin/WineTypesPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import UsersPage from './pages/admin/UsersPage';
 
@@ -107,6 +108,7 @@ function App() {
 
             <Route path="/admin" element={<ProtectedAdminRoute><DashboardPage /></ProtectedAdminRoute>} />
             <Route path="/admin/productos" element={<ProtectedAdminRoute><ProductsPage /></ProtectedAdminRoute>} />
+            <Route path="/admin/tipos" element={<ProtectedAdminRoute><WineTypesPage /></ProtectedAdminRoute>} />
             <Route path="/admin/pedidos" element={<ProtectedAdminRoute><OrdersPage /></ProtectedAdminRoute>} />
             <Route path="/admin/usuarios" element={<ProtectedAdminRoute><UsersPage /></ProtectedAdminRoute>} />
           </Routes>

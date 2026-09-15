@@ -22,10 +22,23 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
     imageUrl: ''
   });
 
+  const [wineTypes, setWineTypes] = useState([]);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [showUrlInput, setShowUrlInput] = useState(false);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchWineTypes = async () => {
+      try {
+        const res = await client.get('/wine-types');
+        setWineTypes(res.data);
+      } catch (err) {
+        console.error('Error loading wine types:', err);
+      }
+    };
+    fetchWineTypes();
+  }, []);
 
   useEffect(() => {
     if (initialData) {
@@ -35,7 +48,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
         price: initialData.price || '',
         transferPrice: initialData.transferPrice || '',
         stock: initialData.stock || '',
-        type: (initialData.type || 'TINTO').toUpperCase(),
+        type: initialData.type || wineTypes[0]?.name || 'Tinto',
         varietal: initialData.varietal || '',
         year: initialData.year || new Date().getFullYear(),
         winery: initialData.winery || '',
@@ -54,7 +67,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
         price: '', 
         transferPrice: '',
         stock: '', 
-        type: 'TINTO', 
+        type: wineTypes[0]?.name || 'Tinto', 
         varietal: '',
         year: new Date().getFullYear(), 
         winery: '', 
@@ -65,7 +78,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
       });
       setUploadError('');
     }
-  }, [initialData]);
+  }, [initialData, wineTypes]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -128,7 +141,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
       price: parseFloat(formData.price),
       transferPrice: formData.transferPrice ? parseFloat(formData.transferPrice) : null,
       stock: parseInt(formData.stock, 10),
-      type: formData.type.toUpperCase(),
+      type: formData.type.trim(),
       varietal: formData.varietal.trim(),
       year: parseInt(formData.year, 10),
       winery: formData.winery.trim(),
@@ -141,12 +154,14 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
     onSubmit(payload);
   };
 
-  const typeOptions = [
-    { value: 'TINTO', label: 'Tinto' },
-    { value: 'BLANCO', label: 'Blanco' },
-    { value: 'ROSADO', label: 'Rosado' },
-    { value: 'ESPUMANTE', label: 'Espumante' },
-  ];
+  const typeOptions = wineTypes.length > 0
+    ? wineTypes.map(t => ({ value: t.name, label: t.name }))
+    : [
+        { value: 'Tinto', label: 'Tinto' },
+        { value: 'Blanco', label: 'Blanco' },
+        { value: 'Rosado', label: 'Rosado' },
+        { value: 'Espumante', label: 'Espumante' },
+      ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto px-1 pr-2">
