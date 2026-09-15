@@ -12,9 +12,9 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
     price: '', 
     transferPrice: '',
     stock: '', 
-    type: 'TINTO', 
+    type: 'Tinto', 
     varietal: '',
-    year: new Date().getFullYear(), 
+    year: '', 
     winery: '', 
     region: '', 
     tastingNotes: '', 
@@ -69,7 +69,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
         stock: '', 
         type: wineTypes[0]?.name || 'Tinto', 
         varietal: '',
-        year: new Date().getFullYear(), 
+        year: '', 
         winery: '', 
         region: '', 
         tastingNotes: '', 
@@ -134,21 +134,28 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!formData.imageUrl || !formData.imageUrl.trim()) {
+      setUploadError('La foto del producto es obligatoria.');
+      return;
+    }
     
     const payload = {
       name: formData.name.trim(),
-      description: formData.description.trim(),
       price: parseFloat(formData.price),
-      transferPrice: formData.transferPrice ? parseFloat(formData.transferPrice) : null,
-      stock: parseInt(formData.stock, 10),
       type: formData.type.trim(),
-      varietal: formData.varietal.trim(),
-      year: parseInt(formData.year, 10),
-      winery: formData.winery.trim(),
-      region: formData.region.trim(),
+      imageUrl: formData.imageUrl.trim(),
+
+      // Campos opcionales
+      description: formData.description ? formData.description.trim() : '',
+      transferPrice: formData.transferPrice ? parseFloat(formData.transferPrice) : null,
+      stock: formData.stock !== '' && formData.stock !== undefined && formData.stock !== null ? parseInt(formData.stock, 10) : 0,
+      varietal: formData.varietal ? formData.varietal.trim() : '',
+      year: formData.year ? parseInt(formData.year, 10) : null,
+      winery: formData.winery ? formData.winery.trim() : '',
+      region: formData.region ? formData.region.trim() : '',
       tastingNotes: formData.tastingNotes ? formData.tastingNotes.trim() : undefined,
       pairing: formData.pairing ? formData.pairing.trim() : undefined,
-      imageUrl: formData.imageUrl ? formData.imageUrl.trim() : undefined,
     };
 
     onSubmit(payload);
@@ -165,30 +172,30 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto px-1 pr-2">
-      <Input label="Nombre del Vino" name="name" required value={formData.name} onChange={handleChange} placeholder="Ej: Gran Reserva Malbec" />
+      <Input label="Nombre del Vino *" name="name" required value={formData.name} onChange={handleChange} placeholder="Ej: Gran Reserva Malbec" />
       
       <div className="grid grid-cols-3 gap-4">
-        <Input label="Precio Publicado ($)" type="number" name="price" required value={formData.price} onChange={handleChange} min="0" step="1" placeholder="Ej: 8500" />
-        <Input label="Precio Transferencia ($)" type="number" name="transferPrice" value={formData.transferPrice} onChange={handleChange} min="0" step="1" placeholder="Opcional" />
-        <Input label="Stock (unidades)" type="number" name="stock" required value={formData.stock} onChange={handleChange} min="0" placeholder="Ej: 50" />
+        <Input label="Precio Publicado ($) *" type="number" name="price" required value={formData.price} onChange={handleChange} min="0" step="1" placeholder="Ej: 8500" />
+        <Input label="Precio Transferencia ($) (Opcional)" type="number" name="transferPrice" value={formData.transferPrice} onChange={handleChange} min="0" step="1" placeholder="Opcional" />
+        <Input label="Stock (Opcional)" type="number" name="stock" value={formData.stock} onChange={handleChange} min="0" placeholder="Ej: 50 (por defecto 0)" />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Select label="Tipo" name="type" options={typeOptions} value={formData.type} onChange={handleChange} />
-        <Input label="Varietal" name="varietal" required value={formData.varietal} onChange={handleChange} placeholder="Ej: Malbec" />
+        <Select label="Tipo *" name="type" required options={typeOptions} value={formData.type} onChange={handleChange} />
+        <Input label="Varietal (Opcional)" name="varietal" value={formData.varietal} onChange={handleChange} placeholder="Ej: Malbec" />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <Input label="Bodega" name="winery" required value={formData.winery} onChange={handleChange} placeholder="Ej: Catena Zapata" />
-        <Input label="Año / Añada" type="number" name="year" required value={formData.year} onChange={handleChange} placeholder="Ej: 2021" />
+        <Input label="Bodega (Opcional)" name="winery" value={formData.winery} onChange={handleChange} placeholder="Ej: Catena Zapata" />
+        <Input label="Año / Añada (Opcional)" type="number" name="year" value={formData.year} onChange={handleChange} placeholder="Ej: 2021" />
       </div>
 
-      <Input label="Región" name="region" required value={formData.region} onChange={handleChange} placeholder="Ej: Mendoza, Valle de Uco" />
+      <Input label="Región (Opcional)" name="region" value={formData.region} onChange={handleChange} placeholder="Ej: Mendoza, Valle de Uco" />
       
       {/* Image Upload Section */}
-      <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+      <div className={`bg-gray-50 p-4 rounded-xl border ${!formData.imageUrl && uploadError ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`}>
         <label className="block text-sm font-semibold text-gray-900 mb-2">
-          Foto del Producto
+          Foto del Producto *
         </label>
 
         {/* Hidden File Input */}
@@ -289,15 +296,14 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Descripción (Opcional)</label>
         <textarea 
           name="description" 
           rows="3" 
-          required 
           value={formData.description} 
           onChange={handleChange} 
           className="block w-full rounded-md border-gray-300 shadow-sm focus:border-wine focus:ring-wine sm:text-sm"
-          placeholder="Descripción detallada del vino..."
+          placeholder="Descripción del vino (opcional)..."
         ></textarea>
       </div>
 

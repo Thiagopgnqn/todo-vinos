@@ -59,9 +59,13 @@ const ProductCard = ({ product }) => {
         </div>
 
         <div className="p-4 flex flex-col flex-grow">
-          <div className="text-xs font-semibold text-gold tracking-wider uppercase mb-1">{product.winery}</div>
+          {product.winery && <div className="text-xs font-semibold text-gold tracking-wider uppercase mb-1">{product.winery}</div>}
           <h3 className="font-playfair font-bold text-lg text-gray-900 mb-1 leading-tight line-clamp-2">{product.name}</h3>
-          <p className="text-sm text-gray-500 mb-3">{product.varietal} {product.year ? `• ${product.year}` : ''}</p>
+          {(product.varietal || product.year) && (
+            <p className="text-sm text-gray-500 mb-3">
+              {[product.varietal, product.year].filter(Boolean).join(' • ')}
+            </p>
+          )}
           
           <div className="mt-auto pt-2 border-t border-gray-100">
             <div className="flex items-baseline justify-between">

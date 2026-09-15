@@ -87,7 +87,7 @@ const ProductPage = () => {
               <Badge variant={typeKey.toLowerCase()}>{product.type}</Badge>
             </div>
             <h1 className="font-playfair text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>
-            <p className="text-lg text-gold font-medium mb-6">{product.winery}</p>
+            {product.winery && <p className="text-lg text-gold font-medium mb-6">{product.winery}</p>}
             
             <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200">
               <div>
@@ -106,11 +106,13 @@ const ProductPage = () => {
             )}
             {!product.transferPrice && <div className="mb-6" />}
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-gray-700 mb-6 bg-gray-50 p-4 rounded-lg">
-              <div><span className="text-xs text-gray-400 block uppercase font-medium">Varietal</span> <span className="font-semibold">{product.varietal}</span></div>
-              {product.year && <div><span className="text-xs text-gray-400 block uppercase font-medium">Año</span> <span className="font-semibold">{product.year}</span></div>}
-              {product.region && <div><span className="text-xs text-gray-400 block uppercase font-medium">Región</span> <span className="font-semibold">{product.region}</span></div>}
-            </div>
+            {(product.varietal || product.year || product.region) && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-gray-700 mb-6 bg-gray-50 p-4 rounded-lg">
+                {product.varietal && <div><span className="text-xs text-gray-400 block uppercase font-medium">Varietal</span> <span className="font-semibold">{product.varietal}</span></div>}
+                {product.year && <div><span className="text-xs text-gray-400 block uppercase font-medium">Año</span> <span className="font-semibold">{product.year}</span></div>}
+                {product.region && <div><span className="text-xs text-gray-400 block uppercase font-medium">Región</span> <span className="font-semibold">{product.region}</span></div>}
+              </div>
+            )}
 
             <div className="text-gray-600 mb-8 leading-relaxed">
               <p>{product.description || 'Sin descripción disponible.'}</p>

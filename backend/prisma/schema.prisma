@@ -23,16 +23,16 @@ model User {
 model Product {
   id           String      @id @default(cuid())
   name         String
-  description  String
+  description  String?     @default("")
   price        Decimal
   transferPrice Decimal?
-  stock        Int
+  stock        Int         @default(0)
   imageUrl     String?
   type         String      // TINTO | BLANCO | ROSADO | ESPUMANTE
-  varietal     String
-  year         Int
-  winery       String
-  region       String
+  varietal     String?     @default("")
+  year         Int?
+  winery       String?     @default("")
+  region       String?     @default("")
   tastingNotes String?
   pairing      String?
   active       Boolean     @default(true)
