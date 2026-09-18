@@ -20,14 +20,19 @@ export const CartProvider = ({ children }) => {
   }, []);
 
   const addToCart = (product, quantity) => {
+    const productId = product.id || product._id;
     setItems((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id || item.product._id === product._id);
+      const existing = prev.find((item) => {
+        const itemId = item.product.id || item.product._id;
+        return itemId === productId;
+      });
       if (existing) {
-        return prev.map((item) =>
-          (item.product.id === product.id || item.product._id === product._id)
+        return prev.map((item) => {
+          const itemId = item.product.id || item.product._id;
+          return itemId === productId
             ? { ...item, quantity: Math.min(item.quantity + quantity, product.stock) }
-            : item
-        );
+            : item;
+        });
       }
       return [...prev, { product, quantity: Math.min(quantity, product.stock) }];
     });
@@ -44,13 +49,17 @@ export const CartProvider = ({ children }) => {
   };
 
   const removeFromCart = (productId) => {
-    setItems((prev) => prev.filter((item) => item.product.id !== productId && item.product._id !== productId));
+    setItems((prev) => prev.filter((item) => {
+      const itemId = item.product.id || item.product._id;
+      return itemId !== productId;
+    }));
   };
 
   const updateQuantity = (productId, quantity) => {
     setItems((prev) =>
       prev.map((item) => {
-        if (item.product.id === productId || item.product._id === productId) {
+        const itemId = item.product.id || item.product._id;
+        if (itemId === productId) {
           return { ...item, quantity: Math.min(quantity, item.product.stock) };
         }
         return item;
