@@ -24,6 +24,19 @@ const CatalogPage = () => {
     return init;
   });
 
+  // Sync filters when URL search params change externally (e.g. header links)
+  useEffect(() => {
+    const urlType = searchParams.get('type');
+    const currentType = filters.type?.join(',') || '';
+    if (urlType !== currentType) {
+      setFilters(prev => ({
+        ...prev,
+        type: urlType ? urlType.split(',') : undefined,
+      }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   // Dynamic SEO based on active filters
   const typeFilterText = filters.type?.length === 1 ? `Vinos ${filters.type[0]}` : null;
   const pageTitle = typeFilterText
