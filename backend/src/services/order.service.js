@@ -66,7 +66,11 @@ export const createOrder = async (data, userId) => {
       }
     });
 
-    const whatsappLink = generateWhatsAppLink(order, order.items);
+    const whatsappLink = generateWhatsAppLink({
+      ...order,
+      customerProvince: data.customerProvince,
+      customerPostalCode: data.customerPostalCode,
+    }, order.items);
     return { order, whatsappLink };
   });
 };

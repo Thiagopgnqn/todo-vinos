@@ -6,7 +6,20 @@ export const generateWhatsAppLink = (order, items) => {
   message += `*Teléfono:* ${order.customerPhone}\n`;
   message += `*Entrega:* Envío a domicilio\n`;
   
-  if (order.customerAddress) {
+  if (order.customerProvince) {
+    message += `*Provincia:* ${order.customerProvince}\n`;
+  }
+  if (order.customerPostalCode) {
+    message += `*Código Postal:* ${order.customerPostalCode}\n`;
+  }
+  // When individual fields are present, extract just the street address from the concatenated field
+  if (order.customerProvince && order.customerAddress) {
+    // customerAddress is "street, CP xxxx, province" — extract just the street part
+    const streetOnly = order.customerAddress.split(',')[0]?.trim();
+    if (streetOnly) {
+      message += `*Dirección:* ${streetOnly}\n`;
+    }
+  } else if (order.customerAddress) {
     message += `*Dirección:* ${order.customerAddress}\n`;
   }
 

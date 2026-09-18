@@ -7,6 +7,8 @@ export const createOrderSchema = z.object({
   customerPhone: z.string().min(6),
   customerEmail: z.string().email(),
   customerAddress: z.string().optional(),
+  customerProvince: z.string().optional(),
+  customerPostalCode: z.string().optional(),
   deliveryMethod: z.enum(['PICKUP', 'DELIVERY']),
   comments: z.string().optional(),
   items: z.array(z.object({

@@ -16,6 +16,8 @@ const CheckoutForm = () => {
     customerName: '',
     customerPhone: '',
     customerEmail: '',
+    customerProvince: '',
+    customerPostalCode: '',
     customerAddress: '',
     deliveryMethod: 'DELIVERY',
     comments: '',
@@ -52,11 +54,19 @@ const CheckoutForm = () => {
     }
     
     try {
+      const fullAddress = [
+        formData.customerAddress.trim(),
+        `CP ${formData.customerPostalCode.trim()}`,
+        formData.customerProvince.trim(),
+      ].filter(Boolean).join(', ');
+
       const orderData = {
         customerName: formData.customerName.trim(),
         customerPhone: formData.customerPhone.trim(),
         customerEmail: formData.customerEmail.trim(),
-        customerAddress: formData.customerAddress.trim(),
+        customerAddress: fullAddress,
+        customerProvince: formData.customerProvince.trim(),
+        customerPostalCode: formData.customerPostalCode.trim(),
         deliveryMethod: formData.deliveryMethod,
         comments: formData.comments?.trim() || undefined,
         items: items.map(item => ({
@@ -160,17 +170,39 @@ const CheckoutForm = () => {
         <h2 className="font-playfair text-xl sm:text-2xl font-bold text-gray-900 mb-1">2. Dirección de Envío</h2>
         <p className="text-xs text-gray-500 mb-4">Indicá dónde querés recibir tus vinos</p>
 
-        <div className="space-y-1">
+        <div className="space-y-4">
           <Input 
-            label="Dirección completa y localidad" 
-            name="customerAddress" 
+            label="Provincia" 
+            name="customerProvince" 
             required 
-            value={formData.customerAddress} 
+            value={formData.customerProvince} 
             onChange={handleChange} 
-            placeholder="Ej: Av. Santa Fe 1234, Piso 4B, Córdoba"
+            placeholder="Ej: Buenos Aires, Córdoba, Santa Fe"
           />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input 
+              label="Código Postal" 
+              name="customerPostalCode" 
+              required 
+              value={formData.customerPostalCode} 
+              onChange={handleChange} 
+              placeholder="Ej: 5000"
+            />
+            <Input 
+              label="Dirección" 
+              name="customerAddress" 
+              required 
+              value={formData.customerAddress} 
+              onChange={handleChange} 
+              placeholder="Ej: Av. Santa Fe 1234, Piso 4B"
+            />
+          </div>
           <AddressMap 
-            address={formData.customerAddress}
+            address={
+              [formData.customerAddress, formData.customerPostalCode, formData.customerProvince]
+                .filter(v => v && v.trim().length > 0)
+                .join(', ')
+            }
             onAddressConfirmed={(data) => {
               console.log('Dirección confirmada:', data);
             }}
