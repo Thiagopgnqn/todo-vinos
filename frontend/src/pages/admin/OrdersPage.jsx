@@ -73,19 +73,28 @@ const OrdersPage = () => {
                 <p className="text-xs text-gray-400 font-mono">ID: {selectedOrder.id || selectedOrder._id}</p>
                 <p className="text-sm text-gray-600 font-medium">Fecha: {new Date(selectedOrder.createdAt).toLocaleString('es-AR')}</p>
               </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-gray-500">Estado:</span>
-                <select 
-                  className="rounded-md border-gray-300 text-sm font-semibold focus:border-wine focus:ring-wine py-1.5 px-2.5"
-                  value={(selectedOrder.status || 'PENDING').toUpperCase()}
-                  onChange={(e) => handleStatusChange(selectedOrder.id || selectedOrder._id, e.target.value)}
-                >
-                  <option value="PENDING">Pendiente</option>
-                  <option value="CONFIRMED">Confirmado</option>
-                  <option value="DELIVERED">Entregado</option>
-                  <option value="CANCELLED">Cancelado</option>
-                </select>
+            <div className="flex flex-col items-end gap-1.5">
+              <span className="text-xs text-gray-500 font-medium">Estado del pedido:</span>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { value: 'PENDING', label: 'Pendiente', colors: 'bg-yellow-100 text-yellow-800 border-yellow-300 ring-yellow-400', activeColors: 'bg-yellow-500 text-white border-yellow-600' },
+                  { value: 'CONFIRMED', label: 'Confirmado', colors: 'bg-blue-100 text-blue-800 border-blue-300 ring-blue-400', activeColors: 'bg-blue-500 text-white border-blue-600' },
+                  { value: 'DELIVERED', label: 'Entregado', colors: 'bg-green-100 text-green-800 border-green-300 ring-green-400', activeColors: 'bg-green-500 text-white border-green-600' },
+                  { value: 'CANCELLED', label: 'Cancelado', colors: 'bg-red-100 text-red-800 border-red-300 ring-red-400', activeColors: 'bg-red-500 text-white border-red-600' },
+                ].map(s => {
+                  const isActive = (selectedOrder.status || 'PENDING').toUpperCase() === s.value;
+                  return (
+                    <button
+                      key={s.value}
+                      onClick={() => !isActive && handleStatusChange(selectedOrder.id || selectedOrder._id, s.value)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${isActive ? `${s.activeColors} shadow-sm cursor-default ring-2 ring-offset-1` : `${s.colors} hover:opacity-80 cursor-pointer`}`}
+                    >
+                      {s.label}
+                    </button>
+                  );
+                })}
               </div>
+            </div>
             </div>
             
             <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
