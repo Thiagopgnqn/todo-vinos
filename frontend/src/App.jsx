@@ -22,6 +22,7 @@ import ProductsPage from './pages/admin/ProductsPage';
 import WineTypesPage from './pages/admin/WineTypesPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import UsersPage from './pages/admin/UsersPage';
+import ScrollToTop from './components/ScrollToTop';
 
 const ProtectedAdminRoute = ({ children }) => {
   const { user, loading, isAdmin, logout } = useAuth();
@@ -92,6 +93,7 @@ const ProtectedAdminRoute = ({ children }) => {
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <CartProvider>
           <Routes>
