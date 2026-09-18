@@ -71,7 +71,7 @@ const AddressMap = ({ address, onAddressConfirmed }) => {
     setConfirmed(false);
 
     try {
-      const encodedQuery = encodeURIComponent(query + ', Córdoba, Argentina');
+      const encodedQuery = encodeURIComponent(query + ', Argentina');
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodedQuery}&limit=1&addressdetails=1`,
         { headers: { 'Accept-Language': 'es' } }
