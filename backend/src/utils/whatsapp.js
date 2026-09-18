@@ -9,6 +9,9 @@ export const generateWhatsAppLink = (order, items) => {
   if (order.customerProvince) {
     message += `*Provincia:* ${order.customerProvince}\n`;
   }
+  if (order.customerCity) {
+    message += `*Ciudad:* ${order.customerCity}\n`;
+  }
   if (order.customerPostalCode) {
     message += `*Código Postal:* ${order.customerPostalCode}\n`;
   }

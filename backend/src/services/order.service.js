@@ -69,6 +69,7 @@ export const createOrder = async (data, userId) => {
     const whatsappLink = generateWhatsAppLink({
       ...order,
       customerProvince: data.customerProvince,
+      customerCity: data.customerCity,
       customerPostalCode: data.customerPostalCode,
     }, order.items);
     return { order, whatsappLink };

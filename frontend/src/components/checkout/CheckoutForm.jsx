@@ -17,6 +17,7 @@ const CheckoutForm = () => {
     customerPhone: '',
     customerEmail: '',
     customerProvince: '',
+    customerCity: '',
     customerPostalCode: '',
     customerAddress: '',
     deliveryMethod: 'DELIVERY',
@@ -56,6 +57,7 @@ const CheckoutForm = () => {
     try {
       const fullAddress = [
         formData.customerAddress.trim(),
+        formData.customerCity.trim(),
         `CP ${formData.customerPostalCode.trim()}`,
         formData.customerProvince.trim(),
       ].filter(Boolean).join(', ');
@@ -66,6 +68,7 @@ const CheckoutForm = () => {
         customerEmail: formData.customerEmail.trim(),
         customerAddress: fullAddress,
         customerProvince: formData.customerProvince.trim(),
+        customerCity: formData.customerCity.trim(),
         customerPostalCode: formData.customerPostalCode.trim(),
         deliveryMethod: formData.deliveryMethod,
         comments: formData.comments?.trim() || undefined,
@@ -179,6 +182,14 @@ const CheckoutForm = () => {
             onChange={handleChange} 
             placeholder="Ej: Buenos Aires, Córdoba, Santa Fe"
           />
+          <Input 
+            label="Ciudad / Localidad" 
+            name="customerCity" 
+            required 
+            value={formData.customerCity} 
+            onChange={handleChange} 
+            placeholder="Ej: Córdoba Capital, Rosario, La Plata"
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input 
               label="Código Postal" 
@@ -199,7 +210,7 @@ const CheckoutForm = () => {
           </div>
           <AddressMap 
             address={
-              [formData.customerAddress, formData.customerPostalCode, formData.customerProvince]
+              [formData.customerAddress, formData.customerCity, formData.customerPostalCode, formData.customerProvince]
                 .filter(v => v && v.trim().length > 0)
                 .join(', ')
             }
