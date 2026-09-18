@@ -38,18 +38,6 @@ const ProductPage = () => {
     fetchProduct();
   }, [id]);
 
-  if (loading) return <div className="py-20 flex justify-center"><Spinner size="lg" /></div>;
-  if (error || !product) return (
-    <div className="py-20 text-center">
-      <p className="text-xl text-red-600 mb-4">{error || 'Producto no encontrado'}</p>
-      <Link to="/catalogo" className="text-wine underline font-medium">Volver al catálogo</Link>
-    </div>
-  );
-
-  const handleAdd = () => {
-    addToCart(product, quantity);
-  };
-
   const imageUrl = product?.imageUrl || product?.image;
   const typeKey = (product?.type || 'TINTO').toUpperCase();
   const bgGradient = wineTypeGradients[typeKey] || 'from-gray-700 to-gray-900';
@@ -86,6 +74,18 @@ const ProductPage = () => {
       },
     },
   } : {});
+
+  if (loading) return <div className="py-20 flex justify-center"><Spinner size="lg" /></div>;
+  if (error || !product) return (
+    <div className="py-20 text-center">
+      <p className="text-xl text-red-600 mb-4">{error || 'Producto no encontrado'}</p>
+      <Link to="/catalogo" className="text-wine underline font-medium">Volver al catálogo</Link>
+    </div>
+  );
+
+  const handleAdd = () => {
+    addToCart(product, quantity);
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
