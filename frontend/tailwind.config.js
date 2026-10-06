@@ -15,7 +15,16 @@ export default {
       fontFamily: {
         playfair: ['"Playfair Display"', 'serif'],
         inter: ['Inter', 'sans-serif'],
-      }
+      },
+      keyframes: {
+        'scroll-reviews': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
+      animation: {
+        'scroll-reviews': 'scroll-reviews 40s linear infinite',
+      },
     },
   },
   plugins: [

@@ -3,25 +3,53 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const getProducts = async (filters) => {
-  const { page = 1, limit = 10, type, varietal, winery, region, year, minPrice, maxPrice, search, sort } = filters;
+  const { page = 1, limit = 9, type, varietal, winery, region, year, minPrice, maxPrice, search, sort } = filters;
   
   const where = { active: true };
 
+  // Collect all AND conditions for filters that need OR sub-queries
+  const andConditions = [];
+
   if (type) {
     const rawTypes = type.split(',').map(t => t.trim()).filter(Boolean);
-    const expandedTypes = Array.from(new Set(
-      rawTypes.flatMap(t => [
-        t,
-        t.toUpperCase(),
-        t.toLowerCase(),
-        t.charAt(0).toUpperCase() + t.slice(1).toLowerCase(),
-      ])
-    ));
-    where.type = { in: expandedTypes };
+    const typeConditions = rawTypes.map(t => ({
+      OR: [
+        { type: { contains: t, mode: 'insensitive' } },
+        { name: { contains: t, mode: 'insensitive' } },
+      ]
+    }));
+    andConditions.push({ OR: typeConditions });
   }
-  if (varietal) where.varietal = varietal;
-  if (winery) where.winery = winery;
-  if (region) where.region = region;
+
+  if (varietal) {
+    const varietals = varietal.split(',').map(v => v.trim()).filter(Boolean);
+    const varietalConditions = varietals.map(v => ({
+      OR: [
+        { varietal: { contains: v, mode: 'insensitive' } },
+        { name: { contains: v, mode: 'insensitive' } },
+      ]
+    }));
+    andConditions.push({ OR: varietalConditions });
+  }
+
+  if (winery) {
+    andConditions.push({
+      OR: [
+        { winery: { contains: winery, mode: 'insensitive' } },
+        { name: { contains: winery, mode: 'insensitive' } },
+      ]
+    });
+  }
+
+  if (region) {
+    andConditions.push({
+      OR: [
+        { region: { contains: region, mode: 'insensitive' } },
+        { name: { contains: region, mode: 'insensitive' } },
+      ]
+    });
+  }
+
   if (year) where.year = parseInt(year);
   if (minPrice || maxPrice) {
     where.price = {};
@@ -29,10 +57,19 @@ export const getProducts = async (filters) => {
     if (maxPrice) where.price.lte = parseFloat(maxPrice);
   }
   if (search) {
-    where.OR = [
-      { name: { contains: search } },
-      { winery: { contains: search } }
-    ];
+    andConditions.push({
+      OR: [
+        { name: { contains: search, mode: 'insensitive' } },
+        { winery: { contains: search, mode: 'insensitive' } },
+        { varietal: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ]
+    });
+  }
+
+  // Combine all AND conditions
+  if (andConditions.length > 0) {
+    where.AND = andConditions;
   }
 
   let orderBy = { createdAt: 'desc' };

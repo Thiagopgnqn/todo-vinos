@@ -267,7 +267,7 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:block lg:w-64 flex-shrink-0">
-        <div className="sticky top-24 bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
           {content}
         </div>
       </div>
