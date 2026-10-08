@@ -10,6 +10,8 @@ export const themeConfig = {
   brand: {
     name: 'TODO VINOS',
     tagline: 'Cava Online & Bodegas Seleccionadas',
+    logo: '/logo.png',
+    favicon: '/favicon-32x32.png',
     description: 'Colección curada de bodegas seleccionadas y etiquetas de autor de Argentina. Envíos con embalaje seguro a todo el país.',
     currencySymbol: '$',
     currencyCode: 'ARS',
