@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { FaTrash } from 'react-icons/fa';
+import { FiTrash2, FiPlus, FiMinus, FiShoppingBag } from 'react-icons/fi';
 import useCart from '../../hooks/useCart';
+import themeConfig from '../../config/theme';
 
 const CartItem = ({ item }) => {
   const { updateQuantity, removeFromCart } = useCart();
@@ -19,9 +20,12 @@ const CartItem = ({ item }) => {
     }
   };
 
+  const unitTotal = (Number(product.price) * quantity).toLocaleString('es-AR');
+
   return (
-    <div className="flex py-6 border-b border-gray-200">
-      <div className="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 bg-gray-100 flex items-center justify-center">
+    <div className="flex py-5 gap-4 border-b border-zinc-100 items-center">
+      {/* Thumbnail de producto */}
+      <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded border border-zinc-200 bg-zinc-100 flex items-center justify-center">
         {(product.imageUrl || product.image) ? (
           <img 
             src={product.imageUrl || product.image} 
@@ -30,33 +34,72 @@ const CartItem = ({ item }) => {
             onError={(e) => { e.target.style.display = 'none'; }}
           />
         ) : (
-          <div className="h-full w-full flex items-center justify-center text-gray-400 text-xl bg-gray-50">🍷</div>
+          <FiShoppingBag className="text-zinc-400 text-xl" />
         )}
       </div>
 
-      <div className="ml-4 flex flex-1 flex-col">
+      {/* Info y Controles */}
+      <div className="flex flex-1 flex-col justify-between">
         <div>
-          <div className="flex justify-between text-base font-medium text-gray-900">
-            <h3 className="line-clamp-2">
-              <Link to={`/producto/${product._id || product.id}`} className="hover:text-wine transition-colors">
-                {product.name}
-              </Link>
-            </h3>
-            <p className="ml-4 font-bold text-wine">${(Number(product.price) * quantity).toLocaleString('es-AR')}</p>
+          <div className="flex justify-between items-start gap-2">
+            <div>
+              {product.winery && (
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 mb-0.5">
+                  {product.winery}
+                </p>
+              )}
+              <h3 className="font-medium text-sm text-zinc-900 line-clamp-1">
+                <Link to={`/producto/${product._id || product.id}`} className="hover:underline">
+                  {product.name}
+                </Link>
+              </h3>
+              {(product.varietal || product.year) && (
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  {[product.varietal, product.year].filter(Boolean).join(' • ')}
+                </p>
+              )}
+            </div>
+
+            <p className="font-semibold text-zinc-900 text-sm whitespace-nowrap ml-2">
+              {themeConfig.brand.currencySymbol}{unitTotal}
+            </p>
           </div>
-          <p className="mt-1 text-sm text-gray-500">{product.winery}</p>
         </div>
-        <div className="flex flex-1 items-end justify-between text-sm">
-          <div className="flex items-center border border-gray-300 rounded">
-            <button onClick={handleDecrease} className="px-2 py-1 text-gray-600 hover:bg-gray-100">-</button>
-            <span className="px-4 py-1 text-gray-900 font-medium border-l border-r border-gray-300">{quantity}</span>
-            <button onClick={handleIncrease} disabled={quantity >= product.stock} className="px-2 py-1 text-gray-600 hover:bg-gray-100 disabled:opacity-50">+</button>
-          </div>
-          <div className="flex">
-            <button type="button" onClick={() => removeFromCart(product._id || product.id)} className="font-medium text-red-600 hover:text-red-500 flex items-center">
-              <FaTrash className="mr-1" /> Eliminar
+
+        {/* Stepper y botón eliminar */}
+        <div className="flex items-center justify-between mt-3">
+          <div className="inline-flex items-center border border-zinc-200 rounded bg-white">
+            <button 
+              onClick={handleDecrease} 
+              className="p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+              title="Disminuir una unidad"
+              aria-label="Disminuir una unidad"
+            >
+              <FiMinus size={11} />
+            </button>
+            <span className="px-3 text-xs font-medium text-zinc-900 select-none">
+              {quantity}
+            </span>
+            <button 
+              onClick={handleIncrease} 
+              disabled={quantity >= product.stock} 
+              className="p-1.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 disabled:opacity-30 transition-colors"
+              title="Aumentar una unidad"
+              aria-label="Aumentar una unidad"
+            >
+              <FiPlus size={11} />
             </button>
           </div>
+
+          <button 
+            type="button" 
+            onClick={() => removeFromCart(product._id || product.id)} 
+            className="text-xs text-zinc-400 hover:text-rose-600 flex items-center gap-1 transition-colors p-1"
+            title="Quitar del carrito"
+          >
+            <FiTrash2 size={13} /> 
+            <span className="hidden sm:inline">Quitar</span>
+          </button>
         </div>
       </div>
     </div>

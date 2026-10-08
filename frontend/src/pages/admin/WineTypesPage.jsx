@@ -3,7 +3,7 @@ import client from '../../api/client';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Spinner from '../../components/ui/Spinner';
-import { FaPlus, FaTrash, FaWineGlassAlt, FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
+import { FiPlus, FiTrash2, FiTag, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 
 const WineTypesPage = () => {
   const [types, setTypes] = useState([]);
@@ -19,10 +19,10 @@ const WineTypesPage = () => {
       const res = await client.get('/wine-types');
       setTypes(res.data);
     } catch (err) {
-      console.error('Error fetching wine types:', err);
+      console.error('Error fetching categories:', err);
       setFeedback({
         type: 'error',
-        message: 'No se pudieron cargar los tipos de vino.',
+        message: 'No se pudieron cargar las categorías de productos.',
       });
     } finally {
       setLoading(false);
@@ -45,11 +45,11 @@ const WineTypesPage = () => {
       setNewTypeName('');
       setFeedback({
         type: 'success',
-        message: `Tipo de vino "${newTypeName.trim()}" creado con éxito.`,
+        message: `Categoría "${newTypeName.trim()}" creada con éxito.`,
       });
       await fetchTypes();
     } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.message || 'Error al crear el tipo de vino.';
+      const msg = err.response?.data?.error || err.response?.data?.message || 'Error al crear la categoría.';
       setFeedback({ type: 'error', message: msg });
     } finally {
       setCreating(false);
@@ -58,11 +58,11 @@ const WineTypesPage = () => {
 
   const handleDelete = async (id, name, productCount) => {
     if (productCount > 0) {
-      alert(`No se puede eliminar "${name}" porque tiene ${productCount} producto(s) asignado(s). Reasigna o elimina los productos primero.`);
+      alert(`No se puede eliminar "${name}" porque tiene ${productCount} producto(s) asignado(s). Reasigná o eliminá los productos primero.`);
       return;
     }
 
-    if (!window.confirm(`¿Estás seguro de que querés eliminar el tipo de vino "${name}"?`)) {
+    if (!window.confirm(`¿Estás seguro de que querés eliminar la categoría "${name}"?`)) {
       return;
     }
 
@@ -73,11 +73,11 @@ const WineTypesPage = () => {
       await client.delete(`/wine-types/${id}`);
       setFeedback({
         type: 'success',
-        message: `Tipo de vino "${name}" eliminado con éxito.`,
+        message: `Categoría "${name}" eliminada con éxito.`,
       });
       await fetchTypes();
     } catch (err) {
-      const msg = err.response?.data?.error || err.response?.data?.message || 'Error al eliminar el tipo de vino.';
+      const msg = err.response?.data?.error || err.response?.data?.message || 'Error al eliminar la categoría.';
       setFeedback({ type: 'error', message: msg });
     } finally {
       setDeletingId(null);
@@ -87,43 +87,45 @@ const WineTypesPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 font-playfair">Tipos de Vino</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Administrá las categorías de vino disponibles. Los tipos que crees acá se usarán tanto al cargar productos como en los filtros del catálogo.
+      <div className="pb-5 border-b border-zinc-200">
+        <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-semibold">Configuración &bull; Catálogo</span>
+        <h1 className="text-2xl font-semibold text-zinc-900 mt-0.5">Categorías &amp; Tipos</h1>
+        <p className="text-xs text-zinc-500 mt-0.5">
+          Administrá las categorías de productos disponibles para la asignación en catálogo y los filtros de navegación.
         </p>
       </div>
 
       {/* Feedback banner */}
       {feedback.message && (
         <div
-          className={`p-4 rounded-xl flex items-center gap-3 border ${
+          className={`p-3.5 rounded-md flex items-center gap-2.5 border text-xs font-medium ${
             feedback.type === 'success'
-              ? 'bg-green-50 border-green-200 text-green-800'
-              : 'bg-red-50 border-red-200 text-red-800'
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+              : 'bg-rose-50 border-rose-200 text-rose-800'
           }`}
         >
           {feedback.type === 'success' ? (
-            <FaCheckCircle className="text-green-600 flex-shrink-0" />
+            <FiCheckCircle className="text-emerald-700 flex-shrink-0" size={16} />
           ) : (
-            <FaExclamationCircle className="text-red-600 flex-shrink-0" />
+            <FiAlertCircle className="text-rose-700 flex-shrink-0" size={16} />
           )}
-          <span className="text-sm font-medium">{feedback.message}</span>
+          <span>{feedback.message}</span>
         </div>
       )}
 
-      {/* Formulario nuevo tipo */}
-      <div className="bg-white p-6 rounded-2xl shadow-xs border border-gray-200">
-        <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <FaPlus className="text-wine text-sm" /> Agregar Nuevo Tipo de Vino
+      {/* Formulario nueva categoría */}
+      <div className="bg-white p-5 rounded-lg border border-zinc-200">
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-3 flex items-center gap-1.5">
+          <FiPlus className="text-zinc-600" /> Nueva Categoría
         </h2>
-        <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1">
+        <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-3 items-end">
+          <div className="flex-1 w-full">
             <Input
               name="name"
+              label="Nombre de la Categoría *"
               value={newTypeName}
               onChange={(e) => setNewTypeName(e.target.value)}
-              placeholder="Ej: Orgánico, Naranjo, Dulce Natural, Fortificado..."
+              placeholder="Ej: Calzado, Hogar, Accesorios, Edición Limitada..."
               required
             />
           </div>
@@ -132,76 +134,64 @@ const WineTypesPage = () => {
             variant="primary"
             loading={creating}
             disabled={creating || !newTypeName.trim()}
-            className="whitespace-nowrap px-6"
+            className="whitespace-nowrap px-5 py-2.5 text-xs sm:text-sm"
           >
-            <FaPlus className="mr-2" /> Crear Tipo
+            <FiPlus className="mr-1.5" /> Crear Categoría
           </Button>
         </form>
       </div>
 
-      {/* Lista de tipos existentes */}
-      <div className="bg-white rounded-2xl shadow-xs border border-gray-200 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50/60">
-          <h2 className="text-base font-bold text-gray-900 flex items-center gap-2">
-            <FaWineGlassAlt className="text-wine" /> Tipos de Vino Actuales ({types.length})
+      {/* Lista de categorías */}
+      <div className="bg-white rounded-lg border border-zinc-200 overflow-hidden">
+        <div className="px-5 py-4 border-b border-zinc-200 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-zinc-900">
+            Categorías Registradas ({types.length})
           </h2>
         </div>
 
         {loading ? (
-          <div className="py-16 flex justify-center items-center">
-            <Spinner size="lg" />
+          <div className="py-16 flex justify-center">
+            <Spinner text="Cargando categorías..." />
           </div>
         ) : types.length === 0 ? (
-          <div className="py-12 text-center text-gray-500">
-            No hay tipos de vino registrados. Creá el primero arriba.
+          <div className="p-8 text-center text-xs text-zinc-500">
+            No hay categorías creadas.
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {types.map((item) => (
-              <div
-                key={item.id}
-                className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-wine/10 text-wine flex items-center justify-center font-bold text-base">
-                    🍷
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-900 text-base">{item.name}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                      {item.productCount === 0 ? (
-                        <span className="text-gray-400">Sin productos asignados</span>
-                      ) : (
-                        <span className="text-wine font-medium">
-                          {item.productCount} {item.productCount === 1 ? 'producto vinculado' : 'productos vinculados'}
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
+          <div className="divide-y divide-zinc-100">
+            {types.map((type) => {
+              const count = type._count?.products || 0;
+              const isDeleting = deletingId === type.id;
 
-                <div>
+              return (
+                <div
+                  key={type.id}
+                  className="px-5 py-3.5 flex items-center justify-between hover:bg-zinc-50/60 transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 rounded bg-zinc-100 flex items-center justify-center text-zinc-500">
+                      <FiTag size={14} />
+                    </div>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-medium text-zinc-900">{type.name}</h4>
+                      <p className="text-[11px] text-zinc-400">
+                        {count} {count === 1 ? 'producto asignado' : 'productos asignados'}
+                      </p>
+                    </div>
+                  </div>
+
                   <button
                     type="button"
-                    onClick={() => handleDelete(item.id, item.name, item.productCount)}
-                    disabled={deletingId === item.id || item.productCount > 0}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                      item.productCount > 0
-                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed'
-                        : 'text-red-600 bg-red-50 hover:bg-red-100'
-                    }`}
-                    title={
-                      item.productCount > 0
-                        ? 'No se puede eliminar porque tiene productos asociados'
-                        : 'Eliminar tipo'
-                    }
+                    onClick={() => handleDelete(type.id, type.name, count)}
+                    disabled={isDeleting || count > 0}
+                    className="p-1.5 text-zinc-400 hover:text-rose-600 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    title={count > 0 ? 'No se puede eliminar con productos asignados' : 'Eliminar categoría'}
                   >
-                    <FaTrash size={12} />
-                    <span>Eliminar</span>
+                    <FiTrash2 size={14} />
                   </button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -210,4 +200,3 @@ const WineTypesPage = () => {
 };
 
 export default WineTypesPage;
-

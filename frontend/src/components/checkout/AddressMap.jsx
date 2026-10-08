@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { FiMapPin, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
 
 // Fix default marker icon (leaflet + bundlers issue)
 delete L.Icon.Default.prototype._getIconUrl;
@@ -47,7 +48,6 @@ const DraggableMarker = ({ position, onDragEnd }) => {
 };
 
 const AddressMap = ({ address, onAddressConfirmed }) => {
-  // Default center: Córdoba, Argentina
   const defaultCenter = [-31.4201, -64.1888];
   const [position, setPosition] = useState(null);
   const [searching, setSearching] = useState(false);
@@ -56,7 +56,6 @@ const AddressMap = ({ address, onAddressConfirmed }) => {
   const [error, setError] = useState('');
   const debounceTimer = useRef(null);
 
-  // Geocode address using Nominatim (OpenStreetMap)
   const geocodeAddress = useCallback(async (query) => {
     if (!query || query.length < 5) {
       setPosition(null);
@@ -86,16 +85,15 @@ const AddressMap = ({ address, onAddressConfirmed }) => {
       } else {
         setPosition(null);
         setResolvedAddress('');
-        setError('No se encontró la dirección. Intentá ser más específico.');
+        setError('No se encontró el punto exacto en el mapa. Podés ingresar la dirección normalmente.');
       }
     } catch {
-      setError('Error al buscar la dirección. Verificá tu conexión.');
+      setError('Error al consultar el mapa de entrega.');
     } finally {
       setSearching(false);
     }
   }, []);
 
-  // Reverse geocode when marker is dragged
   const reverseGeocode = useCallback(async (latlng) => {
     try {
       const response = await fetch(
@@ -111,7 +109,6 @@ const AddressMap = ({ address, onAddressConfirmed }) => {
     }
   }, []);
 
-  // Debounced geocoding when address changes
   useEffect(() => {
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
@@ -144,9 +141,9 @@ const AddressMap = ({ address, onAddressConfirmed }) => {
   };
 
   return (
-    <div className="mt-3 rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-      {/* Map */}
-      <div className="relative h-52 sm:h-64 w-full">
+    <div className="mt-3 rounded-lg overflow-hidden border border-zinc-200 bg-zinc-50 shadow-soft">
+      {/* Map Container */}
+      <div className="relative h-56 sm:h-64 w-full">
         <MapContainer
           center={position || defaultCenter}
           zoom={position ? 16 : 13}
@@ -162,31 +159,30 @@ const AddressMap = ({ address, onAddressConfirmed }) => {
           <DraggableMarker position={position} onDragEnd={handleMarkerDrag} />
         </MapContainer>
 
-        {/* Loading overlay */}
         {searching && (
-          <div className="absolute inset-0 bg-white/60 backdrop-blur-sm flex items-center justify-center z-10">
-            <div className="flex items-center space-x-2 bg-white px-4 py-2 rounded-lg shadow-sm">
-              <div className="w-4 h-4 border-2 border-wine border-t-transparent rounded-full animate-spin" />
-              <span className="text-sm text-gray-600">Buscando dirección...</span>
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-xs flex items-center justify-center z-10">
+            <div className="flex items-center space-x-2 bg-white px-3.5 py-2 rounded-md shadow-soft border border-zinc-200">
+              <div className="w-3.5 h-3.5 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin" />
+              <span className="text-xs font-medium text-zinc-800">Localizando dirección...</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Info / Confirmation area */}
-      <div className="p-3 space-y-2">
+      {/* Info / Confirmation Footer */}
+      <div className="p-3.5 space-y-2 bg-white border-t border-zinc-200">
         {error && (
-          <p className="text-xs text-red-500 flex items-center">
-            <span className="mr-1">⚠️</span> {error}
+          <p className="text-xs text-amber-700 flex items-center gap-1.5 font-normal">
+            <FiAlertTriangle size={13} /> {error}
           </p>
         )}
 
         {position && resolvedAddress && !error && (
           <>
             <div className="flex items-start space-x-2">
-              <span className="text-base mt-0.5">📍</span>
-              <p className="text-xs text-gray-600 leading-relaxed flex-1">
-                <span className="font-semibold text-gray-800">Dirección encontrada: </span>
+              <FiMapPin className="text-zinc-700 text-sm mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-zinc-600 leading-relaxed flex-1">
+                <span className="font-medium text-zinc-900">Ubicación detectada: </span>
                 {resolvedAddress}
               </p>
             </div>
@@ -195,33 +191,32 @@ const AddressMap = ({ address, onAddressConfirmed }) => {
               <button
                 type="button"
                 onClick={handleConfirm}
-                className="w-full flex items-center justify-center space-x-1.5 bg-wine hover:bg-wine/90 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors"
+                className="w-full flex items-center justify-center space-x-1.5 bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium py-2 rounded-md transition-colors"
               >
-                <span>✅</span>
-                <span>Confirmar Ubicación</span>
+                <span>Confirmar punto en el mapa</span>
               </button>
             ) : (
-              <div className="flex items-center space-x-1.5 text-green-700 bg-green-50 px-3 py-2 rounded-lg border border-green-200">
-                <span>✅</span>
-                <span className="text-xs font-semibold">Ubicación confirmada</span>
+              <div className="flex items-center space-x-1.5 text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded border border-emerald-200">
+                <FiCheckCircle className="text-xs" />
+                <span className="text-xs font-medium">Ubicación confirmada para logística</span>
               </div>
             )}
 
-            <p className="text-[10px] text-gray-400 text-center">
-              Podés arrastrar el marcador 📌 para ajustar la ubicación exacta
+            <p className="text-[11px] text-zinc-400 text-center font-normal">
+              Podés mover el marcador en el mapa para mayor precisión de entrega
             </p>
           </>
         )}
 
         {!position && !error && !searching && address && address.length >= 5 && (
-          <p className="text-xs text-gray-400 text-center py-1">
-            Buscando tu dirección en el mapa...
+          <p className="text-xs text-zinc-400 text-center py-1 font-normal">
+            Localizando en el mapa...
           </p>
         )}
 
         {!address && (
-          <p className="text-xs text-gray-400 text-center py-1">
-            📍 Escribí tu dirección arriba para verla en el mapa
+          <p className="text-xs text-zinc-400 text-center py-1 font-normal">
+            Completá la dirección arriba para visualizar el punto de entrega
           </p>
         )}
       </div>
@@ -230,4 +225,3 @@ const AddressMap = ({ address, onAddressConfirmed }) => {
 };
 
 export default AddressMap;
-

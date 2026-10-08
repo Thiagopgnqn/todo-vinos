@@ -1,36 +1,18 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useProducts from '../hooks/useProducts';
 import ProductGrid from '../components/catalog/ProductGrid';
 import Button from '../components/ui/Button';
 import useSEO from '../hooks/useSEO';
-import { FaTruck, FaAward, FaUserTie, FaStar, FaQuoteLeft } from 'react-icons/fa';
-
-const reviews = [
-  { name: 'Martín G.', location: 'Buenos Aires', rating: 5, text: 'Pedí un Malbec Reserva y llegó impecable, bien empaquetado. La atención por WhatsApp fue súper rápida. Ya hice 3 pedidos más.', date: 'Hace 2 semanas', color: 'bg-wine' },
-  { name: 'Carolina S.', location: 'Córdoba', rating: 5, text: 'Increíble la relación precio-calidad. Encontré vinos que en otras vinotecas salen el doble. El envío llegó en perfectas condiciones.', date: 'Hace 1 mes', color: 'bg-amber-700' },
-  { name: 'Diego R.', location: 'Rosario', rating: 5, text: 'Compré una caja de 6 botellas para un cumpleaños y fue un éxito total. Me asesoraron con el maridaje y acertaron en todo.', date: 'Hace 3 semanas', color: 'bg-emerald-700' },
-  { name: 'Lucía M.', location: 'Mendoza', rating: 5, text: 'Siendo de Mendoza soy exigente con los vinos, y la selección que tienen es excelente. El Cabernet Sauvignon que pedí estaba espectacular.', date: 'Hace 1 semana', color: 'bg-indigo-700' },
-  { name: 'Fernando T.', location: 'La Plata', rating: 4, text: 'Muy buena experiencia. El descuento por transferencia es un golazo. Lo único, me gustaría que tengan más espumantes.', date: 'Hace 2 meses', color: 'bg-rose-700' },
-  { name: 'Valentina P.', location: 'Tucumán', rating: 5, text: 'Regalé un vino para el día del padre y quedó hermoso. Me ayudaron a elegir uno especial y hasta le pusieron una nota. Divinos.', date: 'Hace 1 mes', color: 'bg-violet-700' },
-  { name: 'Alejandro B.', location: 'Mar del Plata', rating: 5, text: 'Ya soy cliente frecuente. Cada vez que necesito un buen vino para una cena, entro acá y siempre encuentro algo nuevo. 100% recomendable.', date: 'Hace 5 días', color: 'bg-teal-700' },
-  { name: 'Sofía L.', location: 'Salta', rating: 5, text: 'Pedí un Torrontés salteño que es difícil de conseguir online y lo tenían. Llegó perfecto y frío gracias al packaging. Volveré seguro.', date: 'Hace 3 semanas', color: 'bg-orange-700' },
-];
-
-const categories = [
-  { name: 'Tintos', type: 'TINTO', bg: 'from-[#3b0910] to-[#722F37]', icon: '🍷' },
-  { name: 'Blancos', type: 'BLANCO', bg: 'from-[#bda55d] to-[#e6d8a7]', icon: '🥂' },
-  { name: 'Rosados', type: 'ROSADO', bg: 'from-[#b84a62] to-[#d97d8f]', icon: '🌸' },
-  { name: 'Espumantes', type: 'ESPUMANTE', bg: 'from-[#8a7b4f] to-[#c2b078]', icon: '✨' },
-];
+import { FiArrowRight, FiTruck, FiShield, FiRefreshCw, FiMessageSquare } from 'react-icons/fi';
+import themeConfig from '../config/theme';
 
 const HomePage = () => {
   const { products, loading, fetchProducts } = useProducts();
 
   useSEO({
-    title: 'Todo Vinos — Vinoteca Online | Selección Exclusiva de Vinos Argentinos',
-    description: 'Comprá vinos argentinos online: Malbec, Cabernet, Chardonnay y Espumantes con envíos seguros y precios especiales por transferencia bancaria.',
-    keywords: 'vinoteca online, comprar vino argentina, malbec mendoza, todo vinos, vino tinto, bodega, vinos finos',
+    title: `${themeConfig.brand.name} — ${themeConfig.brand.tagline}`,
+    description: themeConfig.brand.description,
   });
 
   useEffect(() => {
@@ -38,128 +20,158 @@ const HomePage = () => {
   }, [fetchProducts]);
 
   return (
-    <div>
-      {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center bg-gray-900 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-wine via-[#3b0910] to-gray-900 opacity-85 z-10"></div>
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center mix-blend-overlay"></div>
-        
-        <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
-          <span className="text-gold tracking-[0.3em] uppercase text-sm font-semibold mb-4 block drop-shadow">
-            Cava &amp; Bodega Seleccionada
-          </span>
-          <h1 className="font-playfair text-5xl md:text-7xl font-bold text-cream mb-6 drop-shadow-lg leading-tight">
-            Descubrí los mejores vinos
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-200 mb-10 font-light max-w-2xl mx-auto">
-            Una selección curada de las bodegas más exclusivas de Argentina directo a tu mesa.
-          </p>
-          <Link to="/catalogo">
-            <Button size="lg" className="bg-gold text-gray-900 font-semibold border-none hover:bg-opacity-90 shadow-xl px-8 py-4 text-lg hover:scale-105 transition-transform">
-              Explorar Catálogo
-            </Button>
-          </Link>
-        </div>
-      </section>
+    <div className="space-y-0">
+      {/* 1. Hero Section Editorial */}
+      <section className="relative min-h-[75vh] sm:min-h-[82vh] flex items-center bg-zinc-950 text-white overflow-hidden">
+        {/* Imagen de fondo de alta calidad */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-40 scale-100 transition-transform duration-1000 ease-out"
+          style={{ backgroundImage: `url('${themeConfig.placeholders.productHero}')` }}
+        />
+        {/* Overlay sutil de contraste para legibilidad */}
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-zinc-950/30" />
 
-      {/* Reviews Carousel */}
-      <section className="py-20 bg-cream overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <span className="text-xs uppercase tracking-widest text-gold font-semibold">Testimonios</span>
-            <h2 className="font-playfair text-4xl text-gray-900 mt-1 mb-4">Lo que dicen nuestros clientes</h2>
-            <div className="h-0.5 w-16 bg-gold mx-auto"></div>
-            <p className="text-gray-500 text-sm mt-4 max-w-xl mx-auto">
-              Más de 500 clientes satisfechos en todo el país nos eligen para disfrutar los mejores vinos argentinos.
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 w-full">
+          <div className="max-w-2xl">
+            <span className="inline-block text-[11px] uppercase tracking-[0.2em] text-zinc-300 font-medium mb-4">
+              Colección Actual
+            </span>
+            
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-semibold tracking-tight text-white mb-6 leading-[1.08]">
+              Diseño sobrio. <br />
+              Hecho para durar.
+            </h1>
+            
+            <p className="text-sm sm:text-base text-zinc-300 mb-8 font-normal leading-relaxed max-w-lg">
+              {themeConfig.brand.description}
             </p>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <Link to="/catalogo">
+                <Button size="lg" className="w-full sm:w-auto bg-white text-zinc-950 hover:bg-zinc-100 border-none px-6">
+                  <span>Ver catálogo</span>
+                  <FiArrowRight className="ml-2" />
+                </Button>
+              </Link>
+              <Link to="/catalogo?type=TINTO">
+                <Button size="lg" variant="secondary" className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/20">
+                  Línea Clásica
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Infinite scroll container */}
-        <div className="relative">
-          {/* Fade edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-20 sm:w-32 bg-gradient-to-r from-cream to-transparent z-10 pointer-events-none"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-20 sm:w-32 bg-gradient-to-l from-cream to-transparent z-10 pointer-events-none"></div>
-
-          <div className="flex animate-scroll-reviews hover:[animation-play-state:paused]">
-            {[...reviews, ...reviews].map((review, idx) => (
-              <div
-                key={idx}
-                className="flex-shrink-0 w-[320px] sm:w-[380px] mx-3"
-              >
-                <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100 h-full flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                  {/* Quote icon & stars */}
-                  <div className="flex items-center justify-between mb-4">
-                    <FaQuoteLeft className="text-gold/30 text-2xl" />
-                    <div className="flex gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <FaStar
-                          key={i}
-                          className={`text-sm ${i < review.rating ? 'text-gold' : 'text-gray-200'}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Review text */}
-                  <p className="text-gray-600 text-sm leading-relaxed flex-1 italic">
-                    "{review.text}"
-                  </p>
-
-                  {/* Reviewer info */}
-                  <div className="flex items-center mt-5 pt-4 border-t border-gray-100">
-                    <div className={`w-10 h-10 rounded-full ${review.color} flex items-center justify-center text-white font-bold text-sm shadow-sm`}>
-                      {review.name.charAt(0)}
-                    </div>
-                    <div className="ml-3">
-                      <p className="font-semibold text-gray-900 text-sm">{review.name}</p>
-                      <p className="text-xs text-gray-400">{review.location} · {review.date}</p>
-                    </div>
-                  </div>
-                </div>
+      {/* 2. Barra de Beneficios (Simple, sobria, sin repeticiones) */}
+      <section className="border-b border-zinc-200 bg-zinc-50/70 py-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="flex items-start space-x-3.5">
+              <div className="p-2 rounded bg-zinc-200/60 text-zinc-900 mt-0.5">
+                <FiTruck size={17} />
               </div>
-            ))}
+              <div>
+                <h4 className="text-xs font-semibold text-zinc-900 uppercase tracking-wider">
+                  Envíos a todo el país
+                </h4>
+                <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                  Despachos con seguimiento y embalaje seguro.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3.5">
+              <div className="p-2 rounded bg-zinc-200/60 text-zinc-900 mt-0.5">
+                <FiShield size={17} />
+              </div>
+              <div>
+                <h4 className="text-xs font-semibold text-zinc-900 uppercase tracking-wider">
+                  Compra garantizada
+                </h4>
+                <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                  Artículos nuevos y certificados con control previo.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3.5">
+              <div className="p-2 rounded bg-zinc-200/60 text-zinc-900 mt-0.5">
+                <FiRefreshCw size={17} />
+              </div>
+              <div>
+                <h4 className="text-xs font-semibold text-zinc-900 uppercase tracking-wider">
+                  Pago por transferencia
+                </h4>
+                <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                  Precios promocionales y confirmación ágil.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3.5">
+              <div className="p-2 rounded bg-zinc-200/60 text-zinc-900 mt-0.5">
+                <FiMessageSquare size={17} />
+              </div>
+              <div>
+                <h4 className="text-xs font-semibold text-zinc-900 uppercase tracking-wider">
+                  Atención directa
+                </h4>
+                <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                  Canal de asesoramiento inmediato vía WhatsApp.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="py-20 px-4 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <span className="text-xs uppercase tracking-widest text-gold font-semibold">Selección especial</span>
-          <h2 className="font-playfair text-4xl text-gray-900 mt-1 mb-4">Vinos Destacados</h2>
-          <div className="h-0.5 w-16 bg-gold mx-auto"></div>
-        </div>
-        <ProductGrid products={products.slice(0, 4)} loading={loading} />
-        <div className="mt-12 text-center">
-          <Link to="/catalogo">
-            <Button variant="secondary" size="lg">Ver todos los vinos ({products.length > 0 ? '+ más' : ''})</Button>
-          </Link>
-        </div>
-      </section>
-
-      {/* Categories */}
-      <section className="bg-white py-20 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <span className="text-xs uppercase tracking-widest text-gold font-semibold">Variedades</span>
-            <h2 className="font-playfair text-4xl text-gray-900 mt-1 mb-4">Nuestras Categorías</h2>
-            <div className="h-0.5 w-16 bg-gold mx-auto"></div>
+      {/* 3. Categorías / Líneas destacadas */}
+      <section className="py-20 sm:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-zinc-200">
+            <div>
+              <span className="text-[11px] uppercase tracking-widest text-zinc-400 font-medium">
+                Explorá por línea
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-semibold text-zinc-900 mt-1">
+                Colecciones
+              </h2>
+            </div>
+            <Link 
+              to="/catalogo" 
+              className="mt-3 sm:mt-0 text-xs font-medium text-zinc-600 hover:text-zinc-900 inline-flex items-center gap-1 transition-colors"
+            >
+              <span>Ver catálogo completo</span>
+              <FiArrowRight size={13} />
+            </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {categories.map((cat) => (
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {themeConfig.featuredCategories.map((cat) => (
               <Link 
-                key={cat.type} 
+                key={cat.id} 
                 to={`/catalogo?type=${cat.type}`} 
-                className="group relative h-64 overflow-hidden rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                className="group flex flex-col border border-zinc-200 rounded-lg overflow-hidden bg-zinc-50 hover:border-zinc-400 transition-smooth"
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${cat.bg} transition-all duration-300 group-hover:scale-105`}></div>
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors"></div>
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-20 text-white p-4 text-center">
-                  <span className="text-4xl mb-3 transform group-hover:scale-110 transition-transform">{cat.icon}</span>
-                  <h3 className="font-playfair text-2xl font-bold drop-shadow-md">{cat.name}</h3>
-                  <span className="text-xs uppercase tracking-widest text-white/80 mt-2 border border-white/30 rounded-full px-3 py-1 group-hover:bg-white group-hover:text-gray-900 transition-colors">
-                    Ver colección
+                <div className="aspect-[4/3] w-full overflow-hidden bg-zinc-200 relative">
+                  <img
+                    src={cat.image}
+                    alt={cat.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                    loading="lazy"
+                  />
+                </div>
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="text-base font-semibold text-zinc-900 mb-1">
+                    {cat.title}
+                  </h3>
+                  <p className="text-xs text-zinc-500 leading-relaxed font-normal mb-4 flex-1">
+                    {cat.description}
+                  </p>
+                  <span className="text-xs font-medium text-zinc-900 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                    <span>Ver piezas</span>
+                    <FiArrowRight size={12} />
                   </span>
                 </div>
               </Link>
@@ -168,24 +180,56 @@ const HomePage = () => {
         </div>
       </section>
 
-      {/* Features */}
-      <section className="py-20 bg-[#1a1a1a] text-cream">
-        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
-          <div className="p-6 rounded-xl bg-white/5 border border-white/10">
-            <div className="flex justify-center mb-4 text-gold"><FaAward size={40} /></div>
-            <h3 className="font-playfair text-2xl font-bold mb-3 text-white">Selección Curada</h3>
-            <p className="text-gray-300 text-sm leading-relaxed">Elegimos cada botella con dedicación, asegurando la mejor calidad y procedencia directa de bodega.</p>
+      {/* 4. Productos Destacados */}
+      <section className="py-16 sm:py-20 bg-zinc-50/60 border-t border-zinc-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-zinc-200">
+            <div>
+              <span className="text-[11px] uppercase tracking-widest text-zinc-400 font-medium">
+                Selección de piezas
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-semibold text-zinc-900 mt-1">
+                Destacados
+              </h2>
+            </div>
+            <Link 
+              to="/catalogo" 
+              className="mt-3 sm:mt-0 text-xs font-medium text-zinc-600 hover:text-zinc-900 inline-flex items-center gap-1 transition-colors"
+            >
+              <span>Ver todos</span>
+              <FiArrowRight size={13} />
+            </Link>
           </div>
-          <div className="p-6 rounded-xl bg-white/5 border border-white/10">
-            <div className="flex justify-center mb-4 text-gold"><FaTruck size={40} /></div>
-            <h3 className="font-playfair text-2xl font-bold mb-3 text-white">Envío a Domicilio</h3>
-            <p className="text-gray-300 text-sm leading-relaxed">Recibí tu pedido en la puerta de tu casa. Envíos seguros y empaquetado especial para botellas.</p>
+
+          <ProductGrid products={products.slice(0, 4)} loading={loading} />
+
+          <div className="mt-12 text-center">
+            <Link to="/catalogo">
+              <Button variant="secondary" size="lg" className="px-8">
+                Explorar catálogo completo
+              </Button>
+            </Link>
           </div>
-          <div className="p-6 rounded-xl bg-white/5 border border-white/10">
-            <div className="flex justify-center mb-4 text-gold"><FaUserTie size={40} /></div>
-            <h3 className="font-playfair text-2xl font-bold mb-3 text-white">Atención Personalizada</h3>
-            <p className="text-gray-300 text-sm leading-relaxed">Coordinamos cada detalle directo por WhatsApp para asesorarte con el maridaje y los pagos.</p>
-          </div>
+        </div>
+      </section>
+
+      {/* 5. Editorial Banner — Respaldo y Filosofía de Diseño */}
+      <section className="py-20 bg-zinc-900 text-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <span className="text-[11px] uppercase tracking-[0.25em] text-zinc-400 font-medium mb-3 block">
+            Criterio de Selección
+          </span>
+          <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-white mb-6 max-w-2xl mx-auto leading-snug">
+            Cada artículo responde a una función clara y a una construcción exigente.
+          </h2>
+          <p className="text-xs sm:text-sm text-zinc-400 max-w-xl mx-auto leading-relaxed mb-8">
+            Seleccionamos productos que resisten el paso del tiempo, priorizando materiales nobles, líneas limpias y una experiencia de uso sin artificios.
+          </p>
+          <Link to="/catalogo">
+            <Button className="bg-white text-zinc-900 hover:bg-zinc-100 border-none px-6">
+              Conocé las colecciones
+            </Button>
+          </Link>
         </div>
       </section>
     </div>

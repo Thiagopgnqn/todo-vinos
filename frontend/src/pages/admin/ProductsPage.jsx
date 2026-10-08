@@ -4,7 +4,7 @@ import ProductTable from '../../components/admin/ProductTable';
 import ProductForm from '../../components/admin/ProductForm';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
-import { FaPlus, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FiPlus, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const PAGE_SIZE = 20;
 
@@ -55,7 +55,7 @@ const ProductsPage = () => {
       await fetchProducts(page);
       handleCloseModal();
     } catch (error) {
-      alert(error.response?.data?.message || 'Error al guardar');
+      alert(error.response?.data?.message || 'Error al guardar el producto');
     } finally {
       setLoading(false);
     }
@@ -64,7 +64,6 @@ const ProductsPage = () => {
   const handleDelete = async (id) => {
     try {
       await client.delete(`/products/${id}`);
-      // Si borrás el último producto de una página que no es la primera, retrocedé una página
       if (products.length === 1 && page > 1) {
         setPage(page - 1);
       } else {
@@ -81,11 +80,15 @@ const ProductsPage = () => {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Gestión de Productos</h1>
-        <Button onClick={() => handleOpenModal()} className="flex items-center">
-          <FaPlus className="mr-2" /> Nuevo Producto
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-zinc-200">
+        <div>
+          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-semibold">Catálogo &bull; Inventario</span>
+          <h1 className="text-2xl font-semibold text-zinc-900 mt-0.5">Gestión de Productos</h1>
+          <p className="text-xs text-zinc-500 mt-0.5">Administrá artículos, precios, stock y especificaciones de la tienda</p>
+        </div>
+        <Button onClick={() => handleOpenModal()} variant="primary" className="inline-flex items-center self-start sm:self-auto py-2.5 text-xs sm:text-sm">
+          <FiPlus className="mr-1.5" /> Nuevo Producto
         </Button>
       </div>
 
@@ -93,26 +96,28 @@ const ProductsPage = () => {
 
       {/* Paginación */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-4 px-1">
-          <p className="text-sm text-gray-500">
-            Página {page} de {totalPages} — {total} productos en total
+        <div className="flex items-center justify-between pt-2 px-1">
+          <p className="text-xs text-zinc-500">
+            Página <span className="font-semibold text-zinc-900">{page}</span> de <span className="font-semibold text-zinc-900">{totalPages}</span> &mdash; {total} productos en total
           </p>
           <div className="flex items-center space-x-2">
             <button
               type="button"
               onClick={() => goToPage(page - 1)}
               disabled={page === 1}
-              className="flex items-center justify-center w-9 h-9 rounded-md border border-gray-300 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="flex items-center justify-center w-8 h-8 rounded border border-zinc-200 bg-white text-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-zinc-50 transition-colors"
+              title="Página anterior"
             >
-              <FaChevronLeft size={12} />
+              <FiChevronLeft size={14} />
             </button>
             <button
               type="button"
               onClick={() => goToPage(page + 1)}
               disabled={page === totalPages}
-              className="flex items-center justify-center w-9 h-9 rounded-md border border-gray-300 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="flex items-center justify-center w-8 h-8 rounded border border-zinc-200 bg-white text-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-zinc-50 transition-colors"
+              title="Página siguiente"
             >
-              <FaChevronRight size={12} />
+              <FiChevronRight size={14} />
             </button>
           </div>
         </div>

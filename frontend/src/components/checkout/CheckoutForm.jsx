@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import Input from '../ui/Input';
-import Button from '../ui/Button';
-import client from '../../api/client';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import useCart from '../../hooks/useCart';
 import useAuth from '../../hooks/useAuth';
 import AddressMap from './AddressMap';
-import { FaWhatsapp, FaCheckCircle } from 'react-icons/fa';
-const MIN_ORDER_BOTTLES = 6;
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import client from '../../api/client';
+import { useState, useEffect } from 'react';
+import { FaWhatsapp } from 'react-icons/fa';
+import { FiCheckCircle, FiLock } from 'react-icons/fi';
+import themeConfig from '../../config/theme';
 
 const CheckoutForm = () => {
-  const { items, cartTotal, cartCount, clearCart } = useCart();
+  const { items, cartCount, clearCart } = useCart();
   const { user } = useAuth();
+  const minUnits = themeConfig.brand.minOrderUnits || 6;
   
   const [formData, setFormData] = useState({
     customerName: '',
@@ -24,7 +28,7 @@ const CheckoutForm = () => {
     comments: '',
   });
 
-  // Pre-fill user data if logged in
+  // Autocompletar datos del usuario si está autenticado
   useEffect(() => {
     if (user) {
       setFormData(prev => ({
@@ -48,8 +52,8 @@ const CheckoutForm = () => {
     setLoading(true);
     setError('');
 
-    if (cartCount < MIN_ORDER_BOTTLES) {
-      setError(`El pedido mínimo es de ${MIN_ORDER_BOTTLES} botellas. Tenés ${cartCount} en tu carrito.`);
+    if (cartCount < minUnits) {
+      setError(`El pedido mínimo es de ${minUnits} ${themeConfig.brand.unitNamePlural}. Tenés ${cartCount} en tu carrito.`);
       setLoading(false);
       return;
     }
@@ -83,14 +87,13 @@ const CheckoutForm = () => {
       
       if (link) {
         setWhatsappUrl(link);
-        // Try opening WhatsApp
         window.open(link, '_blank');
       }
       
       clearCart();
       setSuccess(true);
     } catch (err) {
-      const errorMsg = err.response?.data?.error || err.response?.data?.errors?.[0]?.message || 'Error al procesar el pedido. Verificá el stock disponible.';
+      const errorMsg = err.response?.data?.error || err.response?.data?.errors?.[0]?.message || 'Error al procesar el pedido. Verificá los datos ingresados.';
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -99,97 +102,113 @@ const CheckoutForm = () => {
 
   if (success) {
     return (
-      <div className="text-center py-10 sm:py-16 px-4 bg-white rounded-2xl shadow-sm border border-gray-100">
-        <div className="mx-auto w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 shadow-inner">
-          <FaCheckCircle size={44} />
+      <div className="text-center py-12 px-6 bg-white rounded-lg border border-zinc-200">
+        <div className="mx-auto w-12 h-12 bg-emerald-50 text-emerald-700 rounded-full flex items-center justify-center mb-4 border border-emerald-200">
+          <FiCheckCircle size={28} />
         </div>
-        <h2 className="font-playfair text-3xl sm:text-4xl font-bold text-gray-900 mb-3">¡Pedido Registrado con Éxito!</h2>
-        <p className="text-gray-600 mb-8 max-w-md mx-auto text-sm sm:text-base leading-relaxed">
-          Tu orden fue guardada en el sistema. Para finalizar y coordinar el pago y la entrega, enviá el mensaje prearmado por WhatsApp.
+        <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-semibold">
+          ¡Orden Registrada!
+        </span>
+        <h2 className="text-xl sm:text-2xl font-semibold text-zinc-900 mt-1 mb-2">
+          Finalizá tu compra por WhatsApp
+        </h2>
+        <p className="text-zinc-500 mb-6 max-w-sm mx-auto text-xs sm:text-sm leading-relaxed">
+          Tu pedido ha sido reservado. Hacé clic a continuación para enviar los detalles de la orden y coordinar el despacho o pago.
         </p>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4 max-w-md mx-auto">
+        <div className="flex flex-col sm:flex-row justify-center gap-3 max-w-sm mx-auto">
           {whatsappUrl && (
             <a 
               href={whatsappUrl} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center justify-center space-x-2 bg-[#25D366] hover:bg-[#20bd5a] text-white px-6 py-3.5 rounded-xl font-bold shadow-md hover:shadow-lg transition-all"
+              className="flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-3 rounded-md font-medium text-xs sm:text-sm transition-colors"
             >
-              <FaWhatsapp size={22} />
+              <FaWhatsapp size={18} />
               <span>Abrir WhatsApp Ahora</span>
             </a>
           )}
-          <a 
-            href="/" 
-            className="flex items-center justify-center px-6 py-3.5 rounded-xl border border-gray-300 text-gray-700 font-semibold hover:bg-gray-50 transition-colors"
+          <Link 
+            to="/" 
+            className="flex items-center justify-center px-5 py-3 rounded-md border border-zinc-200 text-zinc-800 text-xs font-medium hover:bg-zinc-50 transition-colors"
           >
-            Volver a la Tienda
-          </a>
+            Volver al Inicio
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-5 sm:p-8 rounded-2xl shadow-sm border border-gray-200/80 space-y-6">
+    <form onSubmit={handleSubmit} className="bg-white p-6 sm:p-8 rounded-lg border border-zinc-200 space-y-7">
+      {/* Sección 1: Contacto */}
       <div>
-        <h2 className="font-playfair text-xl sm:text-2xl font-bold text-gray-900">1. Datos de Contacto</h2>
-        <p className="text-xs text-gray-500 mt-0.5">Te contactaremos a este número para coordinar el pago</p>
-      </div>
-      
-      <div className="space-y-4">
-        <Input 
-          label="Nombre y Apellido" 
-          name="customerName" 
-          required 
-          value={formData.customerName} 
-          onChange={handleChange} 
-          placeholder="Ej: Juan Pérez"
-        />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="pb-3 mb-4 border-b border-zinc-100 flex items-center justify-between">
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Paso 1</span>
+            <h2 className="text-lg font-semibold text-zinc-900">Datos de Contacto</h2>
+          </div>
+          <span className="text-xs text-zinc-400">Confirmación directa</span>
+        </div>
+        
+        <div className="space-y-4">
           <Input 
-            label="Email" 
-            type="email" 
-            name="customerEmail" 
+            label="Nombre y Apellido" 
+            name="customerName" 
             required 
-            value={formData.customerEmail} 
+            value={formData.customerName} 
             onChange={handleChange} 
-            placeholder="juan@email.com"
+            placeholder="Ej: Carolina Pérez"
           />
-          <Input 
-            label="Teléfono / WhatsApp" 
-            type="tel" 
-            name="customerPhone" 
-            required 
-            value={formData.customerPhone} 
-            onChange={handleChange} 
-            placeholder="Ej: 11 2345 6789"
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input 
+              label="Correo Electrónico" 
+              type="email" 
+              name="customerEmail" 
+              required 
+              value={formData.customerEmail} 
+              onChange={handleChange} 
+              placeholder="carolina@ejemplo.com"
+            />
+            <Input 
+              label="Teléfono / WhatsApp" 
+              type="tel" 
+              name="customerPhone" 
+              required 
+              value={formData.customerPhone} 
+              onChange={handleChange} 
+              placeholder="Ej: 11 2345 6789"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="border-t border-gray-100 pt-6">
-        <h2 className="font-playfair text-xl sm:text-2xl font-bold text-gray-900 mb-1">2. Dirección de Envío</h2>
-        <p className="text-xs text-gray-500 mb-4">Indicá dónde querés recibir tus vinos</p>
+      {/* Sección 2: Destino */}
+      <div className="pt-2">
+        <div className="pb-3 mb-4 border-b border-zinc-100">
+          <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Paso 2</span>
+          <h2 className="text-lg font-semibold text-zinc-900">Dirección de Entrega</h2>
+        </div>
 
         <div className="space-y-4">
-          <Input 
-            label="Provincia" 
-            name="customerProvince" 
-            required 
-            value={formData.customerProvince} 
-            onChange={handleChange} 
-            placeholder="Ej: Buenos Aires, Córdoba, Santa Fe"
-          />
-          <Input 
-            label="Ciudad / Localidad" 
-            name="customerCity" 
-            required 
-            value={formData.customerCity} 
-            onChange={handleChange} 
-            placeholder="Ej: Córdoba Capital, Rosario, La Plata"
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input 
+              label="Provincia" 
+              name="customerProvince" 
+              required 
+              value={formData.customerProvince} 
+              onChange={handleChange} 
+              placeholder="Ej: Buenos Aires"
+            />
+            <Input 
+              label="Ciudad / Localidad" 
+              name="customerCity" 
+              required 
+              value={formData.customerCity} 
+              onChange={handleChange} 
+              placeholder="Ej: La Plata"
+            />
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input 
               label="Código Postal" 
@@ -197,17 +216,19 @@ const CheckoutForm = () => {
               required 
               value={formData.customerPostalCode} 
               onChange={handleChange} 
-              placeholder="Ej: 5000"
+              placeholder="Ej: 1900"
             />
             <Input 
-              label="Dirección" 
+              label="Calle, Altura y Piso/Depto" 
               name="customerAddress" 
               required 
               value={formData.customerAddress} 
               onChange={handleChange} 
-              placeholder="Ej: Av. Santa Fe 1234, Piso 4B"
+              placeholder="Ej: Calle 50 420, 4B"
             />
           </div>
+          
+          {/* Mapa de geolocalización */}
           <AddressMap 
             address={
               [formData.customerAddress, formData.customerCity, formData.customerPostalCode, formData.customerProvince]
@@ -221,38 +242,41 @@ const CheckoutForm = () => {
         </div>
       </div>
 
-      <div className="border-t border-gray-100 pt-6">
-        <label className="block text-sm font-semibold text-gray-900 mb-1">
-          Notas o comentarios para el pedido (Opcional)
+      {/* Sección 3: Notas */}
+      <div className="pt-2 border-t border-zinc-100">
+        <label className="block text-xs font-medium text-zinc-700 mb-1.5">
+          Notas de entrega (Opcional)
         </label>
         <textarea 
           name="comments" 
           rows="2" 
           value={formData.comments} 
           onChange={handleChange} 
-          className="block w-full rounded-xl border-gray-300 shadow-xs focus:border-wine focus:ring-wine text-sm p-3"
-          placeholder="Ej: Envolver para regalo, tocar timbre, etc."
+          className="block w-full rounded-md border border-zinc-200 bg-white text-zinc-900 text-xs sm:text-sm p-3 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition-smooth placeholder:text-zinc-400"
+          placeholder="Ej: Tocar timbre B, dejar en portería..."
         ></textarea>
       </div>
 
       {error && (
-        <div className="text-red-600 text-xs sm:text-sm bg-red-50 p-3.5 rounded-xl border border-red-200">
+        <div className="text-rose-700 text-xs bg-rose-50 p-3 rounded-md border border-rose-200 font-medium">
           {error}
         </div>
       )}
       
+      {/* Botón de Confirmación por WhatsApp */}
       <div className="pt-2">
         <button 
           type="submit" 
           disabled={loading}
-          className="w-full flex items-center justify-center space-x-2 bg-[#25D366] hover:bg-[#20bd5a] active:scale-99 text-white py-4 px-6 rounded-xl font-bold text-base sm:text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
+          className="w-full flex items-center justify-center space-x-2 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white py-3.5 px-6 rounded-md font-medium text-sm transition-smooth disabled:opacity-50"
         >
-          <FaWhatsapp size={24} />
-          <span>{loading ? 'Procesando pedido...' : 'Confirmar Pedido por WhatsApp'}</span>
+          <FaWhatsapp size={20} />
+          <span>{loading ? 'Procesando orden...' : 'Confirmar Pedido por WhatsApp'}</span>
         </button>
-        <p className="text-center text-xs text-gray-400 mt-2">
-          🔒 No se requiere tarjeta &bull; Coordinás el pago directo con la vinoteca
-        </p>
+        <div className="flex items-center justify-center gap-1.5 text-center text-[11px] text-zinc-400 mt-3">
+          <FiLock className="text-zinc-500 text-[11px]" />
+          <span>Sin ingreso de datos de tarjeta en el sitio &bull; Pago directo seguro</span>
+        </div>
       </div>
     </form>
   );

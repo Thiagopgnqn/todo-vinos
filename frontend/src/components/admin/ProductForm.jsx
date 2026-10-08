@@ -3,7 +3,7 @@ import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Button from '../ui/Button';
 import client from '../../api/client';
-import { FaCloudUploadAlt, FaTrash, FaSyncAlt, FaLink } from 'react-icons/fa';
+import { FiUploadCloud, FiTrash2, FiRefreshCw, FiLink } from 'react-icons/fi';
 
 const ProductForm = ({ initialData, onSubmit, loading }) => {
   const [formData, setFormData] = useState({
@@ -12,7 +12,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
     price: '', 
     transferPrice: '',
     stock: '', 
-    type: 'Tinto', 
+    type: 'General', 
     varietal: '',
     year: '', 
     winery: '', 
@@ -22,22 +22,22 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
     imageUrl: ''
   });
 
-  const [wineTypes, setWineTypes] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [showUrlInput, setShowUrlInput] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    const fetchWineTypes = async () => {
+    const fetchCategories = async () => {
       try {
         const res = await client.get('/wine-types');
-        setWineTypes(res.data);
+        setCategories(res.data);
       } catch (err) {
-        console.error('Error loading wine types:', err);
+        console.error('Error loading categories:', err);
       }
     };
-    fetchWineTypes();
+    fetchCategories();
   }, []);
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
         price: initialData.price || '',
         transferPrice: initialData.transferPrice || '',
         stock: initialData.stock || '',
-        type: initialData.type || wineTypes[0]?.name || 'Tinto',
+        type: initialData.type || categories[0]?.name || 'General',
         varietal: initialData.varietal || '',
         year: initialData.year || new Date().getFullYear(),
         winery: initialData.winery || '',
@@ -67,7 +67,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
         price: '', 
         transferPrice: '',
         stock: '', 
-        type: wineTypes[0]?.name || 'Tinto', 
+        type: categories[0]?.name || 'General', 
         varietal: '',
         year: '', 
         winery: '', 
@@ -78,7 +78,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
       });
       setUploadError('');
     }
-  }, [initialData, wineTypes]);
+  }, [initialData, categories]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -86,13 +86,11 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       setUploadError('La imagen no debe superar los 5MB.');
       return;
     }
 
-    // Validate format
     const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
       setUploadError('Formato no válido. Usa JPG, PNG o WEBP.');
@@ -115,7 +113,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
       }
     } catch (err) {
       console.error('Upload error:', err);
-      setUploadError(err.response?.data?.error || 'Error al subir la imagen desde tu dispositivo.');
+      setUploadError(err.response?.data?.error || 'Error al subir la imagen.');
     } finally {
       setUploadingImage(false);
       if (fileInputRef.current) {
@@ -146,7 +144,6 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
       type: formData.type.trim(),
       imageUrl: formData.imageUrl.trim(),
 
-      // Campos opcionales
       description: formData.description ? formData.description.trim() : '',
       transferPrice: formData.transferPrice ? parseFloat(formData.transferPrice) : null,
       stock: formData.stock !== '' && formData.stock !== undefined && formData.stock !== null ? parseInt(formData.stock, 10) : 0,
@@ -161,44 +158,43 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
     onSubmit(payload);
   };
 
-  const typeOptions = wineTypes.length > 0
-    ? wineTypes.map(t => ({ value: t.name, label: t.name }))
+  const typeOptions = categories.length > 0
+    ? categories.map(t => ({ value: t.name, label: t.name }))
     : [
-        { value: 'Tinto', label: 'Tinto' },
-        { value: 'Blanco', label: 'Blanco' },
-        { value: 'Rosado', label: 'Rosado' },
-        { value: 'Espumante', label: 'Espumante' },
+        { value: 'Colección A', label: 'Colección A' },
+        { value: 'Colección B', label: 'Colección B' },
+        { value: 'Colección C', label: 'Colección C' },
+        { value: 'Edición Limitada', label: 'Edición Limitada' },
       ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto px-1 pr-2">
-      <Input label="Nombre del Vino *" name="name" required value={formData.name} onChange={handleChange} placeholder="Ej: Gran Reserva Malbec" />
+      <Input label="Nombre del Producto *" name="name" required value={formData.name} onChange={handleChange} placeholder="Ej: Cartera de Cuero / Auriculares Pro" />
       
-      <div className="grid grid-cols-3 gap-4">
-        <Input label="Precio Publicado ($) *" type="number" name="price" required value={formData.price} onChange={handleChange} min="0" step="1" placeholder="Ej: 8500" />
-        <Input label="Precio Transferencia ($) (Opcional)" type="number" name="transferPrice" value={formData.transferPrice} onChange={handleChange} min="0" step="1" placeholder="Opcional" />
-        <Input label="Stock (Opcional)" type="number" name="stock" value={formData.stock} onChange={handleChange} min="0" placeholder="Ej: 50 (por defecto 0)" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <Input label="Precio ($) *" type="number" name="price" required value={formData.price} onChange={handleChange} min="0" step="1" placeholder="Ej: 8500" />
+        <Input label="Precio con Transferencia ($)" type="number" name="transferPrice" value={formData.transferPrice} onChange={handleChange} min="0" step="1" placeholder="Opcional" />
+        <Input label="Stock" type="number" name="stock" value={formData.stock} onChange={handleChange} min="0" placeholder="Ej: 50" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Select label="Tipo *" name="type" required options={typeOptions} value={formData.type} onChange={handleChange} />
-        <Input label="Varietal (Opcional)" name="varietal" value={formData.varietal} onChange={handleChange} placeholder="Ej: Malbec" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <Select label="Categoría / Tipo *" name="type" required options={typeOptions} value={formData.type} onChange={handleChange} />
+        <Input label="Variante / Material / Modelo" name="varietal" value={formData.varietal} onChange={handleChange} placeholder="Ej: Cuero / Negro / Talle M" />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Input label="Bodega (Opcional)" name="winery" value={formData.winery} onChange={handleChange} placeholder="Ej: Catena Zapata" />
-        <Input label="Año / Añada (Opcional)" type="number" name="year" value={formData.year} onChange={handleChange} placeholder="Ej: 2021" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <Input label="Marca / Colección" name="winery" value={formData.winery} onChange={handleChange} placeholder="Ej: Atelier Studio" />
+        <Input label="Año / Edición" type="number" name="year" value={formData.year} onChange={handleChange} placeholder="Ej: 2024" />
       </div>
 
-      <Input label="Región (Opcional)" name="region" value={formData.region} onChange={handleChange} placeholder="Ej: Mendoza, Valle de Uco" />
+      <Input label="Origen / Procedencia" name="region" value={formData.region} onChange={handleChange} placeholder="Ej: Industria Nacional / Córdoba" />
       
-      {/* Image Upload Section */}
-      <div className={`bg-gray-50 p-4 rounded-xl border ${!formData.imageUrl && uploadError ? 'border-red-400 bg-red-50/30' : 'border-gray-200'}`}>
-        <label className="block text-sm font-semibold text-gray-900 mb-2">
-          Foto del Producto *
+      {/* Sección de Subida de Imagen */}
+      <div className={`p-4 rounded-lg border transition-all ${!formData.imageUrl && uploadError ? 'border-rose-300 bg-rose-50/40' : 'border-zinc-200 bg-zinc-50'}`}>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-2">
+          Imagen del Producto *
         </label>
 
-        {/* Hidden File Input */}
         <input 
           type="file" 
           ref={fileInputRef} 
@@ -208,8 +204,8 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
         />
 
         {formData.imageUrl ? (
-          <div className="flex items-center space-x-4 bg-white p-3 rounded-lg border border-gray-200">
-            <div className="w-20 h-24 bg-gray-100 rounded-md overflow-hidden flex-shrink-0 border flex items-center justify-center">
+          <div className="flex items-center space-x-3.5 bg-white p-3 rounded-md border border-zinc-200">
+            <div className="w-16 h-16 bg-zinc-100 rounded overflow-hidden flex-shrink-0 border border-zinc-200 flex items-center justify-center">
               <img 
                 src={formData.imageUrl} 
                 alt="Preview" 
@@ -218,10 +214,10 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
               />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-green-700 bg-green-50 px-2 py-0.5 rounded inline-block mb-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded inline-block mb-1 border border-emerald-200">
                 ✓ Imagen cargada
-              </p>
-              <p className="text-xs text-gray-500 truncate" title={formData.imageUrl}>
+              </span>
+              <p className="text-xs text-zinc-400 truncate font-mono">
                 {formData.imageUrl}
               </p>
               <div className="flex space-x-2 mt-2">
@@ -229,16 +225,16 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingImage}
-                  className="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md font-medium transition-colors flex items-center"
+                  className="text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-800 px-2.5 py-1 rounded transition-colors flex items-center"
                 >
-                  <FaSyncAlt className="mr-1.5" /> Cambiar foto
+                  <FiRefreshCw className="mr-1 text-xs" /> Cambiar
                 </button>
                 <button
                   type="button"
                   onClick={handleRemoveImage}
-                  className="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-md font-medium transition-colors flex items-center"
+                  className="text-xs bg-rose-50 hover:bg-rose-100 text-rose-700 px-2.5 py-1 rounded transition-colors flex items-center border border-rose-200"
                 >
-                  <FaTrash className="mr-1.5" /> Quitar
+                  <FiTrash2 className="mr-1 text-xs" /> Quitar
                 </button>
               </div>
             </div>
@@ -249,36 +245,36 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingImage}
-              className="w-full border-2 border-dashed border-gray-300 hover:border-wine hover:bg-wine/5 rounded-xl p-6 text-center transition-all cursor-pointer flex flex-col items-center justify-center group"
+              className="w-full border-2 border-dashed border-zinc-300 hover:border-zinc-500 rounded-lg p-6 text-center transition-colors cursor-pointer flex flex-col items-center justify-center group bg-white"
             >
-              <div className="w-12 h-12 rounded-full bg-wine/10 text-wine flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-                <FaCloudUploadAlt size={24} />
+              <div className="w-10 h-10 rounded-full bg-zinc-100 text-zinc-700 flex items-center justify-center mb-2 group-hover:scale-105 transition-transform">
+                <FiUploadCloud size={20} />
               </div>
-              <span className="text-sm font-semibold text-gray-900 group-hover:text-wine">
-                {uploadingImage ? 'Subiendo imagen...' : 'Hacé clic para seleccionar una foto de tu dispositivo'}
+              <span className="text-xs font-semibold text-zinc-800">
+                {uploadingImage ? 'Subiendo imagen...' : 'Seleccionar archivo de imagen'}
               </span>
-              <span className="text-xs text-gray-500 mt-1">
-                Formatos permitidos: JPG, PNG o WEBP (Máx. 5MB)
+              <span className="text-[11px] text-zinc-400 mt-1">
+                JPG, PNG o WEBP (Máx. 5MB)
               </span>
             </button>
           </div>
         )}
 
         {uploadError && (
-          <p className="text-xs text-red-600 mt-2 bg-red-50 p-2 rounded border border-red-200">
+          <p className="text-xs text-rose-700 mt-2 bg-rose-50 p-2 rounded border border-rose-200 font-medium">
             {uploadError}
           </p>
         )}
 
         {/* Toggle manual URL */}
-        <div className="mt-3 text-right">
+        <div className="mt-2.5 text-right">
           <button
             type="button"
             onClick={() => setShowUrlInput(!showUrlInput)}
-            className="text-xs text-gray-500 hover:text-wine underline inline-flex items-center"
+            className="text-xs text-zinc-500 hover:text-zinc-900 underline inline-flex items-center transition-colors"
           >
-            <FaLink className="mr-1" />
-            {showUrlInput ? 'Ocultar URL manual' : '¿Preferís pegar una URL de imagen?'}
+            <FiLink className="mr-1 text-xs" />
+            {showUrlInput ? 'Ocultar URL directa' : 'Ingresar URL de imagen'}
           </button>
         </div>
 
@@ -289,57 +285,58 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
               name="imageUrl" 
               value={formData.imageUrl} 
               onChange={handleChange} 
-              placeholder="https://ejemplo.com/foto-vino.jpg" 
+              placeholder="https://ejemplo.com/foto.jpg" 
             />
           </div>
         )}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Descripción (Opcional)</label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">Descripción</label>
         <textarea 
           name="description" 
           rows="3" 
           value={formData.description} 
           onChange={handleChange} 
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-wine focus:ring-wine sm:text-sm"
-          placeholder="Descripción del vino (opcional)..."
+          className="block w-full rounded-md border border-zinc-200 bg-white text-zinc-900 text-xs sm:text-sm p-3 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 placeholder:text-zinc-400"
+          placeholder="Descripción detallada del producto..."
         ></textarea>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Notas de Cata (Opcional)</label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">Especificaciones / Detalles Destacados</label>
         <textarea 
           name="tastingNotes" 
           rows="2" 
           value={formData.tastingNotes} 
           onChange={handleChange} 
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-wine focus:ring-wine sm:text-sm"
-          placeholder="Ej: Aromas a frutos rojos, ciruela madura y vainilla..."
+          className="block w-full rounded-md border border-zinc-200 bg-white text-zinc-900 text-xs sm:text-sm p-3 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 placeholder:text-zinc-400"
+          placeholder="Ej: Materiales, dimensiones, compatibilidad, peso..."
         ></textarea>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Maridaje Sugerido (Opcional)</label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">Recomendaciones de Uso / Cuidados</label>
         <textarea 
           name="pairing" 
           rows="2" 
           value={formData.pairing} 
           onChange={handleChange} 
-          className="block w-full rounded-md border-gray-300 shadow-sm focus:border-wine focus:ring-wine sm:text-sm"
-          placeholder="Ej: Ideal para acompañar carnes rojas asadas, pastas..."
+          className="block w-full rounded-md border border-zinc-200 bg-white text-zinc-900 text-xs sm:text-sm p-3 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 placeholder:text-zinc-400"
+          placeholder="Ej: Instrucciones de lavado, recomendaciones de mantenimiento..."
         ></textarea>
       </div>
 
-      <div className="pt-4 flex justify-end">
+      <div className="pt-3">
         <Button 
           type="submit" 
           variant="primary" 
           loading={loading || uploadingImage} 
           disabled={uploadingImage}
           fullWidth
+          className="py-3 text-xs sm:text-sm font-semibold"
         >
-          {initialData ? 'Actualizar Producto' : 'Crear Producto'}
+          {initialData ? 'Actualizar Producto' : 'Guardar Producto en Catálogo'}
         </Button>
       </div>
     </form>

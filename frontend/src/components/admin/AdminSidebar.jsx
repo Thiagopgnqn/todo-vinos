@@ -1,17 +1,17 @@
 import React from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
-  FaChartBar, 
-  FaWineBottle, 
-  FaClipboardList, 
-  FaUsers,
-  FaTags,
-  FaStore, 
-  FaSignOutAlt, 
-  FaArrowLeft,
-  FaTimes
-} from 'react-icons/fa';
+  FiBarChart2, 
+  FiBox, 
+  FiShoppingBag, 
+  FiUsers, 
+  FiTag, 
+  FiLogOut, 
+  FiArrowLeft,
+  FiX 
+} from 'react-icons/fi';
 import useAuth from '../../hooks/useAuth';
+import themeConfig from '../../config/theme';
 
 const AdminSidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
@@ -23,61 +23,60 @@ const AdminSidebar = ({ isOpen, onClose }) => {
   };
 
   const navItems = [
-    { name: 'Dashboard', to: '/admin', icon: FaChartBar, end: true },
-    { name: 'Productos', to: '/admin/productos', icon: FaWineBottle },
-    { name: 'Tipos de Vino', to: '/admin/tipos', icon: FaTags },
-    { name: 'Pedidos', to: '/admin/pedidos', icon: FaClipboardList },
-    { name: 'Usuarios', to: '/admin/usuarios', icon: FaUsers },
+    { name: 'Dashboard', to: '/admin', icon: FiBarChart2, end: true },
+    { name: 'Inventario de Productos', to: '/admin/productos', icon: FiBox },
+    { name: 'Categorías & Tipos', to: '/admin/tipos', icon: FiTag },
+    { name: 'Pedidos de Clientes', to: '/admin/pedidos', icon: FiShoppingBag },
+    { name: 'Usuarios & Cuentas', to: '/admin/usuarios', icon: FiUsers },
   ];
 
   return (
     <>
-      {/* Mobile backdrop */}
+      {/* Backdrop en móviles */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
-          onClick={onClose}
+          className="fixed inset-0 bg-black/40 backdrop-blur-xs z-40 md:hidden"
+          onClick={onClose} 
         />
       )}
 
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-[#1a1a1a] text-cream border-r border-gray-800 flex flex-col justify-between transition-transform duration-300 ease-in-out md:static md:translate-x-0
+        fixed inset-y-0 left-0 z-50 w-64 bg-zinc-950 text-zinc-300 border-r border-zinc-800 flex flex-col justify-between transition-transform duration-200 ease-in-out md:static md:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        {/* Top brand */}
+        {/* Brand superior */}
         <div>
-          <div className="p-6 border-b border-gray-800 flex items-center justify-between">
+          <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
             <Link to="/admin" className="flex items-center space-x-2" onClick={onClose}>
-              <span className="text-2xl">🍷</span>
               <div>
-                <h2 className="text-lg font-playfair font-bold text-gold leading-tight">TODO VINOS</h2>
-                <span className="text-[10px] text-gray-400 uppercase tracking-widest block font-sans">Panel de Control</span>
+                <h2 className="text-base font-semibold text-white tracking-tight">{themeConfig.brand.name}</h2>
+                <span className="text-[10px] text-zinc-500 uppercase tracking-widest block font-medium">Panel de Control</span>
               </div>
             </Link>
-            {/* Mobile close button */}
             <button 
               onClick={onClose}
-              className="md:hidden text-gray-400 hover:text-white p-1"
+              className="md:hidden text-zinc-400 hover:text-white p-1 rounded"
+              aria-label="Cerrar barra lateral"
             >
-              <FaTimes size={20} />
+              <FiX size={18} />
             </button>
           </div>
 
-          {/* Quick link to store */}
+          {/* Enlace rápido para ver la tienda */}
           <div className="p-4">
             <Link 
               to="/" 
               onClick={onClose}
-              className="flex items-center justify-center space-x-2 w-full py-2.5 px-4 rounded-lg bg-wine/20 text-cream border border-wine/40 hover:bg-wine hover:text-white transition-all text-sm font-medium group"
+              className="flex items-center justify-center space-x-2 w-full py-2 px-3 rounded-md bg-zinc-900 text-zinc-300 border border-zinc-800 hover:bg-zinc-800 hover:text-white transition-colors text-xs font-medium"
             >
-              <FaArrowLeft className="text-xs group-hover:-translate-x-1 transition-transform" />
-              <span>Volver a la Tienda</span>
+              <FiArrowLeft size={12} />
+              <span>Ver Tienda Online</span>
             </Link>
           </div>
 
-          {/* Admin Navigation */}
-          <div className="px-4 py-2">
-            <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">Administración</p>
+          {/* Menú de administración */}
+          <div className="px-3 py-2">
+            <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-widest px-3 mb-2">Administración</p>
             <nav className="space-y-1">
               {navItems.map((item) => (
                 <NavLink
@@ -86,49 +85,34 @@ const AdminSidebar = ({ isOpen, onClose }) => {
                   end={item.end}
                   onClick={onClose}
                   className={({ isActive }) =>
-                    `flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      isActive ? 'bg-wine text-white shadow-sm' : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    `flex items-center space-x-3 px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+                      isActive ? 'bg-zinc-800 text-white font-semibold' : 'text-zinc-400 hover:bg-zinc-900 hover:text-white'
                     }`
                   }
                 >
-                  <item.icon className="h-4 w-4" />
+                  <item.icon className="h-4 w-4 text-zinc-400" />
                   <span>{item.name}</span>
                 </NavLink>
               ))}
             </nav>
           </div>
-
-          {/* Public store links */}
-          <div className="px-4 py-4 border-t border-gray-800/80 mt-4">
-            <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider px-3 mb-2">Accesos Directos</p>
-            <nav className="space-y-1">
-              <Link
-                to="/catalogo"
-                onClick={onClose}
-                className="flex items-center space-x-3 px-4 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-cream transition-colors"
-              >
-                <FaStore className="h-4 w-4" />
-                <span>Ver Catálogo</span>
-              </Link>
-            </nav>
-          </div>
         </div>
 
-        {/* User footer */}
-        <div className="p-4 border-t border-gray-800 bg-[#141414]">
-          <div className="flex items-center justify-between mb-3 px-2">
+        {/* Footer con información de sesión */}
+        <div className="p-4 border-t border-zinc-800 bg-zinc-950">
+          <div className="flex items-center justify-between mb-3 px-1">
             <div className="truncate">
               <p className="text-xs font-semibold text-white truncate">{user?.name || 'Administrador'}</p>
-              <p className="text-[10px] text-gray-400 truncate">{user?.email}</p>
+              <p className="text-[10px] text-zinc-500 truncate">{user?.email}</p>
             </div>
-            <span className="text-[10px] bg-wine/80 text-white px-2 py-0.5 rounded font-bold">ADMIN</span>
+            <span className="text-[9px] bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded font-bold uppercase tracking-wider">ADMIN</span>
           </div>
 
           <button
             onClick={handleLogout}
-            className="flex items-center justify-center space-x-2 w-full py-2 px-3 rounded-lg text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+            className="flex items-center justify-center space-x-2 w-full py-2 px-3 rounded-md text-xs font-medium text-rose-400 hover:bg-rose-950/40 hover:text-rose-300 transition-colors"
           >
-            <FaSignOutAlt />
+            <FiLogOut size={13} />
             <span>Cerrar Sesión</span>
           </button>
         </div>

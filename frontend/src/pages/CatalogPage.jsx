@@ -5,7 +5,8 @@ import ProductGrid from '../components/catalog/ProductGrid';
 import FilterSidebar from '../components/catalog/FilterSidebar';
 import SearchBar from '../components/catalog/SearchBar';
 import useSEO from '../hooks/useSEO';
-import { FaFilter, FaTimes, FaSortAmountDown } from 'react-icons/fa';
+import { FiSliders, FiX, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import themeConfig from '../config/theme';
 
 const CatalogPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +25,7 @@ const CatalogPage = () => {
     return init;
   });
 
-  // Sync filters when URL search params change externally (e.g. header links)
+  // Sync filters cuando cambian por la URL externamente
   useEffect(() => {
     const urlType = searchParams.get('type');
     const currentType = filters.type?.join(',') || '';
@@ -34,47 +35,40 @@ const CatalogPage = () => {
         type: urlType ? urlType.split(',') : undefined,
       }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
-  // Dynamic SEO based on active filters
-  const typeFilterText = filters.type?.length === 1 ? `Vinos ${filters.type[0]}` : null;
+  // SEO dinámico
+  const typeFilterText = filters.type?.length === 1 ? `Colección ${filters.type[0]}` : null;
   const pageTitle = typeFilterText
-    ? `${typeFilterText} — Catálogo Online | Todo Vinos`
-    : 'Catálogo de Vinos — Tintos, Blancos y Espumantes | Todo Vinos';
+    ? `${typeFilterText} — Catálogo | ${themeConfig.brand.name}`
+    : `Catálogo de Productos | ${themeConfig.brand.name}`;
 
   useSEO({
     title: pageTitle,
-    description: `Explorá nuestro catálogo de ${typeFilterText || 'vinos argentinos'}. Filtros por varietal, bodega y rango de precio. Envíos a todo el país.`,
-    keywords: `catalogo de vinos, comprar vinos online, ${filters.type?.join(', ') || 'vinos tintos, vinos blancos, espumantes'}, bodega mendoza`,
+    description: `Explorá nuestra selección de ${typeFilterText || 'artículos y piezas de diseño'}. Envíos a todo el país.`,
   });
 
-  // Calculate total active filters count
   const activeFiltersCount = (filters.type?.length || 0) + 
     (filters.varietal ? filters.varietal.split(',').length : 0) + 
     (filters.minPrice || filters.maxPrice ? 1 : 0);
 
-  // Fetch products when filters change
   useEffect(() => {
     const params = { ...filters };
     if (params.type && params.type.length) params.type = params.type.join(',');
     else delete params.type;
 
-    // Remove empty values
     Object.keys(params).forEach(key => {
       if (params[key] === '' || params[key] === undefined || params[key] === null) {
         delete params[key];
       }
     });
 
-    // Update URL without causing re-render loop
     if (!isFirstRender.current) {
       setSearchParams(params, { replace: true });
     }
     isFirstRender.current = false;
 
     fetchProducts(params);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, fetchProducts]);
 
   const handleSearch = (query) => {
@@ -102,90 +96,103 @@ const CatalogPage = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-      {/* Page Title & Search bar */}
-      <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-gray-200">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+      {/* Título de página y barra de búsqueda */}
+      <div className="mb-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-zinc-200">
           <div>
-            <h1 className="font-playfair text-3xl sm:text-4xl font-bold text-gray-900">Catálogo de Vinos</h1>
-            <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              {products.length} {products.length === 1 ? 'vino disponible' : 'vinos disponibles'}
+            <span className="text-[11px] uppercase tracking-widest text-zinc-400 font-medium">
+              Colección Completa
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-semibold text-zinc-900 mt-1">
+              Catálogo de Productos
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-500 mt-1">
+              {products.length} {products.length === 1 ? 'artículo disponible' : 'artículos disponibles'}
             </p>
           </div>
           
-          <div className="w-full sm:w-80">
+          <div className="w-full md:w-80">
             <SearchBar initialQuery={filters.search} onSearch={handleSearch} />
           </div>
         </div>
 
-        {/* Mobile Filter & Sort Toolbar */}
+        {/* Toolbar de Filtros Mobile y Ordenamiento */}
         <div className="flex items-center justify-between gap-3 mt-4">
           <button 
-            className="flex-1 lg:hidden flex items-center justify-center space-x-2 py-2.5 px-4 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-800 shadow-xs hover:border-wine transition-colors active:scale-98"
+            className="flex-1 lg:hidden flex items-center justify-center space-x-2 py-2 px-3 bg-white border border-zinc-200 rounded-md text-xs font-medium text-zinc-900 hover:border-zinc-300 transition-colors"
             onClick={() => setIsMobileFiltersOpen(true)}
           >
-            <FaFilter className="text-wine text-xs" />
+            <FiSliders className="text-zinc-600 text-xs" />
             <span>Filtrar</span>
             {activeFiltersCount > 0 && (
-              <span className="bg-wine text-white text-[11px] font-bold px-2 py-0.2 rounded-full">
+              <span className="bg-zinc-900 text-white text-[10px] font-semibold px-1.5 py-0.2 rounded-full">
                 {activeFiltersCount}
               </span>
             )}
           </button>
 
-          <div className="flex-1 sm:flex-none flex items-center space-x-2">
+          <div className="flex-1 sm:flex-none flex items-center space-x-2 ml-auto">
             <div className="relative w-full sm:w-auto">
               <select 
-                className="w-full rounded-xl border-gray-300 text-xs sm:text-sm font-medium focus:border-wine focus:ring-wine py-2.5 pl-3 pr-8 bg-white shadow-xs"
+                className="w-full rounded-md border-zinc-200 text-xs text-zinc-800 focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 py-2 pl-3 pr-8 bg-white shadow-soft"
                 value={filters.sort || ''}
                 onChange={(e) => setFilters(prev => ({ ...prev, sort: e.target.value }))}
               >
                 <option value="">Ordenar: Destacados</option>
                 <option value="price_asc">Precio: Menor a Mayor</option>
                 <option value="price_desc">Precio: Mayor a Menor</option>
-                <option value="newest">Más Nuevos</option>
+                <option value="newest">Más Recientes</option>
                 <option value="best_selling">Más Vendidos</option>
               </select>
             </div>
           </div>
         </div>
 
-        {/* Active Filters Chips */}
+        {/* Chips de Filtros Activos */}
         {(filters.type?.length > 0 || filters.varietal || filters.minPrice || filters.maxPrice || filters.search) && (
-          <div className="flex flex-wrap items-center gap-1.5 mt-3 pt-3 border-t border-gray-100">
-            <span className="text-xs text-gray-400 mr-1">Filtros activos:</span>
+          <div className="flex flex-wrap items-center gap-1.5 mt-4 pt-3 border-t border-zinc-100">
+            <span className="text-xs text-zinc-400 mr-1 font-normal">Filtros aplicados:</span>
             
             {filters.type?.map(t => (
-              <span key={t} className="inline-flex items-center text-xs bg-wine/10 text-wine font-medium px-2.5 py-1 rounded-full border border-wine/20">
+              <span key={t} className="inline-flex items-center text-xs bg-zinc-100 text-zinc-800 px-2.5 py-0.5 rounded border border-zinc-200">
                 {t}
-                <button onClick={() => handleRemoveType(t)} className="ml-1.5 text-wine/70 hover:text-wine"><FaTimes size={10} /></button>
+                <button onClick={() => handleRemoveType(t)} className="ml-1.5 text-zinc-400 hover:text-zinc-900">
+                  <FiX size={11} />
+                </button>
               </span>
             ))}
 
             {filters.varietal?.split(',').map(v => (
-              <span key={v} className="inline-flex items-center text-xs bg-amber-50 text-amber-800 font-medium px-2.5 py-1 rounded-full border border-amber-200">
+              <span key={v} className="inline-flex items-center text-xs bg-zinc-100 text-zinc-800 px-2.5 py-0.5 rounded border border-zinc-200">
                 {v}
-                <button onClick={() => handleRemoveVarietal(v)} className="ml-1.5 text-amber-600 hover:text-amber-800"><FaTimes size={10} /></button>
+                <button onClick={() => handleRemoveVarietal(v)} className="ml-1.5 text-zinc-400 hover:text-zinc-900">
+                  <FiX size={11} />
+                </button>
               </span>
             ))}
 
             {(filters.minPrice || filters.maxPrice) && (
-              <span className="inline-flex items-center text-xs bg-gray-100 text-gray-700 font-medium px-2.5 py-1 rounded-full">
+              <span className="inline-flex items-center text-xs bg-zinc-100 text-zinc-800 px-2.5 py-0.5 rounded border border-zinc-200">
                 ${filters.minPrice || '0'} - ${filters.maxPrice || '∞'}
-                <button onClick={() => setFilters(prev => ({ ...prev, minPrice: undefined, maxPrice: undefined }))} className="ml-1.5 text-gray-500 hover:text-gray-700"><FaTimes size={10} /></button>
+                <button onClick={() => setFilters(prev => ({ ...prev, minPrice: undefined, maxPrice: undefined }))} className="ml-1.5 text-zinc-400 hover:text-zinc-900">
+                  <FiX size={11} />
+                </button>
               </span>
             )}
 
             {filters.search && (
-              <span className="inline-flex items-center text-xs bg-blue-50 text-blue-700 font-medium px-2.5 py-1 rounded-full">
+              <span className="inline-flex items-center text-xs bg-zinc-100 text-zinc-800 px-2.5 py-0.5 rounded border border-zinc-200">
                 "{filters.search}"
-                <button onClick={() => setFilters(prev => ({ ...prev, search: undefined }))} className="ml-1.5 text-blue-500 hover:text-blue-700"><FaTimes size={10} /></button>
+                <button onClick={() => setFilters(prev => ({ ...prev, search: undefined }))} className="ml-1.5 text-zinc-400 hover:text-zinc-900">
+                  <FiX size={11} />
+                </button>
               </span>
             )}
 
             <button 
               onClick={() => setFilters({})} 
-              className="text-xs text-wine underline ml-2 font-medium hover:text-wine/80"
+              className="text-xs text-zinc-500 hover:text-zinc-900 underline ml-2 font-medium"
             >
               Borrar todos
             </button>
@@ -193,7 +200,7 @@ const CatalogPage = () => {
         )}
       </div>
 
-      {/* Main Grid & Sidebar Layout */}
+      {/* Grilla Principal y Filtros */}
       <div className="flex flex-col lg:flex-row gap-8">
         <FilterSidebar 
           filters={filters} 
@@ -204,25 +211,27 @@ const CatalogPage = () => {
         <div className="flex-1">
           <ProductGrid products={products} loading={loading} />
           
-          {/* Pagination */}
+          {/* Paginación */}
           {pagination.totalPages > 1 && (
-            <div className="flex justify-center items-center gap-3 mt-10">
+            <div className="flex justify-center items-center gap-2 mt-12 pt-6 border-t border-zinc-200">
               <button
                 onClick={() => handlePageChange(pagination.page - 1)}
                 disabled={pagination.page <= 1}
-                className="px-4 py-2 rounded-xl text-sm font-medium border border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors shadow-xs"
+                className="p-2 rounded border border-zinc-200 bg-white text-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-50 transition-colors"
+                aria-label="Página anterior"
               >
-                &larr; Anterior
+                <FiChevronLeft size={16} />
               </button>
-              <span className="text-sm font-medium text-gray-700">
-                {pagination.page} de {pagination.totalPages}
+              <span className="text-xs text-zinc-600 px-3">
+                Página <strong className="text-zinc-900 font-semibold">{pagination.page}</strong> de {pagination.totalPages}
               </span>
               <button
                 onClick={() => handlePageChange(pagination.page + 1)}
                 disabled={pagination.page >= pagination.totalPages}
-                className="px-4 py-2 rounded-xl text-sm font-medium border border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors shadow-xs"
+                className="p-2 rounded border border-zinc-200 bg-white text-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-50 transition-colors"
+                aria-label="Página siguiente"
               >
-                Siguiente &rarr;
+                <FiChevronRight size={16} />
               </button>
             </div>
           )}

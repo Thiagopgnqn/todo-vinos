@@ -6,14 +6,19 @@ import useSEO from '../hooks/useSEO';
 import Button from '../components/ui/Button';
 import Spinner from '../components/ui/Spinner';
 import Badge from '../components/ui/Badge';
-import { FaArrowLeft } from 'react-icons/fa';
-
-const wineTypeGradients = {
-  TINTO: 'from-[#4a0e17] to-[#722F37]',
-  BLANCO: 'from-[#bda55d] to-[#e6d8a7]',
-  ROSADO: 'from-[#b84a62] to-[#d97d8f]',
-  ESPUMANTE: 'from-[#8a7b4f] to-[#c2b078]',
-};
+import { 
+  FiArrowLeft, 
+  FiShield, 
+  FiTruck, 
+  FiShoppingBag, 
+  FiCheck, 
+  FiInfo, 
+  FiChevronDown, 
+  FiChevronUp,
+  FiMinus,
+  FiPlus
+} from 'react-icons/fi';
+import themeConfig from '../config/theme';
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -22,6 +27,7 @@ const ProductPage = () => {
   const [error, setError] = useState('');
   const [imgError, setImgError] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [openTab, setOpenTab] = useState('details');
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -30,7 +36,7 @@ const ProductPage = () => {
         const res = await client.get(`/products/${id}`);
         setProduct(res.data);
       } catch (err) {
-        setError('Producto no encontrado');
+        setError('Artículo no encontrado');
       } finally {
         setLoading(false);
       }
@@ -39,8 +45,6 @@ const ProductPage = () => {
   }, [id]);
 
   const imageUrl = product?.imageUrl || product?.image;
-  const typeKey = (product?.type || 'TINTO').toUpperCase();
-  const bgGradient = wineTypeGradients[typeKey] || 'from-gray-700 to-gray-900';
   const priceFormatted = Number(product?.price || 0).toLocaleString('es-AR');
 
   // Dynamic SEO & Google Product Rich Snippets
@@ -48,8 +52,8 @@ const ProductPage = () => {
     title: `${product.name} ${product.winery ? `- ${product.winery}` : ''}`,
     description: product.description 
       ? product.description.slice(0, 155)
-      : `Comprá ${product.name} (${product.type}) al mejor precio en Todo Vinos. Envíos directos a todo el país.`,
-    keywords: `${product.name}, ${product.type}, ${product.varietal || ''}, ${product.winery || ''}, vino argentino, comprar vino`,
+      : `Comprá ${product.name} en ${themeConfig.brand.name}. Envíos a todo el país.`,
+    keywords: `${product.name}, ${product.type || ''}, ${product.varietal || ''}, ${product.winery || ''}, tienda online`,
     image: imageUrl,
     type: 'product',
     structuredData: {
@@ -57,10 +61,10 @@ const ProductPage = () => {
       '@type': 'Product',
       name: product.name,
       image: imageUrl ? [imageUrl] : [],
-      description: product.description || `Vino ${product.name} de ${product.winery || 'Todo Vinos'}.`,
+      description: product.description || `Artículo ${product.name} en ${themeConfig.brand.name}.`,
       brand: {
         '@type': 'Brand',
-        name: product.winery || 'Todo Vinos',
+        name: product.winery || themeConfig.brand.name,
       },
       offers: {
         '@type': 'Offer',
@@ -69,125 +73,264 @@ const ProductPage = () => {
         availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
         seller: {
           '@type': 'Organization',
-          name: 'Todo Vinos',
+          name: themeConfig.brand.name,
         },
       },
     },
   } : {});
 
-  if (loading) return <div className="py-20 flex justify-center"><Spinner size="lg" /></div>;
-  if (error || !product) return (
-    <div className="py-20 text-center">
-      <p className="text-xl text-red-600 mb-4">{error || 'Producto no encontrado'}</p>
-      <Link to="/catalogo" className="text-wine underline font-medium">Volver al catálogo</Link>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="py-32 flex justify-center bg-white">
+        <Spinner size="lg" text="Cargando detalles del producto..." />
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="py-24 text-center px-4 bg-white max-w-md mx-auto">
+        <FiShoppingBag className="mx-auto text-4xl text-zinc-300 mb-3" />
+        <h2 className="text-xl font-semibold text-zinc-900 mb-2">{error || 'Artículo no disponible'}</h2>
+        <p className="text-zinc-500 text-xs mb-6">El producto que buscás no existe o no se encuentra disponible actualmente.</p>
+        <Link to="/catalogo">
+          <Button variant="primary">Explorar catálogo</Button>
+        </Link>
+      </div>
+    );
+  }
 
   const handleAdd = () => {
     addToCart(product, quantity);
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <Link to="/catalogo" className="inline-flex items-center text-sm font-medium text-gray-500 hover:text-wine mb-8 transition-colors">
-        <FaArrowLeft className="mr-2" /> Volver al catálogo
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14">
+      {/* Enlace para volver */}
+      <Link 
+        to="/catalogo" 
+        className="inline-flex items-center text-xs font-medium text-zinc-500 hover:text-zinc-900 mb-8 transition-colors"
+      >
+        <FiArrowLeft className="mr-1.5" /> 
+        <span>Volver al catálogo</span>
       </Link>
       
-      <div className="lg:grid lg:grid-cols-2 lg:gap-x-12">
-        {/* Image / Card visual */}
-        <div className="aspect-[3/4] w-full rounded-xl overflow-hidden bg-gray-100 mb-8 lg:mb-0 shadow-lg flex items-center justify-center">
-          {imageUrl && !imgError ? (
-            <img 
-              src={imageUrl} 
-              alt={product.name} 
-              className="w-full h-full object-cover" 
-              onError={() => setImgError(true)}
-            />
-          ) : (
-            <div className={`w-full h-full bg-gradient-to-b ${bgGradient} flex flex-col items-center justify-center p-8 text-center text-white`}>
-              <span className="text-6xl mb-4">🍷</span>
-              <span className="font-playfair font-bold text-3xl leading-tight drop-shadow-md">{product.name}</span>
-              <span className="text-sm uppercase tracking-widest mt-2 opacity-80">{product.winery}</span>
-              <span className="text-xs mt-1 bg-white/20 px-3 py-1 rounded-full">{product.varietal} • {product.year}</span>
+      <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
+        {/* Columna Izquierda: Galería e Imagen Principal */}
+        <div className="lg:col-span-6 mb-10 lg:mb-0">
+          <div className="aspect-square w-full rounded-lg overflow-hidden bg-zinc-100 border border-zinc-200 flex items-center justify-center relative">
+            {imageUrl && !imgError ? (
+              <img 
+                src={imageUrl} 
+                alt={product.name} 
+                className="w-full h-full object-cover" 
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              <div className="w-full h-full bg-zinc-100 flex flex-col items-center justify-center p-8 text-center text-zinc-400">
+                <FiShoppingBag className="text-5xl mb-3 text-zinc-300" />
+                <span className="font-semibold text-lg text-zinc-800">
+                  {product.name}
+                </span>
+                {product.winery && (
+                  <span className="text-xs uppercase tracking-widest text-zinc-400 mt-1">
+                    {product.winery}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {product.type && (
+              <div className="absolute top-4 left-4">
+                <Badge variant="neutral">{product.type}</Badge>
+              </div>
+            )}
+          </div>
+
+          {/* Garantías de compra debajo de la imagen */}
+          <div className="mt-5 grid grid-cols-2 gap-3 text-xs text-zinc-600">
+            <div className="flex items-center gap-2 p-3 rounded-md bg-zinc-50 border border-zinc-200">
+              <FiShield className="text-zinc-800 text-sm flex-shrink-0" />
+              <span>Garantía de calidad oficial</span>
             </div>
-          )}
+            <div className="flex items-center gap-2 p-3 rounded-md bg-zinc-50 border border-zinc-200">
+              <FiTruck className="text-zinc-800 text-sm flex-shrink-0" />
+              <span>Embalaje técnico seguro</span>
+            </div>
+          </div>
         </div>
 
-        {/* Info */}
-        <div className="flex flex-col justify-between">
-          <div>
-            <div className="mb-3">
-              <Badge variant={typeKey.toLowerCase()}>{product.type}</Badge>
-            </div>
-            <h1 className="font-playfair text-4xl font-bold text-gray-900 mb-2">{product.name}</h1>
-            {product.winery && <p className="text-lg text-gold font-medium mb-6">{product.winery}</p>}
-            
-            <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200">
-              <div>
-                <span className="text-sm text-gray-500 mr-1">$</span>
-                <span className="text-4xl font-bold text-wine">{priceFormatted}</span>
-              </div>
-              <p className={`text-sm font-medium ${product.stock > 0 ? 'text-green-600 bg-green-50 px-3 py-1 rounded-full' : 'text-red-600 font-bold bg-red-50 px-3 py-1 rounded-full'}`}>
-                {product.stock > 0 ? `Stock disponible: ${product.stock} un.` : 'Sin stock'}
+        {/* Columna Derecha: Ficha de Compra e Información */}
+        <div className="lg:col-span-6 flex flex-col">
+          <div className="bg-white p-6 sm:p-8 rounded-lg border border-zinc-200">
+            {product.winery && (
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 mb-1.5">
+                {product.winery}
               </p>
+            )}
+            
+            <h1 className="text-2xl sm:text-3xl font-semibold text-zinc-900 mb-3 leading-snug">
+              {product.name}
+            </h1>
+            
+            {/* Precio y Disponibilidad */}
+            <div className="flex items-baseline justify-between py-4 my-3 border-y border-zinc-100">
+              <div>
+                <span className="text-2xl sm:text-3xl font-bold text-zinc-900 tracking-tight">
+                  {themeConfig.brand.currencySymbol}{priceFormatted}
+                </span>
+              </div>
+
+              <div>
+                {product.stock > 0 ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                    <span>En stock ({product.stock} un.)</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center text-xs font-medium text-rose-800 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded">
+                    Sin stock disponible
+                  </span>
+                )}
+              </div>
             </div>
+
+            {/* Beneficio de precio por transferencia */}
             {product.transferPrice && (
-              <div className="mb-6 bg-green-50 border border-green-200 rounded-lg px-4 py-2.5 flex items-center gap-2">
-                <span className="text-sm text-green-700">💳 Precio por transferencia:</span>
-                <span className="text-lg font-bold text-green-700">${Number(product.transferPrice).toLocaleString('es-AR')}</span>
+              <div className="mb-6 p-3 rounded-md bg-zinc-50 border border-zinc-200 flex items-center justify-between text-xs">
+                <div>
+                  <p className="font-semibold text-zinc-900">Precio con transferencia:</p>
+                  <p className="text-zinc-500">Descuento aplicado en el pago</p>
+                </div>
+                <span className="text-base font-bold text-emerald-700">
+                  {themeConfig.brand.currencySymbol}{Number(product.transferPrice).toLocaleString('es-AR')}
+                </span>
               </div>
             )}
-            {!product.transferPrice && <div className="mb-6" />}
 
+            {/* Ficha técnica compacta */}
             {(product.varietal || product.year || product.region) && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-gray-700 mb-6 bg-gray-50 p-4 rounded-lg">
-                {product.varietal && <div><span className="text-xs text-gray-400 block uppercase font-medium">Varietal</span> <span className="font-semibold">{product.varietal}</span></div>}
-                {product.year && <div><span className="text-xs text-gray-400 block uppercase font-medium">Año</span> <span className="font-semibold">{product.year}</span></div>}
-                {product.region && <div><span className="text-xs text-gray-400 block uppercase font-medium">Región</span> <span className="font-semibold">{product.region}</span></div>}
+              <div className="grid grid-cols-3 gap-3 my-4 p-3 rounded-md bg-zinc-50 border border-zinc-100 text-center text-xs">
+                {product.varietal && (
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-zinc-400 block">Variante</span>
+                    <strong className="text-zinc-800 font-medium">{product.varietal}</strong>
+                  </div>
+                )}
+                {product.year && (
+                  <div className="border-x border-zinc-200">
+                    <span className="text-[10px] uppercase tracking-wider text-zinc-400 block">Edición</span>
+                    <strong className="text-zinc-800 font-medium">{product.year}</strong>
+                  </div>
+                )}
+                {product.region && (
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-zinc-400 block">Origen</span>
+                    <strong className="text-zinc-800 font-medium">{product.region}</strong>
+                  </div>
+                )}
               </div>
             )}
 
-            <div className="text-gray-600 mb-8 leading-relaxed">
-              <p>{product.description || 'Sin descripción disponible.'}</p>
+            {/* Descripción */}
+            <div className="text-zinc-600 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
+              <p>{product.description || 'Artículo diseñado con altos estándares de calidad, resistencia y acabado sobrio para uso diario.'}</p>
             </div>
 
+            {/* Selector de cantidad y CTA principal */}
             {product.stock > 0 && (
-              <div className="flex items-end space-x-4 mb-8">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad</label>
-                  <select 
-                    className="block w-24 rounded-md border-gray-300 shadow-sm focus:border-wine focus:ring-wine py-2.5 px-3"
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value))}
-                  >
-                    {[...Array(Math.min(10, product.stock)).keys()].map(i => (
-                      <option key={i+1} value={i+1}>{i+1}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex-1">
-                  <Button fullWidth size="lg" onClick={handleAdd}>
-                    Agregar al carrito
-                  </Button>
+              <div className="space-y-3 pt-3 border-t border-zinc-100">
+                <div className="flex items-center gap-3">
+                  {/* Stepper de cantidad */}
+                  <div className="inline-flex items-center border border-zinc-200 rounded-md bg-white">
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-2.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors"
+                      aria-label="Disminuir cantidad"
+                    >
+                      <FiMinus size={13} />
+                    </button>
+                    <span className="px-4 text-xs font-semibold text-zinc-900 select-none">
+                      {quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
+                      disabled={quantity >= product.stock}
+                      className="p-2.5 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 disabled:opacity-30 transition-colors"
+                      aria-label="Aumentar cantidad"
+                    >
+                      <FiPlus size={13} />
+                    </button>
+                  </div>
+
+                  {/* Botón principal */}
+                  <div className="flex-1">
+                    <Button fullWidth size="lg" onClick={handleAdd} className="text-xs sm:text-sm">
+                      <FiShoppingBag className="mr-2" />
+                      <span>Agregar al carrito</span>
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Details */}
-          <div className="border-t border-gray-200 pt-6 space-y-4">
+          {/* Acordeón / Secciones de Información Adicional */}
+          <div className="mt-6 border border-zinc-200 rounded-lg overflow-hidden bg-white divide-y divide-zinc-200">
             {product.tastingNotes && (
-              <div className="bg-amber-50/50 p-4 rounded-lg border border-amber-100">
-                <h3 className="font-playfair font-semibold text-lg text-gray-900 mb-1">🍇 Notas de cata</h3>
-                <p className="text-sm text-gray-600">{product.tastingNotes}</p>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setOpenTab(openTab === 'notes' ? '' : 'notes')}
+                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-xs font-semibold text-zinc-900 hover:bg-zinc-50 transition-colors"
+                >
+                  <span>Características Destacadas</span>
+                  {openTab === 'notes' ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+                </button>
+                {openTab === 'notes' && (
+                  <div className="px-5 pb-4 text-xs text-zinc-600 leading-relaxed">
+                    {product.tastingNotes}
+                  </div>
+                )}
               </div>
             )}
+
             {product.pairing && (
-              <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-                <h3 className="font-playfair font-semibold text-lg text-gray-900 mb-1">🍽️ Maridaje sugerido</h3>
-                <p className="text-sm text-gray-600">{product.pairing}</p>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setOpenTab(openTab === 'care' ? '' : 'care')}
+                  className="w-full px-5 py-3.5 flex items-center justify-between text-left text-xs font-semibold text-zinc-900 hover:bg-zinc-50 transition-colors"
+                >
+                  <span>Recomendaciones y Cuidado</span>
+                  {openTab === 'care' ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+                </button>
+                {openTab === 'care' && (
+                  <div className="px-5 pb-4 text-xs text-zinc-600 leading-relaxed">
+                    {product.pairing}
+                  </div>
+                )}
               </div>
             )}
+
+            <div>
+              <button
+                type="button"
+                onClick={() => setOpenTab(openTab === 'shipping' ? '' : 'shipping')}
+                className="w-full px-5 py-3.5 flex items-center justify-between text-left text-xs font-semibold text-zinc-900 hover:bg-zinc-50 transition-colors"
+              >
+                <span>Envíos y Entregas</span>
+                {openTab === 'shipping' ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
+              </button>
+              {openTab === 'shipping' && (
+                <div className="px-5 pb-4 text-xs text-zinc-600 leading-relaxed space-y-1">
+                  <p>• Despachamos a todas las provincias con embalaje reforzado.</p>
+                  <p>• Los costos y tiempos exactos se coordinan por WhatsApp al confirmar la orden.</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

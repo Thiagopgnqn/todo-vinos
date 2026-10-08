@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaCheckCircle, FaTimes, FaShoppingCart, FaWineBottle } from 'react-icons/fa';
+import { FiCheck, FiX, FiShoppingBag } from 'react-icons/fi';
+import themeConfig from '../../config/theme';
 
 const Toast = ({ show, message, product, onClose, duration = 3500 }) => {
   const [visible, setVisible] = useState(false);
@@ -10,7 +11,7 @@ const Toast = ({ show, message, product, onClose, duration = 3500 }) => {
       requestAnimationFrame(() => setVisible(true));
       const timer = setTimeout(() => {
         setVisible(false);
-        setTimeout(onClose, 300);
+        setTimeout(onClose, 200);
       }, duration);
       return () => clearTimeout(timer);
     } else {
@@ -22,99 +23,83 @@ const Toast = ({ show, message, product, onClose, duration = 3500 }) => {
 
   const handleClose = () => {
     setVisible(false);
-    setTimeout(onClose, 300);
+    setTimeout(onClose, 200);
   };
 
   const formattedPrice = product?.price ? Number(product.price).toLocaleString('es-AR') : null;
   const imageUrl = product?.imageUrl || product?.image;
 
   return (
-    <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[9999] pointer-events-auto max-w-[calc(100vw-2rem)] w-[400px]">
+    <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[9999] pointer-events-auto max-w-[calc(100vw-2rem)] w-[380px]">
       <div
-        className={`bg-white rounded-2xl shadow-2xl border-2 border-green-500/30 overflow-hidden transform transition-all duration-300 ease-out ${
-          visible ? 'translate-y-0 opacity-100 scale-100' : '-translate-y-4 opacity-0 scale-95'
+        className={`bg-white rounded-lg shadow-lifted border border-zinc-200 overflow-hidden transition-smooth ${
+          visible ? 'translate-y-0 opacity-100' : '-translate-y-2 opacity-0'
         }`}
       >
-        {/* Header con éxito */}
-        <div className="bg-gradient-to-r from-emerald-600 to-green-600 px-4 py-3 flex items-center justify-between text-white">
-          <div className="flex items-center space-x-2.5">
-            <div className="bg-white/20 p-1.5 rounded-full">
-              <FaCheckCircle className="text-white text-lg" />
-            </div>
-            <span className="font-bold text-sm tracking-wide">
-              ¡Agregado al Carrito con Éxito!
+        {/* Header simple y limpio */}
+        <div className="px-4 py-3 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/60">
+          <div className="flex items-center space-x-2">
+            <span className="flex items-center justify-center w-4 h-4 rounded-full bg-emerald-100 text-emerald-700">
+              <FiCheck size={11} />
+            </span>
+            <span className="text-xs font-medium text-zinc-900">
+              Agregado al carrito
             </span>
           </div>
           <button
             onClick={handleClose}
-            className="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
-            title="Cerrar"
+            className="text-zinc-400 hover:text-zinc-700 p-1 rounded transition-colors"
+            aria-label="Cerrar notificación"
           >
-            <FaTimes size={16} />
+            <FiX size={14} />
           </button>
         </div>
 
         {/* Contenido del producto */}
-        <div className="p-4 sm:p-5">
-          <div className="flex items-center space-x-4">
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt={product?.name || 'Vino'}
-                className="w-16 h-20 object-cover rounded-xl border border-gray-100 shadow-sm flex-shrink-0"
-              />
-            ) : (
-              <div className="w-16 h-20 bg-gradient-to-b from-wine to-[#4a0e17] rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-sm">
-                <FaWineBottle className="text-2xl opacity-90" />
-              </div>
-            )}
+        <div className="p-4">
+          <div className="flex items-center space-x-3.5">
+            <div className="w-14 h-14 bg-zinc-100 rounded border border-zinc-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={product?.name || 'Producto'}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <FiShoppingBag className="text-zinc-400 text-lg" />
+              )}
+            </div>
 
             <div className="flex-1 min-w-0">
-              {product?.winery && (
-                <p className="text-xs uppercase tracking-wider text-amber-700 font-semibold truncate mb-0.5">
-                  {product.winery}
-                </p>
-              )}
-              <h4 className="font-playfair font-bold text-gray-900 text-base leading-snug line-clamp-2">
+              <h4 className="font-medium text-zinc-900 text-xs sm:text-sm truncate">
                 {product?.name || message || 'Producto'}
               </h4>
               {formattedPrice && (
-                <p className="text-wine font-bold text-base mt-1">
-                  <span className="text-xs text-gray-400 font-normal mr-1">$</span>
-                  {formattedPrice}
+                <p className="text-xs font-semibold text-zinc-900 mt-0.5">
+                  {themeConfig.brand.currencySymbol}{formattedPrice}
                 </p>
               )}
             </div>
           </div>
 
-          {/* Botones de acción rápida */}
-          <div className="mt-4 pt-3 border-t border-gray-100 flex items-center gap-2.5">
+          {/* Acciones */}
+          <div className="mt-3.5 pt-3 border-t border-zinc-100 flex items-center gap-2">
             <Link
               to="/carrito"
               onClick={handleClose}
-              className="flex-1 inline-flex items-center justify-center space-x-2 bg-wine hover:bg-wine/90 active:scale-98 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition-all shadow-md"
+              className="flex-1 inline-flex items-center justify-center space-x-1.5 bg-zinc-900 hover:bg-zinc-800 text-white font-medium py-2 px-3 rounded-md text-xs transition-colors"
             >
-              <FaShoppingCart size={14} />
+              <FiShoppingBag size={13} />
               <span>Ver Carrito</span>
             </Link>
             <button
               type="button"
               onClick={handleClose}
-              className="px-3.5 py-2.5 text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-colors"
+              className="px-3 py-2 text-xs font-medium text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-md transition-colors"
             >
-              Seguir viendo
+              Seguir explorando
             </button>
           </div>
-        </div>
-
-        {/* Barra de progreso de auto-cierre */}
-        <div className="h-1 bg-gray-100 w-full overflow-hidden">
-          <div
-            className={`h-full bg-emerald-500 transition-all ease-linear ${
-              visible ? 'w-0' : 'w-full'
-            }`}
-            style={{ transitionDuration: `${duration}ms` }}
-          />
         </div>
       </div>
     </div>
@@ -122,4 +107,3 @@ const Toast = ({ show, message, product, onClose, duration = 3500 }) => {
 };
 
 export default Toast;
-

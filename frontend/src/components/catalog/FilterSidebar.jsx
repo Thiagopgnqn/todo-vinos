@@ -1,52 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../ui/Button';
 import client from '../../api/client';
-import { FaTimes, FaCheck, FaTrash } from 'react-icons/fa';
-
-const TYPE_ICONS = {
-  tinto: '🍷',
-  blanco: '🥂',
-  rosado: '🌸',
-  espumante: '✨',
-  organico: '🌿',
-  'orgánico': '🌿',
-  naranjo: '🍊',
-  dulce: '🍯',
-  postre: '🍰',
-};
+import { FiX, FiTrash2, FiSliders } from 'react-icons/fi';
 
 const DEFAULT_TYPES = [
-  { label: 'Tinto', value: 'Tinto', icon: '🍷' },
-  { label: 'Blanco', value: 'Blanco', icon: '🥂' },
-  { label: 'Rosado', value: 'Rosado', icon: '🌸' },
-  { label: 'Espumante', value: 'Espumante', icon: '✨' },
+  { label: 'Colección A', value: 'Tinto' },
+  { label: 'Colección B', value: 'Blanco' },
+  { label: 'Colección C', value: 'Rosado' },
+  { label: 'Edición Limitada', value: 'Espumante' },
 ];
 
 const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
   const [types, setTypes] = useState(DEFAULT_TYPES);
 
   useEffect(() => {
-    const fetchWineTypes = async () => {
+    const fetchCategories = async () => {
       try {
         const res = await client.get('/wine-types');
         if (res.data && res.data.length > 0) {
           const dynamicTypes = res.data.map(t => ({
             label: t.name,
             value: t.name,
-            icon: TYPE_ICONS[t.name.toLowerCase()] || '🍷',
           }));
           setTypes(dynamicTypes);
         }
       } catch (err) {
-        console.error('Error fetching wine types in filter sidebar:', err);
+        console.error('Error al cargar categorías:', err);
       }
     };
-    fetchWineTypes();
+    fetchCategories();
   }, []);
 
-  const varietals = ['Malbec', 'Cabernet Sauvignon', 'Chardonnay', 'Torrontés', 'Pinot Noir', 'Syrah'];
+  const variants = ['Estándar', 'Premium', 'Edición Especial', 'Artesanal', 'Compacto'];
 
-  // Local state for price inputs to avoid fetching on every keystroke
+  // Estado local para los precios para evitar peticiones en cada tecla
   const [localMinPrice, setLocalMinPrice] = useState(filters.minPrice || '');
   const [localMaxPrice, setLocalMaxPrice] = useState(filters.maxPrice || '');
 
@@ -64,14 +51,14 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
     setFilters(prev => ({ ...prev, type: newTypes, page: 1 }));
   };
 
-  const handleVarietalChange = (varietal) => {
-    const currentVarietals = filters.varietal ? filters.varietal.split(',') : [];
-    const newVarietals = currentVarietals.includes(varietal)
-      ? currentVarietals.filter(v => v !== varietal)
-      : [...currentVarietals, varietal];
+  const handleVariantChange = (variant) => {
+    const currentVariants = filters.varietal ? filters.varietal.split(',') : [];
+    const newVariants = currentVariants.includes(variant)
+      ? currentVariants.filter(v => v !== variant)
+      : [...currentVariants, variant];
     setFilters(prev => ({ 
       ...prev, 
-      varietal: newVarietals.length ? newVarietals.join(',') : undefined,
+      varietal: newVariants.length ? newVariants.join(',') : undefined,
       page: 1 
     }));
   };
@@ -94,99 +81,98 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
 
   const content = (
     <div className="space-y-6">
-      {/* Wine Type */}
+      {/* 1. Categorías / Líneas */}
       <div>
-        <h4 className="font-playfair font-semibold text-base sm:text-lg text-gray-900 mb-3 pb-2 border-b border-gray-100 flex items-center justify-between">
-          <span>Tipo de Vino</span>
+        <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-200">
+          <h4 className="font-semibold text-xs text-zinc-900 uppercase tracking-wider">
+            Categorías
+          </h4>
           {filters.type?.length > 0 && (
-            <span className="text-xs bg-wine text-white px-2 py-0.5 rounded-full font-sans font-bold">
+            <span className="text-[10px] bg-zinc-900 text-white px-2 py-0.5 rounded-full font-semibold">
               {filters.type.length}
             </span>
           )}
-        </h4>
-        <div className="grid grid-cols-2 sm:grid-cols-1 gap-2">
+        </div>
+        <div className="space-y-1.5">
           {types.map(type => {
             const isChecked = (filters.type || []).some(t => t.toLowerCase() === type.value.toLowerCase());
             return (
               <label 
                 key={type.value} 
-                className={`flex items-center p-2.5 rounded-lg border transition-all cursor-pointer select-none ${
+                className={`flex items-center px-2.5 py-1.5 rounded text-xs transition-colors cursor-pointer select-none ${
                   isChecked 
-                    ? 'border-wine bg-wine/5 text-wine font-semibold shadow-xs' 
-                    : 'border-gray-200 hover:border-gray-300 text-gray-700 bg-white'
+                    ? 'bg-zinc-100 text-zinc-900 font-semibold' 
+                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
                 }`}
               >
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 text-wine focus:ring-wine h-4 w-4"
+                  className="rounded border-zinc-300 text-zinc-900 focus:ring-zinc-900 h-3.5 w-3.5"
                   checked={isChecked}
                   onChange={() => handleTypeChange(type.value)}
                 />
-                <span className="ml-2.5 text-sm flex items-center">
-                  <span className="mr-1.5">{type.icon}</span>
-                  <span>{type.label}</span>
-                </span>
+                <span className="ml-2.5">{type.label}</span>
               </label>
             );
           })}
         </div>
       </div>
 
-      {/* Varietal */}
+      {/* 2. Variantes / Atributos */}
       <div>
-        <h4 className="font-playfair font-semibold text-base sm:text-lg text-gray-900 mb-3 pb-2 border-b border-gray-100">
-          Varietal
-        </h4>
-        <div className="flex flex-wrap gap-1.5 sm:flex-col sm:space-y-1">
-          {varietals.map(varietal => {
-            const isSelected = (filters.varietal || '').split(',').includes(varietal);
+        <div className="pb-2 mb-3 border-b border-zinc-200">
+          <h4 className="font-semibold text-xs text-zinc-900 uppercase tracking-wider">
+            Variantes
+          </h4>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {variants.map(variant => {
+            const isSelected = (filters.varietal || '').split(',').includes(variant);
             return (
-              <label 
-                key={varietal} 
-                className={`flex items-center px-3 py-1.5 sm:py-2 rounded-lg border text-xs sm:text-sm transition-all cursor-pointer select-none ${
+              <button 
+                key={variant} 
+                type="button"
+                onClick={() => handleVariantChange(variant)}
+                className={`px-2.5 py-1 rounded text-xs transition-colors ${
                   isSelected 
-                    ? 'border-wine bg-wine text-white font-medium' 
-                    : 'border-gray-200 text-gray-700 bg-white hover:bg-gray-50'
+                    ? 'bg-zinc-900 text-white font-medium' 
+                    : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200'
                 }`}
               >
-                <input
-                  type="checkbox"
-                  className="hidden sm:inline rounded border-gray-300 text-wine focus:ring-wine h-4 w-4"
-                  checked={isSelected}
-                  onChange={() => handleVarietalChange(varietal)}
-                />
-                <span className="sm:ml-2 font-medium">{varietal}</span>
-              </label>
+                {variant}
+              </button>
             );
           })}
         </div>
       </div>
       
-      {/* Price Range */}
+      {/* 3. Rango de Precio */}
       <div>
-        <h4 className="font-playfair font-semibold text-base sm:text-lg text-gray-900 mb-3 pb-2 border-b border-gray-100">
-          Rango de Precio
-        </h4>
+        <div className="pb-2 mb-3 border-b border-zinc-200">
+          <h4 className="font-semibold text-xs text-zinc-900 uppercase tracking-wider">
+            Rango de Precio
+          </h4>
+        </div>
         <div className="flex items-center space-x-2">
           <div className="relative flex-1">
-            <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-xs text-gray-400">$</span>
+            <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-xs text-zinc-400">$</span>
             <input
               type="number"
               placeholder="Mínimo"
-              className="w-full pl-6 pr-2 py-2 text-sm rounded-lg border-gray-300 focus:border-wine focus:ring-wine"
+              className="w-full pl-6 pr-2 py-1.5 text-xs rounded border border-zinc-200 bg-white text-zinc-900 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
               value={localMinPrice}
               onChange={(e) => setLocalMinPrice(e.target.value)}
               onBlur={applyPrices}
               onKeyDown={(e) => e.key === 'Enter' && applyPrices()}
             />
           </div>
-          <span className="text-gray-400">-</span>
+          <span className="text-zinc-400 text-xs">-</span>
           <div className="relative flex-1">
-            <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-xs text-gray-400">$</span>
+            <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-xs text-zinc-400">$</span>
             <input
               type="number"
               placeholder="Máximo"
-              className="w-full pl-6 pr-2 py-2 text-sm rounded-lg border-gray-300 focus:border-wine focus:ring-wine"
+              className="w-full pl-6 pr-2 py-1.5 text-xs rounded border border-zinc-200 bg-white text-zinc-900 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
               value={localMaxPrice}
               onChange={(e) => setLocalMaxPrice(e.target.value)}
               onBlur={applyPrices}
@@ -197,20 +183,21 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
         <button 
           type="button" 
           onClick={applyPrices}
-          className="mt-2.5 w-full py-1.5 px-3 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg transition-colors"
+          className="mt-2.5 w-full py-1.5 px-3 bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-medium rounded transition-colors"
         >
-          Aplicar Rango de Precio
+          Filtrar precio
         </button>
       </div>
 
+      {/* Botón limpiar */}
       <div className="pt-2">
         <button 
           type="button" 
           onClick={clearFilters}
-          className="w-full flex items-center justify-center py-2 px-4 border border-gray-300 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+          className="w-full flex items-center justify-center py-2 px-3 border border-zinc-200 text-zinc-600 rounded text-xs font-medium hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
         >
-          <FaTrash className="mr-2 text-xs" />
-          Limpiar todos los filtros
+          <FiTrash2 className="mr-1.5 text-xs" />
+          Restablecer filtros
         </button>
       </div>
     </div>
@@ -218,45 +205,39 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
 
   return (
     <>
-      {/* Mobile Drawer (Bottom Sheet or Side Slide) */}
+      {/* Drawer Móvil */}
       {isOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop */}
           <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity" 
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity" 
             onClick={onClose} 
           />
           
-          {/* Sheet */}
-          <div className="fixed inset-y-0 right-0 max-w-sm w-full bg-white h-full shadow-2xl flex flex-col justify-between">
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white h-full shadow-overlay flex flex-col justify-between border-l border-zinc-200">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-200">
               <div className="flex items-center space-x-2">
-                <span className="text-xl">🍷</span>
-                <h3 className="font-playfair text-xl font-bold text-gray-900">Filtros de Vinos</h3>
+                <FiSliders className="text-zinc-900 text-base" />
+                <h3 className="font-semibold text-sm text-zinc-900">Filtros</h3>
               </div>
               <button 
-                className="text-gray-400 hover:text-gray-700 p-2 rounded-lg" 
-                onClick={onClose}
+                className="text-zinc-400 hover:text-zinc-900 p-1 rounded-md" 
+                onClick={onClose} 
                 aria-label="Cerrar filtros"
               >
-                <FaTimes size={20} />
+                <FiX size={18} />
               </button>
             </div>
 
-            {/* Drawer Body */}
             <div className="p-5 overflow-y-auto flex-1">
               {content}
             </div>
 
-            {/* Drawer Sticky Footer on Mobile */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50 flex space-x-3">
+            <div className="p-4 border-t border-zinc-200 bg-white">
               <Button 
                 variant="primary" 
                 fullWidth 
-                size="lg" 
+                size="md" 
                 onClick={onClose}
-                className="shadow-md"
               >
                 Ver Resultados
               </Button>
@@ -265,9 +246,9 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
         </div>
       )}
 
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:block lg:w-64 flex-shrink-0">
-        <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+      {/* Sidebar Desktop */}
+      <div className="hidden lg:block lg:w-60 flex-shrink-0">
+        <div className="sticky top-24 bg-white p-5 rounded-lg border border-zinc-200">
           {content}
         </div>
       </div>

@@ -3,35 +3,52 @@ import { Link } from 'react-router-dom';
 import useCart from '../hooks/useCart';
 import CartItem from '../components/cart/CartItem';
 import CartSummary from '../components/cart/CartSummary';
+import Button from '../components/ui/Button';
+import { FiShoppingBag, FiArrowRight } from 'react-icons/fi';
+import themeConfig from '../config/theme';
 
 const CartPage = () => {
   const { items } = useCart();
 
   return (
-    <div className="bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="font-playfair text-3xl font-bold text-gray-900 mb-10">Tu Carrito</h1>
+    <div className="bg-white min-h-[75vh]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        <div className="mb-8 pb-4 border-b border-zinc-200">
+          <span className="text-[11px] uppercase tracking-widest text-zinc-400 font-medium">
+            Orden Actual
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-semibold text-zinc-900 mt-1">
+            Carrito de Compras
+          </h1>
+        </div>
         
         {items.length === 0 ? (
-          <div className="text-center py-20 bg-gray-50 rounded-lg border border-gray-200">
-            <h2 className="font-playfair text-2xl text-gray-700 mb-4">El carrito está vacío</h2>
-            <p className="text-gray-500 mb-8">Parece que aún no agregaste ningún vino.</p>
-            <Link to="/catalogo" className="inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-wine hover:bg-opacity-90">
-              Explorar el catálogo
+          <div className="text-center py-20 px-4 bg-zinc-50 rounded-lg border border-zinc-200 max-w-lg mx-auto">
+            <FiShoppingBag className="mx-auto text-4xl text-zinc-300 mb-3" />
+            <h2 className="text-lg font-semibold text-zinc-900 mb-2">Tu carrito está vacío</h2>
+            <p className="text-zinc-500 text-xs sm:text-sm mb-6 max-w-sm mx-auto leading-relaxed">
+              Explorá nuestro catálogo de artículos y esenciales para iniciar tu orden de compra.
+            </p>
+            <Link to="/catalogo">
+              <Button variant="primary" size="lg" className="px-6 text-xs sm:text-sm">
+                <span>Ver Catálogo</span>
+                <FiArrowRight className="ml-2 text-xs" />
+              </Button>
             </Link>
           </div>
         ) : (
-          <div className="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
-            <div className="lg:col-span-7">
-              <ul className="divide-y divide-gray-200 border-t border-b border-gray-200">
+          <div className="lg:grid lg:grid-cols-12 lg:gap-x-10 lg:items-start">
+            {/* Lista de productos */}
+            <div className="lg:col-span-7 bg-white p-6 sm:p-7 rounded-lg border border-zinc-200">
+              <div className="divide-y divide-zinc-100">
                 {items.map((item) => (
-                  <li key={item.product._id || item.product.id}>
-                    <CartItem item={item} />
-                  </li>
+                  <CartItem key={item.product._id || item.product.id} item={item} />
                 ))}
-              </ul>
+              </div>
             </div>
-            <div className="lg:col-span-5 mt-10 lg:mt-0">
+
+            {/* Resumen de compra */}
+            <div className="lg:col-span-5 mt-8 lg:mt-0">
               <CartSummary />
             </div>
           </div>

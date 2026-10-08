@@ -2,83 +2,88 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import useCart from '../../hooks/useCart';
 import Button from '../ui/Button';
-import { FaWhatsapp, FaShieldAlt, FaWineBottle } from 'react-icons/fa';
-
-const MIN_ORDER_BOTTLES = 6;
+import { FiShield, FiArrowRight, FiInfo } from 'react-icons/fi';
+import themeConfig from '../../config/theme';
 
 const CartSummary = ({ isDrawer = false }) => {
   const { cartCount, cartTotal } = useCart();
   const totalFormatted = Number(cartTotal || 0).toLocaleString('es-AR');
-  const remaining = MIN_ORDER_BOTTLES - cartCount;
+  const minUnits = themeConfig.brand.minOrderUnits || 6;
+  const remaining = minUnits - cartCount;
   const meetsMinimum = remaining <= 0;
 
   return (
-    <div className={`bg-gray-50/80 rounded-2xl border border-gray-200/80 ${isDrawer ? 'p-4' : 'p-6 lg:p-8'} shadow-xs`}>
-      <h2 className="text-xl font-playfair font-bold text-gray-900 mb-4">Resumen de Compra</h2>
+    <div className={`bg-white rounded-lg border border-zinc-200 ${isDrawer ? 'p-5' : 'p-6 lg:p-7'}`}>
+      <div className="pb-3 mb-4 border-b border-zinc-100">
+        <h2 className="text-base font-semibold text-zinc-900">Resumen del Pedido</h2>
+        <p className="text-xs text-zinc-500 mt-0.5">Valores finales sin costos ocultos</p>
+      </div>
       
       <div className="flow-root">
-        <dl className="-my-3 text-sm divide-y divide-gray-200">
-          <div className="py-3 flex items-center justify-between">
-            <dt className="text-gray-600">Subtotal ({cartCount} {cartCount === 1 ? 'botella' : 'botellas'})</dt>
-            <dd className="font-semibold text-gray-900">${totalFormatted}</dd>
+        <dl className="text-xs divide-y divide-zinc-100">
+          <div className="py-2.5 flex items-center justify-between">
+            <dt className="text-zinc-600">Subtotal ({cartCount} {cartCount === 1 ? themeConfig.brand.unitName : themeConfig.brand.unitNamePlural})</dt>
+            <dd className="font-semibold text-zinc-900">{themeConfig.brand.currencySymbol}{totalFormatted}</dd>
           </div>
-          <div className="py-3 flex items-center justify-between">
-            <dt className="text-gray-600">Entrega / Envío</dt>
-            <dd className="text-xs text-gray-500 font-medium">A coordinar por WhatsApp</dd>
+          <div className="py-2.5 flex items-center justify-between">
+            <dt className="text-zinc-600">Entrega y logística</dt>
+            <dd className="text-zinc-600 font-medium">A coordinar por WhatsApp</dd>
           </div>
-          <div className="py-4 flex items-center justify-between">
-            <dt className="text-base font-bold text-gray-900">Total Final</dt>
-            <dd className="text-2xl font-bold text-wine">${totalFormatted}</dd>
+          <div className="py-3.5 flex items-center justify-between border-t border-zinc-200">
+            <dt className="text-sm font-semibold text-zinc-900">Total Estimado</dt>
+            <dd className="text-xl font-bold text-zinc-900 tracking-tight">{themeConfig.brand.currencySymbol}{totalFormatted}</dd>
           </div>
         </dl>
       </div>
 
-      {/* Minimum order warning */}
+      {/* Regla de pedido mínimo para despacho */}
       {!meetsMinimum && (
-        <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3.5 flex items-start gap-3">
-          <FaWineBottle className="text-amber-500 mt-0.5 flex-shrink-0" />
+        <div className="mt-4 bg-amber-50 border border-amber-200 rounded p-3 flex items-start gap-2.5">
+          <FiInfo className="text-amber-700 mt-0.5 flex-shrink-0 text-sm" />
           <div>
-            <p className="text-sm font-semibold text-amber-800">
-              Pedido mínimo: {MIN_ORDER_BOTTLES} botellas
+            <p className="text-xs font-semibold text-amber-800">
+              Mínimo para despacho: {minUnits} {themeConfig.brand.unitNamePlural}
             </p>
-            <p className="text-xs text-amber-600 mt-0.5">
-              Agregá {remaining} {remaining === 1 ? 'botella' : 'botellas'} más para poder realizar tu pedido.
+            <p className="text-[11px] text-amber-700 font-normal mt-0.5 leading-relaxed">
+              Faltan <strong className="font-semibold">{remaining} {remaining === 1 ? themeConfig.brand.unitName : themeConfig.brand.unitNamePlural}</strong> para alcanzar el mínimo reglamentario de orden.
             </p>
           </div>
         </div>
       )}
 
       {meetsMinimum && (
-        <div className="mt-4 bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-2">
-          <FaShieldAlt className="text-green-500 flex-shrink-0" />
-          <p className="text-xs font-medium text-green-700">
-            ✓ Cumplís el mínimo de {MIN_ORDER_BOTTLES} botellas
+        <div className="mt-4 bg-emerald-50 border border-emerald-200 rounded p-3 flex items-center gap-2 text-emerald-800">
+          <FiShield className="text-emerald-700 flex-shrink-0 text-sm" />
+          <p className="text-xs font-medium">
+            Cumplís con el mínimo requerido de {minUnits} {themeConfig.brand.unitNamePlural}
           </p>
         </div>
       )}
 
+      {/* Botón de acción */}
       <div className="mt-6">
         {meetsMinimum ? (
           <Link to="/checkout" className="w-full block">
-            <Button fullWidth variant="primary" size="lg" className="shadow-md py-3.5 text-base font-semibold">
-              Continuar al Checkout
+            <Button fullWidth variant="primary" size="lg" className="text-xs sm:text-sm py-3">
+              <span>Continuar al Checkout</span>
+              <FiArrowRight className="ml-2 text-xs" />
             </Button>
           </Link>
         ) : (
           <div>
-            <Button fullWidth variant="primary" size="lg" disabled className="shadow-md py-3.5 text-base font-semibold opacity-50 cursor-not-allowed">
+            <Button fullWidth variant="primary" size="lg" disabled className="text-xs sm:text-sm py-3 opacity-40 cursor-not-allowed">
               Continuar al Checkout
             </Button>
-            <p className="text-center text-xs text-amber-600 font-medium mt-2">
-              Necesitás al menos {MIN_ORDER_BOTTLES} botellas
+            <p className="text-center text-[11px] text-zinc-400 mt-2">
+              Sumá artículos para habilitar el pedido
             </p>
           </div>
         )}
       </div>
 
-      <div className="mt-4 flex flex-col items-center space-y-2 text-xs text-gray-500 text-center">
-        <Link to="/catalogo" className="font-medium text-wine hover:underline inline-flex items-center">
-          &larr; Seguir explorando el catálogo
+      <div className="mt-4 text-center">
+        <Link to="/catalogo" className="text-xs text-zinc-500 hover:text-zinc-900 transition-colors font-medium">
+          &larr; Continuar explorando catálogo
         </Link>
       </div>
     </div>

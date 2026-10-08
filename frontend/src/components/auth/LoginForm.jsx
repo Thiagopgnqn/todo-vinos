@@ -20,20 +20,46 @@ const LoginForm = () => {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al iniciar sesión');
+      setError(err.response?.data?.message || 'Credenciales incorrectas. Verificá tu correo y contraseña.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <Input label="Email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-      <Input label="Contraseña" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <Button type="submit" variant="primary" fullWidth loading={loading}>Iniciar Sesión</Button>
-      <div className="text-center text-sm text-gray-600">
-        ¿No tenés cuenta? <Link to="/registro" className="text-wine font-medium hover:underline">Registrate acá</Link>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <Input 
+        label="Correo Electrónico" 
+        type="email" 
+        required 
+        value={email} 
+        onChange={(e) => setEmail(e.target.value)} 
+        placeholder="tu@email.com"
+      />
+      <Input 
+        label="Contraseña" 
+        type="password" 
+        required 
+        value={password} 
+        onChange={(e) => setPassword(e.target.value)} 
+        placeholder="••••••••"
+      />
+      
+      {error && (
+        <div className="text-xs text-rose-700 bg-rose-50 p-2.5 rounded border border-rose-200 font-medium">
+          {error}
+        </div>
+      )}
+
+      <Button type="submit" variant="primary" fullWidth size="md" loading={loading} className="py-2.5 text-xs sm:text-sm mt-2">
+        Ingresar a mi Cuenta
+      </Button>
+
+      <div className="text-center text-xs text-zinc-500 pt-3 border-t border-zinc-100">
+        ¿Aún no tenés cuenta?{' '}
+        <Link to="/registro" className="text-zinc-900 font-medium hover:underline">
+          Registrate acá
+        </Link>
       </div>
     </form>
   );

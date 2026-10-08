@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import useAuth from './hooks/useAuth';
-import { FaBars, FaStore, FaSignOutAlt } from 'react-icons/fa';
+import { FiMenu, FiExternalLink, FiLogOut } from 'react-icons/fi';
 
 import Layout from './components/layout/Layout';
 import AdminSidebar from './components/admin/AdminSidebar';
@@ -23,6 +23,7 @@ import WineTypesPage from './pages/admin/WineTypesPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import UsersPage from './pages/admin/UsersPage';
 import ScrollToTop from './components/ScrollToTop';
+import themeConfig from './config/theme';
 
 const ProtectedAdminRoute = ({ children }) => {
   const { user, loading, isAdmin, logout } = useAuth();
@@ -32,55 +33,56 @@ const ProtectedAdminRoute = ({ children }) => {
   if (!user || !isAdmin) return <Navigate to="/" />;
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-zinc-100 overflow-hidden text-zinc-900">
       {/* Sidebar with responsive drawer */}
       <AdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Admin Top Header */}
-        <header className="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4 sm:px-8 z-10 flex-shrink-0">
+        <header className="bg-white border-b border-zinc-200 h-16 flex items-center justify-between px-4 sm:px-8 z-10 flex-shrink-0">
           <div className="flex items-center space-x-3">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="md:hidden p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+              className="md:hidden p-2 rounded-md text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 transition-colors"
               title="Abrir menú"
+              aria-label="Abrir menú"
             >
-              <FaBars size={20} />
+              <FiMenu size={18} />
             </button>
-            <span className="text-sm font-semibold text-gray-500 hidden sm:inline">
-              Todo Vinos &bull; Panel de Administración
-            </span>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-semibold text-zinc-900">
+                {themeConfig.brand.name}
+              </span>
+              <span className="text-zinc-300 hidden sm:inline">&bull;</span>
+              <span className="text-xs text-zinc-500 hidden sm:inline">
+                Panel de Administración
+              </span>
+            </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <Link
               to="/"
-              className="inline-flex items-center space-x-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-wine hover:text-white px-3.5 py-2 rounded-lg transition-colors shadow-xs"
+              className="inline-flex items-center space-x-1.5 text-xs font-medium text-zinc-700 hover:text-zinc-900 border border-zinc-200 hover:bg-zinc-50 px-3 py-1.5 rounded-md transition-colors"
             >
-              <FaStore />
+              <FiExternalLink size={13} />
               <span>Ver Tienda</span>
-            </Link>
-
-            <Link
-              to="/catalogo"
-              className="hidden sm:inline-flex items-center space-x-2 text-sm font-medium text-gray-600 hover:text-wine px-3 py-2 transition-colors"
-            >
-              <span>Catálogo</span>
             </Link>
 
             <button
               onClick={logout}
-              className="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-colors"
+              className="text-zinc-400 hover:text-rose-600 p-2 rounded-md hover:bg-zinc-100 transition-colors"
               title="Cerrar sesión"
+              aria-label="Cerrar sesión"
             >
-              <FaSignOutAlt size={16} />
+              <FiLogOut size={16} />
             </button>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-gray-50">
+        <main className="flex-1 p-4 sm:p-8 overflow-y-auto bg-zinc-50">
           <div className="max-w-7xl mx-auto">
             {children}
           </div>

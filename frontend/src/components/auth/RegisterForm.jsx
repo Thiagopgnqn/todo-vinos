@@ -24,7 +24,7 @@ const RegisterForm = () => {
       await register(formData.name, formData.email, formData.password, formData.phone);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al registrarse');
+      setError(err.response?.data?.message || 'Error al registrar tu cuenta. Verificá los datos.');
     } finally {
       setLoading(false);
     }
@@ -32,17 +32,67 @@ const RegisterForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input label="Nombre completo" name="name" required value={formData.name} onChange={handleChange} />
-      <Input label="Email" type="email" name="email" required value={formData.email} onChange={handleChange} />
-      <Input label="Teléfono (Opcional)" name="phone" value={formData.phone} onChange={handleChange} />
-      <Input label="Contraseña" type="password" name="password" required value={formData.password} onChange={handleChange} />
-      <Input label="Confirmar Contraseña" type="password" name="confirmPassword" required value={formData.confirmPassword} onChange={handleChange} />
+      <Input 
+        label="Nombre Completo" 
+        name="name" 
+        required 
+        value={formData.name} 
+        onChange={handleChange} 
+        placeholder="Ej: Laura Castro"
+      />
+      <Input 
+        label="Correo Electrónico" 
+        type="email" 
+        name="email" 
+        required 
+        value={formData.email} 
+        onChange={handleChange} 
+        placeholder="laura@ejemplo.com"
+      />
+      <Input 
+        label="Teléfono / WhatsApp (Opcional)" 
+        type="tel" 
+        name="phone" 
+        value={formData.phone} 
+        onChange={handleChange} 
+        placeholder="Ej: 11 2345 6789"
+      />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Input 
+          label="Contraseña" 
+          type="password" 
+          name="password" 
+          required 
+          value={formData.password} 
+          onChange={handleChange} 
+          placeholder="••••••••"
+        />
+        <Input 
+          label="Confirmar" 
+          type="password" 
+          name="confirmPassword" 
+          required 
+          value={formData.confirmPassword} 
+          onChange={handleChange} 
+          placeholder="••••••••"
+        />
+      </div>
       
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <div className="text-xs text-rose-700 bg-rose-50 p-2.5 rounded border border-rose-200 font-medium">
+          {error}
+        </div>
+      )}
       
-      <Button type="submit" variant="primary" fullWidth loading={loading} className="mt-4">Registrarse</Button>
-      <div className="text-center text-sm text-gray-600 mt-4">
-        ¿Ya tenés cuenta? <Link to="/login" className="text-wine font-medium hover:underline">Iniciá sesión</Link>
+      <Button type="submit" variant="primary" fullWidth size="md" loading={loading} className="mt-2 py-2.5 text-xs sm:text-sm">
+        Crear mi Cuenta
+      </Button>
+
+      <div className="text-center text-xs text-zinc-500 pt-3 border-t border-zinc-100">
+        ¿Ya tenés una cuenta?{' '}
+        <Link to="/login" className="text-zinc-900 font-medium hover:underline">
+          Iniciá sesión acá
+        </Link>
       </div>
     </form>
   );

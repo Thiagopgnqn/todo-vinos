@@ -3,13 +3,8 @@ import { Link } from 'react-router-dom';
 import Badge from '../ui/Badge';
 import Button from '../ui/Button';
 import useCart from '../../hooks/useCart';
-
-const wineTypeGradients = {
-  TINTO: 'from-[#4a0e17] to-[#722F37]',
-  BLANCO: 'from-[#bda55d] to-[#e6d8a7]',
-  ROSADO: 'from-[#b84a62] to-[#d97d8f]',
-  ESPUMANTE: 'from-[#8a7b4f] to-[#c2b078]',
-};
+import { FiShoppingBag } from 'react-icons/fi';
+import themeConfig from '../../config/theme';
 
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
@@ -18,83 +13,121 @@ const ProductCard = ({ product }) => {
   const productId = product.id || product._id;
   const imageUrl = product.imageUrl || product.image;
   const priceFormatted = Number(product.price).toLocaleString('es-AR');
-  const typeKey = (product.type || 'TINTO').toUpperCase();
-  const bgGradient = wineTypeGradients[typeKey] || 'from-gray-700 to-gray-900';
 
   const handleAdd = (e) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!isOutOfStock) {
       addToCart(product, 1);
     }
   };
 
   return (
-    <div className="group bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+    <div className="group bg-white rounded-lg border border-zinc-200 overflow-hidden transition-smooth hover:border-zinc-400 flex flex-col h-full relative">
       <Link to={`/producto/${productId}`} className="relative flex-grow flex flex-col">
-        <div className="aspect-[3/4] w-full bg-gray-100 relative overflow-hidden flex items-center justify-center">
+        {/* Contenedor de Imagen con proporción fija 1:1 */}
+        <div className="aspect-square w-full bg-zinc-100 relative overflow-hidden flex items-center justify-center border-b border-zinc-100">
           {imageUrl && !imgError ? (
             <img 
               src={imageUrl} 
               alt={product.name} 
-              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" 
+              className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500 ease-out" 
               onError={() => setImgError(true)}
+              loading="lazy"
             />
           ) : (
-            <div className={`w-full h-full bg-gradient-to-b ${bgGradient} flex flex-col items-center justify-center p-6 text-center text-white`}>
-              <span className="text-4xl mb-2">🍷</span>
-              <span className="font-playfair font-bold text-lg leading-tight drop-shadow">{product.name}</span>
-              <span className="text-xs uppercase tracking-widest mt-1 opacity-80">{product.winery}</span>
+            <div className="w-full h-full bg-zinc-100 flex flex-col items-center justify-center p-6 text-center text-zinc-400">
+              <FiShoppingBag className="text-3xl mb-2 text-zinc-300" />
+              <span className="text-xs font-medium text-zinc-500 line-clamp-1">
+                {product.name}
+              </span>
             </div>
           )}
 
-          <div className="absolute top-3 left-3">
-            <Badge variant={typeKey.toLowerCase()}>{product.type}</Badge>
-          </div>
+          {/* Badge de tipo/categoría */}
+          {product.type && (
+            <div className="absolute top-2.5 left-2.5 z-10">
+              <Badge variant="neutral">{product.type}</Badge>
+            </div>
+          )}
 
+          {/* Estado de sin stock */}
           {isOutOfStock && (
-            <div className="absolute inset-0 bg-white/80 backdrop-blur-xs flex items-center justify-center">
-              <span className="bg-red-600 text-white px-3 py-1 font-bold rounded text-xs uppercase tracking-wider shadow">Agotado</span>
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-[1px] flex items-center justify-center z-20">
+              <span className="bg-zinc-900 text-white px-2.5 py-1 rounded text-[11px] font-semibold uppercase tracking-wider">
+                Sin Stock
+              </span>
             </div>
           )}
         </div>
 
-        <div className="p-4 flex flex-col flex-grow">
-          {product.winery && <div className="text-xs font-semibold text-gold tracking-wider uppercase mb-1">{product.winery}</div>}
-          <h3 className="font-playfair font-bold text-lg text-gray-900 mb-1 leading-tight line-clamp-2">{product.name}</h3>
+        {/* Ficha descriptiva */}
+        <div className="p-4 sm:p-5 flex flex-col flex-grow">
+          {/* Subtítulo / Marca o Categoría */}
+          {product.winery && (
+            <div className="text-[10px] font-semibold text-zinc-400 uppercase tracking-widest mb-1 truncate">
+              {product.winery}
+            </div>
+          )}
+          
+          <h3 className="font-medium text-sm sm:text-base text-zinc-900 mb-1 leading-snug line-clamp-2">
+            {product.name}
+          </h3>
+
           {(product.varietal || product.year) && (
-            <p className="text-sm text-gray-500 mb-3">
-              {[product.varietal, product.year].filter(Boolean).join(' • ')}
+            <p className="text-xs text-zinc-500 font-normal mb-3 flex items-center gap-1.5">
+              <span>{product.varietal}</span>
+              {product.year && (
+                <>
+                  <span className="text-zinc-300">•</span>
+                  <span>{product.year}</span>
+                </>
+              )}
             </p>
           )}
           
-          <div className="mt-auto pt-2 border-t border-gray-100">
+          {/* Precios */}
+          <div className="mt-auto pt-3 border-t border-zinc-100">
             <div className="flex items-baseline justify-between">
               <div>
-                <span className="text-xs text-gray-400 font-normal mr-1">$</span>
-                <span className="text-xl font-bold text-wine">{priceFormatted}</span>
+                <span className="text-base sm:text-lg font-semibold text-zinc-900 tracking-tight">
+                  {themeConfig.brand.currencySymbol}{priceFormatted}
+                </span>
               </div>
               {product.stock > 0 && product.stock <= 5 && (
-                <span className="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded">¡Últimas {product.stock}!</span>
+                <span className="text-[10px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  Últimas {product.stock} un.
+                </span>
               )}
             </div>
+
             {product.transferPrice && (
-              <p className="text-xs text-green-700 font-medium mt-1">
-                Transferencia: <span className="font-bold">${Number(product.transferPrice).toLocaleString('es-AR')}</span>
+              <p className="text-[11px] text-emerald-700 font-medium mt-1">
+                <span>{themeConfig.brand.currencySymbol}{Number(product.transferPrice).toLocaleString('es-AR')}</span>
+                <span className="text-zinc-400 font-normal ml-1">(con transferencia)</span>
               </p>
             )}
           </div>
         </div>
       </Link>
 
-      <div className="p-4 pt-0">
+      {/* Botón de acción rápida */}
+      <div className="p-4 sm:p-5 pt-0">
         <Button 
           fullWidth 
-          variant="primary" 
+          variant={isOutOfStock ? 'secondary' : 'primary'} 
           disabled={isOutOfStock}
           onClick={handleAdd}
-          className="shadow-xs"
+          className="py-2 text-xs font-medium"
         >
-          {isOutOfStock ? 'Sin stock' : 'Agregar al carrito'}
+          {isOutOfStock ? (
+            'Agotado'
+          ) : (
+            <span className="inline-flex items-center gap-2">
+              <FiShoppingBag className="text-xs" />
+              <span>Agregar al carrito</span>
+            </span>
+          )}
         </Button>
       </div>
     </div>

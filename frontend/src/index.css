@@ -2,31 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* Design Tokens: Superficies y Fondos */
+  --color-bg: #FFFFFF;
+  --color-surface: #FAFAFA;
+  --color-surface-hover: #F4F4F5;
+  --color-border: #E4E4E7;
+  --color-border-subtle: #F4F4F5;
+
+  /* Tipografía y Textos */
+  --color-text-main: #111111;
+  --color-text-muted: #52525B;
+  --color-text-subtle: #71717A;
+  --color-text-faint: #A1A1AA;
+
+  /* Color de Acento de Marca (Cambiable fácilmente para rebrandear) */
+  --color-accent: #111111;
+  --color-accent-hover: #262626;
+  --color-accent-contrast: #FFFFFF;
+  --color-accent-subtle: #F4F4F5;
+
+  /* Estados Funcionales */
+  --color-status-success: #15803D;
+  --color-status-success-bg: #F0FDF4;
+  --color-status-warning: #B45309;
+  --color-status-warning-bg: #FFFBEB;
+  --color-status-error: #B91C1C;
+  --color-status-error-bg: #FEF2F2;
+
+  /* Radios de borde consistentes */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
+    color-scheme: light;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
   body {
-    @apply font-inter bg-cream text-base;
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: -0.011em;
   }
+
+  /* Títulos limpios, sin fuentes extravagantes ni emojis */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-playfair;
+    color: var(--color-text-main);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  ::selection {
+    background-color: #111111;
+    color: #FFFFFF;
   }
 }
 
-/* Custom Scrollbar */
+/* Scrollbar sutil y minimalista */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-cream;
+  background: #FAFAFA;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-wine rounded-full;
+  background: #D4D4D8;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-opacity-80;
+  background: #A1A1AA;
+}
+
+/* Transiciones sutiles e imperceptibles (150-200ms) */
+.transition-smooth {
+  transition-property: color, background-color, border-color, transform, opacity, box-shadow;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 180ms;
 }

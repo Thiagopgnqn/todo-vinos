@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import themeConfig from '../config/theme';
 
 const setOrCreateMeta = (attribute, nameOrProperty, content) => {
   if (!content) return;
@@ -20,10 +21,12 @@ export const useSEO = ({
   type = 'website',
   structuredData,
 } = {}) => {
+  const brandName = themeConfig.brand.name;
+
   useEffect(() => {
     // Title
     if (title) {
-      document.title = title.includes('Todo Vinos') ? title : `${title} | Todo Vinos`;
+      document.title = title.includes(brandName) ? title : `${title} | ${brandName}`;
     }
 
     // Standard SEO
@@ -34,7 +37,7 @@ export const useSEO = ({
       setOrCreateMeta('name', 'keywords', keywords);
     }
 
-    // Open Graph (WhatsApp, Facebook, LinkedIn)
+    // Open Graph
     const currentUrl = url || window.location.href;
     setOrCreateMeta('property', 'og:title', title || document.title);
     if (description) setOrCreateMeta('property', 'og:description', description);
@@ -58,13 +61,11 @@ export const useSEO = ({
     }
 
     return () => {
-      // Cleanup dynamic JSON-LD on unmount
       if (scriptTag && scriptTag.parentNode) {
         scriptTag.parentNode.removeChild(scriptTag);
       }
     };
-  }, [title, description, keywords, image, url, type, structuredData]);
+  }, [title, description, keywords, image, url, type, structuredData, brandName]);
 };
 
 export default useSEO;
-

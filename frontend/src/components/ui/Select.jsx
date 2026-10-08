@@ -3,10 +3,16 @@ import React, { forwardRef } from 'react';
 const Select = forwardRef(({ label, error, options, className = '', ...props }, ref) => {
   return (
     <div className="w-full">
-      {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
+      {label && (
+        <label className="block text-xs font-medium text-zinc-700 mb-1.5 tracking-normal">
+          {label}
+        </label>
+      )}
       <select
         ref={ref}
-        className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-wine focus:ring-wine sm:text-sm ${error ? 'border-red-300' : ''} ${className}`}
+        className={`block w-full rounded-md bg-white border border-zinc-200 text-zinc-900 text-sm py-2 px-3 transition-smooth focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 shadow-soft ${
+          error ? 'border-rose-400 focus:border-rose-600 focus:ring-rose-600' : ''
+        } ${className}`}
         {...props}
       >
         {options.map((opt, idx) => (
@@ -15,7 +21,7 @@ const Select = forwardRef(({ label, error, options, className = '', ...props }, 
           </option>
         ))}
       </select>
-      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-rose-600 font-medium">{error}</p>}
     </div>
   );
 });

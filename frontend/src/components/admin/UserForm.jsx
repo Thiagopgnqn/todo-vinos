@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
-import { FaShieldAlt, FaUser, FaInfoCircle } from 'react-icons/fa';
+import { FiShield, FiUser, FiInfo } from 'react-icons/fi';
 
-const UserForm = ({ initialData, currentUserId, onSubmit, loading }) => {
+const UserForm = ({ initialData, currentUserId, onSubmit, loading, onCancel }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -43,18 +43,18 @@ const UserForm = ({ initialData, currentUserId, onSubmit, loading }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-3.5">
         <Input
           label="Nombre y Apellido"
           name="name"
           value={formData.name}
           onChange={handleChange}
           required
-          placeholder="Ej: Juan Pérez"
+          placeholder="Ej: Marcos Silva"
         />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <Input
             label="Correo Electrónico"
             type="email"
@@ -62,7 +62,7 @@ const UserForm = ({ initialData, currentUserId, onSubmit, loading }) => {
             value={formData.email}
             onChange={handleChange}
             required
-            placeholder="juan@email.com"
+            placeholder="marcos@email.com"
           />
 
           <Input
@@ -70,38 +70,38 @@ const UserForm = ({ initialData, currentUserId, onSubmit, loading }) => {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder="Ej: +54 9 261 123 4567"
+            placeholder="Ej: 11 2345 6789"
           />
         </div>
 
-        {/* Role Selection */}
+        {/* Selección de Rol */}
         <div className="pt-2">
-          <label className="block text-sm font-semibold text-gray-900 mb-2">
-            Rol del Usuario
+          <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-2">
+            Rol de Acceso
           </label>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {/* Customer Option */}
+            {/* Cliente */}
             <div
               onClick={() => handleRoleSelect('CUSTOMER')}
-              className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-start space-x-3 ${
+              className={`p-3 rounded-lg border cursor-pointer transition-colors flex items-start space-x-3 ${
                 formData.role === 'CUSTOMER'
-                  ? 'border-wine bg-wine/5 shadow-xs'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
-              } ${isSelf ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  ? 'border-zinc-900 bg-zinc-50'
+                  : 'border-zinc-200 hover:border-zinc-300 bg-white'
+              } ${isSelf ? 'opacity-40 cursor-not-allowed' : ''}`}
             >
               <div
-                className={`p-2 rounded-lg mt-0.5 ${
+                className={`p-2 rounded mt-0.5 ${
                   formData.role === 'CUSTOMER'
-                    ? 'bg-wine text-white'
-                    : 'bg-gray-100 text-gray-500'
+                    ? 'bg-zinc-900 text-white'
+                    : 'bg-zinc-100 text-zinc-600'
                 }`}
               >
-                <FaUser size={16} />
+                <FiUser size={14} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-gray-900">Cliente</span>
+                  <span className="text-xs font-semibold text-zinc-900">Cliente</span>
                   <input
                     type="radio"
                     name="role"
@@ -109,66 +109,71 @@ const UserForm = ({ initialData, currentUserId, onSubmit, loading }) => {
                     checked={formData.role === 'CUSTOMER'}
                     onChange={() => handleRoleSelect('CUSTOMER')}
                     disabled={isSelf}
-                    className="text-wine focus:ring-wine"
+                    className="text-zinc-900 focus:ring-zinc-900 h-3.5 w-3.5"
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Puede comprar, ver catálogo y consultar su historial de pedidos.
+                <p className="text-[11px] text-zinc-500 mt-1 leading-normal">
+                  Acceso estándar para compras y seguimiento de órdenes.
                 </p>
               </div>
             </div>
 
-            {/* Admin Option */}
+            {/* Administrador */}
             <div
               onClick={() => handleRoleSelect('ADMIN')}
-              className={`p-3.5 rounded-xl border-2 cursor-pointer transition-all flex items-start space-x-3 ${
+              className={`p-3 rounded-lg border cursor-pointer transition-colors flex items-start space-x-3 ${
                 formData.role === 'ADMIN'
-                  ? 'border-purple-600 bg-purple-50/50 shadow-xs'
-                  : 'border-gray-200 hover:border-gray-300 bg-white'
+                  ? 'border-zinc-900 bg-zinc-50'
+                  : 'border-zinc-200 hover:border-zinc-300 bg-white'
               }`}
             >
               <div
-                className={`p-2 rounded-lg mt-0.5 ${
+                className={`p-2 rounded mt-0.5 ${
                   formData.role === 'ADMIN'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-100 text-gray-500'
+                    ? 'bg-zinc-900 text-white'
+                    : 'bg-zinc-100 text-zinc-600'
                 }`}
               >
-                <FaShieldAlt size={16} />
+                <FiShield size={14} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-gray-900">Administrador</span>
+                  <span className="text-xs font-semibold text-zinc-900">Administrador</span>
                   <input
                     type="radio"
                     name="role"
                     value="ADMIN"
                     checked={formData.role === 'ADMIN'}
                     onChange={() => handleRoleSelect('ADMIN')}
-                    className="text-purple-600 focus:ring-purple-500"
+                    className="text-zinc-900 focus:ring-zinc-900 h-3.5 w-3.5"
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Acceso total: gestión de productos, pedidos, estadísticas y usuarios.
+                <p className="text-[11px] text-zinc-500 mt-1 leading-normal">
+                  Acceso completo a productos, pedidos, estadísticas y cuentas.
                 </p>
               </div>
             </div>
           </div>
 
           {isSelf && (
-            <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2.5 mt-2 flex items-center space-x-1.5">
-              <FaInfoCircle className="flex-shrink-0 text-amber-600" />
+            <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded p-2.5 mt-2.5 flex items-center space-x-2">
+              <FiInfo className="flex-shrink-0" size={14} />
               <span>
-                Estás editando tu propia cuenta. Por seguridad no podés quitarte el rol de Administrador.
+                Estás editando tu propia cuenta. Por seguridad no podés removerte el rol de Administrador.
               </span>
             </p>
           )}
         </div>
       </div>
 
-      <div className="flex justify-end space-x-3 pt-4 border-t border-gray-100">
-        <Button type="submit" disabled={loading}>
-          {loading ? 'Guardando...' : 'Guardar Cambios'}
+      <div className="flex justify-end space-x-2.5 pt-3 border-t border-zinc-100">
+        {onCancel && (
+          <Button type="button" variant="secondary" onClick={onCancel} className="text-xs">
+            Cancelar
+          </Button>
+        )}
+        <Button type="submit" variant="primary" loading={loading} disabled={loading} className="px-5 text-xs">
+          Guardar Cambios
         </Button>
       </div>
     </form>
@@ -176,4 +181,3 @@ const UserForm = ({ initialData, currentUserId, onSubmit, loading }) => {
 };
 
 export default UserForm;
-
