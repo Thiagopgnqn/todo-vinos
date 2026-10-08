@@ -16,9 +16,11 @@ const Button = ({
   const variants = {
     primary: 'bg-zinc-900 text-white hover:bg-zinc-800 focus:ring-zinc-900 shadow-soft border border-transparent',
     secondary: 'border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50 hover:border-zinc-300 focus:ring-zinc-900 shadow-soft',
+    white: 'bg-white text-zinc-950 hover:bg-zinc-100 focus:ring-white shadow-md border border-transparent font-semibold',
+    outlineWhite: 'border-2 border-white text-white bg-black/20 backdrop-blur-xs hover:bg-white hover:text-zinc-950 focus:ring-white transition-colors font-semibold',
     ghost: 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 focus:ring-zinc-500 border border-transparent',
     danger: 'bg-rose-700 text-white hover:bg-rose-800 focus:ring-rose-700 shadow-soft border border-transparent',
-    gold: 'bg-zinc-900 text-white hover:bg-zinc-800 focus:ring-zinc-900 shadow-soft border border-transparent', // Unificado a primario
+    gold: 'bg-zinc-900 text-white hover:bg-zinc-800 focus:ring-zinc-900 shadow-soft border border-transparent',
     outline: 'border border-zinc-900 text-zinc-900 bg-transparent hover:bg-zinc-900 hover:text-white focus:ring-zinc-900',
   };
 

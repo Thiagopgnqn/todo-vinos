@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   FiShoppingBag, 
@@ -168,27 +169,35 @@ const Header = () => {
         </div>
       </div>
 
-      {/* MENÚ MÓVIL DESLIZANTE */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+      {/* MENÚ MÓVIL DESLIZANTE VIA PORTAL (Evita que quede atrapado bajo el backdrop-filter del header) */}
+      {mobileMenuOpen && typeof document !== 'undefined' && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] md:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menú de navegación"
+        >
+          {/* Fondo oscuro backdrop */}
           <div 
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/60 transition-opacity"
             onClick={() => setMobileMenuOpen(false)} 
+            aria-hidden="true"
           />
 
-          <div className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white text-zinc-900 flex flex-col justify-between shadow-overlay p-6 overflow-y-auto border-r border-zinc-200">
+          {/* Panel lateral deslizable */}
+          <div className="fixed inset-y-0 left-0 w-[85%] max-w-sm bg-white text-zinc-900 flex flex-col justify-between shadow-2xl p-6 overflow-y-auto z-10 border-r border-zinc-200">
             <div>
-              {/* Header interior */}
+              {/* Header interior del menú */}
               <div className="flex items-center justify-between pb-5 border-b border-zinc-100">
-                <Link to="/" className="font-semibold text-lg tracking-tight" onClick={() => setMobileMenuOpen(false)}>
+                <Link to="/" className="font-semibold text-lg tracking-tight text-zinc-900" onClick={() => setMobileMenuOpen(false)}>
                   {themeConfig.brand.name}
                 </Link>
                 <button 
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-zinc-400 hover:text-zinc-900 p-1.5 rounded-md"
+                  className="text-zinc-500 hover:text-zinc-900 p-2 rounded-md hover:bg-zinc-100 focus:outline-none"
                   aria-label="Cerrar menú"
                 >
-                  <FiX size={18} />
+                  <FiX size={20} />
                 </button>
               </div>
 
@@ -200,7 +209,7 @@ const Header = () => {
                     key={item.label}
                     to={item.href} 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-between px-2.5 py-2 rounded-md text-sm text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 transition-colors"
+                    className="flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 transition-colors"
                   >
                     <span>{item.label}</span>
                   </Link>
@@ -209,7 +218,7 @@ const Header = () => {
                 <Link 
                   to="/carrito" 
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-2.5 py-2 rounded-md text-sm text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 transition-colors mt-3 pt-3 border-t border-zinc-100"
+                  className="flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium text-zinc-800 hover:bg-zinc-100 hover:text-zinc-900 transition-colors mt-3 pt-3 border-t border-zinc-100"
                 >
                   <span>Mi Carrito</span>
                   {cartCount > 0 && (
@@ -247,9 +256,9 @@ const Header = () => {
                   </div>
                   <button 
                     onClick={() => { logout(); setMobileMenuOpen(false); }}
-                    className="flex items-center justify-center space-x-2 w-full py-2 px-3 rounded-md bg-zinc-100 text-rose-700 text-xs font-medium hover:bg-rose-50 transition-colors"
+                    className="flex items-center justify-center space-x-2 w-full py-2.5 px-3 rounded-md bg-zinc-100 text-rose-700 text-xs font-medium hover:bg-rose-50 transition-colors"
                   >
-                    <FiLogOut size={13} />
+                    <FiLogOut size={14} />
                     <span>Cerrar sesión</span>
                   </button>
                 </div>
@@ -258,14 +267,14 @@ const Header = () => {
                   <Link 
                     to="/login" 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center py-2 px-3 rounded-md border border-zinc-200 text-center text-xs font-medium text-zinc-800 hover:bg-zinc-50"
+                    className="flex items-center justify-center py-2.5 px-3 rounded-md border border-zinc-200 text-center text-xs font-medium text-zinc-800 hover:bg-zinc-50 transition-colors"
                   >
                     Ingresar
                   </Link>
                   <Link 
                     to="/registro" 
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center py-2 px-3 rounded-md bg-zinc-900 text-center text-xs font-medium text-white hover:bg-zinc-800 shadow-soft"
+                    className="flex items-center justify-center py-2.5 px-3 rounded-md bg-zinc-900 text-center text-xs font-medium text-white hover:bg-zinc-800 shadow-soft transition-colors"
                   >
                     Registrarse
                   </Link>
@@ -273,7 +282,8 @@ const Header = () => {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );

@@ -48,14 +48,14 @@ const HomePage = () => {
             
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link to="/catalogo">
-                <Button size="lg" className="w-full sm:w-auto bg-white text-zinc-950 hover:bg-zinc-100 border-none px-6">
+                <Button size="lg" variant="white" className="w-full sm:w-auto px-7 py-3.5">
                   <span>Ver catálogo de vinos</span>
                   <FiArrowRight className="ml-2" />
                 </Button>
               </Link>
               <Link to="/catalogo?type=TINTO">
-                <Button size="lg" variant="secondary" className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border-white/20">
-                  Vinos Tintos
+                <Button size="lg" variant="outlineWhite" className="w-full sm:w-auto px-7 py-3.5">
+                  <span>Vinos Tintos</span>
                 </Button>
               </Link>
             </div>
