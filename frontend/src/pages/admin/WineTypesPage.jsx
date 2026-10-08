@@ -89,9 +89,9 @@ const WineTypesPage = () => {
       {/* Header */}
       <div className="pb-5 border-b border-zinc-200">
         <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-semibold">Configuración &bull; Catálogo</span>
-        <h1 className="text-2xl font-semibold text-zinc-900 mt-0.5">Categorías &amp; Tipos</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900 mt-0.5">Tipos &amp; Variedades de Vino</h1>
         <p className="text-xs text-zinc-500 mt-0.5">
-          Administrá las categorías de productos disponibles para la asignación en catálogo y los filtros de navegación.
+          Administrá las categorías de vinos disponibles para la asignación en catálogo y los filtros de navegación.
         </p>
       </div>
 
@@ -116,16 +116,16 @@ const WineTypesPage = () => {
       {/* Formulario nueva categoría */}
       <div className="bg-white p-5 rounded-lg border border-zinc-200">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-zinc-800 mb-3 flex items-center gap-1.5">
-          <FiPlus className="text-zinc-600" /> Nueva Categoría
+          <FiPlus className="text-zinc-600" /> Nuevo Tipo de Vino
         </h2>
         <form onSubmit={handleCreate} className="flex flex-col sm:flex-row gap-3 items-end">
           <div className="flex-1 w-full">
             <Input
               name="name"
-              label="Nombre de la Categoría *"
+              label="Nombre del Tipo de Vino *"
               value={newTypeName}
               onChange={(e) => setNewTypeName(e.target.value)}
-              placeholder="Ej: Calzado, Hogar, Accesorios, Edición Limitada..."
+              placeholder="Ej: Tinto, Blanco, Rosado, Espumante, Naranjo..."
               required
             />
           </div>
@@ -136,7 +136,7 @@ const WineTypesPage = () => {
             disabled={creating || !newTypeName.trim()}
             className="whitespace-nowrap px-5 py-2.5 text-xs sm:text-sm"
           >
-            <FiPlus className="mr-1.5" /> Crear Categoría
+            <FiPlus className="mr-1.5" /> Crear Tipo
           </Button>
         </form>
       </div>

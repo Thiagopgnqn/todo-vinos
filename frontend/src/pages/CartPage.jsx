@@ -27,11 +27,11 @@ const CartPage = () => {
             <FiShoppingBag className="mx-auto text-4xl text-zinc-300 mb-3" />
             <h2 className="text-lg font-semibold text-zinc-900 mb-2">Tu carrito está vacío</h2>
             <p className="text-zinc-500 text-xs sm:text-sm mb-6 max-w-sm mx-auto leading-relaxed">
-              Explorá nuestro catálogo de artículos y esenciales para iniciar tu orden de compra.
+              Explorá nuestra selección de vinos y bodegas para armar tu caja de pedido.
             </p>
             <Link to="/catalogo">
               <Button variant="primary" size="lg" className="px-6 text-xs sm:text-sm">
-                <span>Ver Catálogo</span>
+                <span>Explorar Cava</span>
                 <FiArrowRight className="ml-2 text-xs" />
               </Button>
             </Link>

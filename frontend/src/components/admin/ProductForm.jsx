@@ -161,33 +161,33 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
   const typeOptions = categories.length > 0
     ? categories.map(t => ({ value: t.name, label: t.name }))
     : [
-        { value: 'Colección A', label: 'Colección A' },
-        { value: 'Colección B', label: 'Colección B' },
-        { value: 'Colección C', label: 'Colección C' },
-        { value: 'Edición Limitada', label: 'Edición Limitada' },
+        { value: 'Tinto', label: 'Tinto' },
+        { value: 'Blanco', label: 'Blanco' },
+        { value: 'Rosado', label: 'Rosado' },
+        { value: 'Espumante', label: 'Espumante' },
       ];
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 max-h-[75vh] overflow-y-auto px-1 pr-2">
-      <Input label="Nombre del Producto *" name="name" required value={formData.name} onChange={handleChange} placeholder="Ej: Cartera de Cuero / Auriculares Pro" />
+      <Input label="Nombre del Vino *" name="name" required value={formData.name} onChange={handleChange} placeholder="Ej: Catena Zapata Malbec Argentino" />
       
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         <Input label="Precio ($) *" type="number" name="price" required value={formData.price} onChange={handleChange} min="0" step="1" placeholder="Ej: 8500" />
         <Input label="Precio con Transferencia ($)" type="number" name="transferPrice" value={formData.transferPrice} onChange={handleChange} min="0" step="1" placeholder="Opcional" />
-        <Input label="Stock" type="number" name="stock" value={formData.stock} onChange={handleChange} min="0" placeholder="Ej: 50" />
+        <Input label="Stock (Botellas)" type="number" name="stock" value={formData.stock} onChange={handleChange} min="0" placeholder="Ej: 50" />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        <Select label="Categoría / Tipo *" name="type" required options={typeOptions} value={formData.type} onChange={handleChange} />
-        <Input label="Variante / Material / Modelo" name="varietal" value={formData.varietal} onChange={handleChange} placeholder="Ej: Cuero / Negro / Talle M" />
+        <Select label="Tipo de Vino *" name="type" required options={typeOptions} value={formData.type} onChange={handleChange} />
+        <Input label="Varietal / Cepa" name="varietal" value={formData.varietal} onChange={handleChange} placeholder="Ej: Malbec / Cabernet Sauvignon" />
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-        <Input label="Marca / Colección" name="winery" value={formData.winery} onChange={handleChange} placeholder="Ej: Atelier Studio" />
-        <Input label="Año / Edición" type="number" name="year" value={formData.year} onChange={handleChange} placeholder="Ej: 2024" />
+        <Input label="Bodega" name="winery" value={formData.winery} onChange={handleChange} placeholder="Ej: Catena Zapata / Rutini" />
+        <Input label="Añada / Cosecha" type="number" name="year" value={formData.year} onChange={handleChange} placeholder="Ej: 2021" />
       </div>
 
-      <Input label="Origen / Procedencia" name="region" value={formData.region} onChange={handleChange} placeholder="Ej: Industria Nacional / Córdoba" />
+      <Input label="Región / Origen" name="region" value={formData.region} onChange={handleChange} placeholder="Ej: Valle de Uco, Mendoza" />
       
       {/* Sección de Subida de Imagen */}
       <div className={`p-4 rounded-lg border transition-all ${!formData.imageUrl && uploadError ? 'border-rose-300 bg-rose-50/40' : 'border-zinc-200 bg-zinc-50'}`}>
@@ -304,26 +304,26 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
       </div>
 
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">Especificaciones / Detalles Destacados</label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">Notas de Cata</label>
         <textarea 
           name="tastingNotes" 
           rows="2" 
           value={formData.tastingNotes} 
           onChange={handleChange} 
           className="block w-full rounded-md border border-zinc-200 bg-white text-zinc-900 text-xs sm:text-sm p-3 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 placeholder:text-zinc-400"
-          placeholder="Ej: Materiales, dimensiones, compatibilidad, peso..."
+          placeholder="Ej: Aromas a frutos rojos maduros, violetas, notas de vainilla y roble francés..."
         ></textarea>
       </div>
 
       <div>
-        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">Recomendaciones de Uso / Cuidados</label>
+        <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-700 mb-1.5">Maridaje Sugerido &amp; Servicio</label>
         <textarea 
           name="pairing" 
           rows="2" 
           value={formData.pairing} 
           onChange={handleChange} 
           className="block w-full rounded-md border border-zinc-200 bg-white text-zinc-900 text-xs sm:text-sm p-3 focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 placeholder:text-zinc-400"
-          placeholder="Ej: Instrucciones de lavado, recomendaciones de mantenimiento..."
+          placeholder="Ej: Carnes rojas a las brasas, pastas rellenas. Servir entre 16°C y 18°C..."
         ></textarea>
       </div>
 
@@ -336,7 +336,7 @@ const ProductForm = ({ initialData, onSubmit, loading }) => {
           fullWidth
           className="py-3 text-xs sm:text-sm font-semibold"
         >
-          {initialData ? 'Actualizar Producto' : 'Guardar Producto en Catálogo'}
+          {initialData ? 'Actualizar Etiqueta' : 'Guardar Vino en Catálogo'}
         </Button>
       </div>
     </form>

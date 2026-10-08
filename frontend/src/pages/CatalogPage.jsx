@@ -38,14 +38,14 @@ const CatalogPage = () => {
   }, [searchParams]);
 
   // SEO dinámico
-  const typeFilterText = filters.type?.length === 1 ? `Colección ${filters.type[0]}` : null;
+  const typeFilterText = filters.type?.length === 1 ? `Vinos ${filters.type[0]}` : null;
   const pageTitle = typeFilterText
-    ? `${typeFilterText} — Catálogo | ${themeConfig.brand.name}`
-    : `Catálogo de Productos | ${themeConfig.brand.name}`;
+    ? `${typeFilterText} — Cava | ${themeConfig.brand.name}`
+    : `Catálogo de Vinos | ${themeConfig.brand.name}`;
 
   useSEO({
     title: pageTitle,
-    description: `Explorá nuestra selección de ${typeFilterText || 'artículos y piezas de diseño'}. Envíos a todo el país.`,
+    description: `Explorá nuestra selección de ${typeFilterText || 'vinos de autor y bodegas seleccionadas'}. Envíos en cajas reforzadas a todo el país.`,
   });
 
   const activeFiltersCount = (filters.type?.length || 0) + 
@@ -102,13 +102,13 @@ const CatalogPage = () => {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-zinc-200">
           <div>
             <span className="text-[11px] uppercase tracking-widest text-zinc-400 font-medium">
-              Colección Completa
+              Cava Seleccionada
             </span>
             <h1 className="text-2xl sm:text-3xl font-semibold text-zinc-900 mt-1">
-              Catálogo de Productos
+              Catálogo de Vinos
             </h1>
             <p className="text-xs sm:text-sm text-zinc-500 mt-1">
-              {products.length} {products.length === 1 ? 'artículo disponible' : 'artículos disponibles'}
+              {products.length} {products.length === 1 ? 'etiqueta disponible' : 'etiquetas disponibles'}
             </p>
           </div>
           

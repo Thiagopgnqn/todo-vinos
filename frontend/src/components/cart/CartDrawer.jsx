@@ -40,12 +40,12 @@ const CartDrawer = ({ isOpen, onClose }) => {
               <div className="text-center py-20 px-4">
                 <FiShoppingBag className="mx-auto text-4xl text-zinc-300 mb-3" />
                 <h3 className="text-base font-semibold text-zinc-900 mb-1">Tu carrito está vacío</h3>
-                <p className="text-zinc-500 text-xs mb-6">No has agregado ningún artículo a tu orden.</p>
+                <p className="text-zinc-500 text-xs mb-6">No has agregado botellas a tu orden.</p>
                 <button 
                   onClick={onClose} 
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-zinc-900 hover:underline transition-colors"
                 >
-                  <span>Explorar el catálogo</span>
+                  <span>Explorar la cava</span>
                   <FiArrowRight size={12} />
                 </button>
               </div>

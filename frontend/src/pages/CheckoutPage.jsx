@@ -68,7 +68,7 @@ const CheckoutPage = () => {
 
               <dl className="mt-4 border-t border-zinc-100 pt-4 space-y-2 text-xs">
                 <div className="flex justify-between text-zinc-600">
-                  <dt>Subtotal artículos</dt>
+                  <dt>Subtotal botellas</dt>
                   <dd className="font-semibold text-zinc-900">{themeConfig.brand.currencySymbol}{cartTotal.toLocaleString('es-AR')}</dd>
                 </div>
                 <div className="flex justify-between text-zinc-600">

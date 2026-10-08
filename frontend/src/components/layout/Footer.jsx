@@ -58,40 +58,40 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Columna 2: Navegación */}
+          {/* Columna 2: Navegación de Cava */}
           <div className="md:col-span-2">
             <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-4">
-              Colecciones
+              Cava &amp; Variedades
             </h3>
             <ul className="space-y-2.5 text-xs text-zinc-400">
-              <li><Link to="/catalogo" className="hover:text-white transition-colors">Todos los productos</Link></li>
-              <li><Link to="/catalogo?type=TINTO" className="hover:text-white transition-colors">Colección A</Link></li>
-              <li><Link to="/catalogo?type=BLANCO" className="hover:text-white transition-colors">Colección B</Link></li>
-              <li><Link to="/catalogo?type=ROSADO" className="hover:text-white transition-colors">Colección C</Link></li>
-              <li><Link to="/catalogo?type=ESPUMANTE" className="hover:text-white transition-colors">Ediciones Limitadas</Link></li>
+              <li><Link to="/catalogo" className="hover:text-white transition-colors">Catálogo Completo</Link></li>
+              <li><Link to="/catalogo?type=TINTO" className="hover:text-white transition-colors">Vinos Tintos</Link></li>
+              <li><Link to="/catalogo?type=BLANCO" className="hover:text-white transition-colors">Vinos Blancos</Link></li>
+              <li><Link to="/catalogo?type=ROSADO" className="hover:text-white transition-colors">Vinos Rosados</Link></li>
+              <li><Link to="/catalogo?type=ESPUMANTE" className="hover:text-white transition-colors">Espumantes</Link></li>
             </ul>
           </div>
 
-          {/* Columna 3: Información y Ayuda */}
+          {/* Columna 3: Información y Despacho */}
           <div className="md:col-span-3">
             <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-4">
-              Información
+              Información &amp; Guarda
             </h3>
             <ul className="space-y-2.5 text-xs text-zinc-400">
-              <li><span>Envíos: Despacho a todo el país</span></li>
+              <li><span>Envíos: Embalaje seguro a todo el país</span></li>
+              <li><span>Despacho mínimo: Caja de 6 botellas</span></li>
               <li><span>Pagos: Transferencia y métodos bancarios</span></li>
-              <li><span>Seguimiento: Coordinación vía WhatsApp</span></li>
-              <li><span>Horarios: {themeConfig.contact.hours}</span></li>
+              <li><span>Atención: {themeConfig.contact.hours}</span></li>
             </ul>
           </div>
 
           {/* Columna 4: Newsletter */}
           <div className="md:col-span-3">
             <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-2">
-              Novedades
+              Novedades de la Cava
             </h3>
             <p className="text-xs text-zinc-400 mb-3 leading-relaxed">
-              Recibí avisos de reposición, lanzamientos y condiciones exclusivas.
+              Recibí avisos de nuevas cosechas, partidas limitadas y precios especiales.
             </p>
             {subscribed ? (
               <div className="flex items-center space-x-2 text-xs text-emerald-400 py-2">

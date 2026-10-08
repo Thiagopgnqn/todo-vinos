@@ -46,7 +46,7 @@ const DashboardPage = () => {
   }, []);
 
   const cards = [
-    { title: 'Artículos en Catálogo', value: stats.totalProducts, icon: FiBox, color: 'bg-zinc-100 text-zinc-800 border-zinc-200', link: '/admin/productos' },
+    { title: 'Etiquetas en Cava', value: stats.totalProducts, icon: FiBox, color: 'bg-zinc-100 text-zinc-800 border-zinc-200', link: '/admin/productos' },
     { title: 'Total Pedidos', value: stats.totalOrders, icon: FiShoppingBag, color: 'bg-zinc-100 text-zinc-800 border-zinc-200', link: '/admin/pedidos' },
     { title: 'Usuarios Registrados', value: stats.totalUsers, icon: FiUsers, color: 'bg-zinc-100 text-zinc-800 border-zinc-200', link: '/admin/usuarios' },
     { title: 'Ingresos Estimados', value: `${themeConfig.brand.currencySymbol}${stats.totalRevenue.toLocaleString('es-AR')}`, icon: FiDollarSign, color: 'bg-zinc-100 text-zinc-800 border-zinc-200' },

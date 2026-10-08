@@ -1,109 +1,108 @@
 /**
- * CONFIGURACIÓN CENTRAL DE MARCA Y TEMA
+ * CONFIGURACIÓN CENTRAL DE MARCA Y TEMA — TODO VINOS
  * 
- * Para personalizar esta tienda para cualquier rubro (moda, tecnología, café, cosmética, etc.):
- * 1. Modificá los datos de `brand` (nombre, descripción, logo).
- * 2. Ajustá los colores en `colors` (o las variables CSS en index.css).
- * 3. Actualizá `benefits`, `categories` y `socialLinks`.
+ * Mantiene la estética sobria, moderna y profesional del sistema de diseño,
+ * adaptada con precisión editorial al rubro vitivinícola.
  */
 
 export const themeConfig = {
   // 1. Identidad de Marca
   brand: {
-    name: 'ATELIER',
-    tagline: 'Objetos y esenciales de diseño contemporáneo',
-    description: 'Catálogo curado con altos estándares de fabricación, durabilidad y simpleza estética.',
+    name: 'TODO VINOS',
+    tagline: 'Cava Online & Bodegas Seleccionadas',
+    description: 'Colección curada de bodegas seleccionadas y etiquetas de autor de Argentina. Envíos con embalaje seguro a todo el país.',
     currencySymbol: '$',
     currencyCode: 'ARS',
-    minOrderUnits: 6, // Sincronizado con validación de backend
-    unitName: 'unidad',
-    unitNamePlural: 'unidades',
+    minOrderUnits: 6, // Sincronizado con validación de backend y cajas de 6 botellas
+    unitName: 'botella',
+    unitNamePlural: 'botellas',
   },
 
   // 2. Navegación principal
   navigation: [
     { label: 'Inicio', href: '/' },
     { label: 'Catálogo', href: '/catalogo' },
-    { label: 'Colección A', href: '/catalogo?type=TINTO' },
-    { label: 'Colección B', href: '/catalogo?type=BLANCO' },
-    { label: 'Colección C', href: '/catalogo?type=ESPUMANTE' },
+    { label: 'Tintos', href: '/catalogo?type=TINTO' },
+    { label: 'Blancos', href: '/catalogo?type=BLANCO' },
+    { label: 'Rosados', href: '/catalogo?type=ROSADO' },
+    { label: 'Espumantes', href: '/catalogo?type=ESPUMANTE' },
   ],
 
-  // 3. Beneficios / Propuestas de valor (sin clichés, directas y claras)
+  // 3. Beneficios / Propuestas de valor para vinoteca (claras, concisas y sin clichés)
   benefits: [
     {
       id: 'shipping',
-      title: 'Despacho a todo el país',
-      description: 'Embalaje técnico reforzado y seguimiento directo hasta la entrega.',
+      title: 'Cajas reforzadas de envío',
+      description: 'Embalaje seguro y protección especial para botellas a todo el país.',
     },
     {
       id: 'payment',
-      title: 'Pago seguro y ágil',
-      description: 'Precios preferenciales por transferencia y confirmación inmediata.',
+      title: 'Precio especial por transferencia',
+      description: 'Precios promocionales directos con confirmación ágil por WhatsApp.',
     },
     {
       id: 'guarantee',
-      title: 'Garantía de satisfacción',
-      description: 'Control de calidad en cada artículo previo a su preparación.',
+      title: '100% Origen de bodega',
+      description: 'Trazabilidad garantizada y condiciones rigurosas de guarda y estiba.',
     },
     {
       id: 'support',
-      title: 'Atención personalizada',
-      description: 'Asesoramiento directo y soporte de posventa vía WhatsApp.',
+      title: 'Asesoramiento de sommelier',
+      description: 'Atención personalizada para recomendaciones de maridaje y ocasiones.',
     },
   ],
 
-  // 4. Categorías destacadas para la Home (Neutrales y elegantes)
+  // 4. Categorías de vinos para la Home
   featuredCategories: [
     {
-      id: 'cat-1',
+      id: 'cat-tintos',
       type: 'TINTO',
-      title: 'Línea Clásica',
-      description: 'Piezas esenciales de alta durabilidad y carácter atemporal.',
-      image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
+      title: 'Vinos Tintos',
+      description: 'Malbec, Cabernet Sauvignon, Cabernet Franc y cortes con estructura y carácter.',
+      image: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=800&q=80',
     },
     {
-      id: 'cat-2',
+      id: 'cat-blancos',
       type: 'BLANCO',
-      title: 'Línea Contemporánea',
-      description: 'Acabados ligeros, proporciones limpias y enfoque minimalista.',
-      image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
+      title: 'Vinos Blancos',
+      description: 'Chardonnay, Sauvignon Blanc y Torrontés salteño de gran frescura y mineralidad.',
+      image: 'https://images.unsplash.com/photo-1558001373-7b93ee48ffa0?auto=format&fit=crop&w=800&q=80',
     },
     {
-      id: 'cat-3',
+      id: 'cat-rosados',
       type: 'ROSADO',
-      title: 'Edición Especial',
-      description: 'Tiradas limitadas con materiales seleccionados y detalles de autor.',
-      image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80',
+      title: 'Vinos Rosados',
+      description: 'Sutileza, perfil floral y acidez refrescante de cosecha temprana.',
+      image: 'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?auto=format&fit=crop&w=800&q=80',
     },
     {
-      id: 'cat-4',
+      id: 'cat-espumantes',
       type: 'ESPUMANTE',
-      title: 'Colección Exclusiva',
-      description: 'Diseño superior pensado para ocasiones y espacios distinguidos.',
-      image: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80',
+      title: 'Espumantes',
+      description: 'Burbujas finas obtenidas mediante método tradicional y charmat.',
+      image: 'https://images.unsplash.com/photo-1592861956120-e524fc739696?auto=format&fit=crop&w=800&q=80',
     },
   ],
 
-  // 5. Imágenes de reserva neutrales (fallback cuando un producto no tiene foto)
+  // 5. Imágenes de reserva y fotografía editorial
   placeholders: {
-    productHero: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1920&q=80',
-    productCard: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
-    editorialBanner: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=80',
+    productHero: 'https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?auto=format&fit=crop&w=1920&q=80',
+    productCard: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=800&q=80',
+    editorialBanner: 'https://images.unsplash.com/photo-1516594915697-87eb3b1c14ea?auto=format&fit=crop&w=1600&q=80',
   },
 
   // 6. Contacto y Redes
   contact: {
-    location: 'Envíos a todo el territorio nacional',
+    location: 'Envíos asegurados a todo el territorio nacional',
     phone: '+54 9 2996 28-4585',
-    hours: 'Lunes a Sábados de 09:00 a 20:00 hs',
-    email: 'contacto@tienda.com',
+    hours: 'Lunes a Sábados de 10:00 a 20:00 hs',
+    email: 'contacto@todovinos.com',
   },
 
   // 7. Footer y Datos Legales
   legal: {
-    copyright: `© ${new Date().getFullYear()} ATELIER. Todos los derechos reservados.`,
-    note: 'Comercio electrónico independiente. Venta directa y distribución oficial.',
+    copyright: `© ${new Date().getFullYear()} Todo Vinos. Todos los derechos reservados.`,
+    note: 'Beber con moderación. Prohibida su venta a menores de 18 años.',
   },
 };
 

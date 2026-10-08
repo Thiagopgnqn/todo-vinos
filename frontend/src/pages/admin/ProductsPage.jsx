@@ -83,12 +83,12 @@ const ProductsPage = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-zinc-200">
         <div>
-          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-semibold">Catálogo &bull; Inventario</span>
-          <h1 className="text-2xl font-semibold text-zinc-900 mt-0.5">Gestión de Productos</h1>
-          <p className="text-xs text-zinc-500 mt-0.5">Administrá artículos, precios, stock y especificaciones de la tienda</p>
+          <span className="text-[10px] uppercase tracking-widest text-zinc-400 font-semibold">Cava &bull; Inventario</span>
+          <h1 className="text-2xl font-semibold text-zinc-900 mt-0.5">Gestión de Vinos</h1>
+          <p className="text-xs text-zinc-500 mt-0.5">Administrá etiquetas, bodegas, precios, stock y notas de cata</p>
         </div>
         <Button onClick={() => handleOpenModal()} variant="primary" className="inline-flex items-center self-start sm:self-auto py-2.5 text-xs sm:text-sm">
-          <FiPlus className="mr-1.5" /> Nuevo Producto
+          <FiPlus className="mr-1.5" /> Nueva Etiqueta
         </Button>
       </div>
 
@@ -123,7 +123,7 @@ const ProductsPage = () => {
         </div>
       )}
 
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingProduct ? 'Editar Producto' : 'Nuevo Producto'}>
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingProduct ? 'Editar Etiqueta de Vino' : 'Nueva Etiqueta de Vino'}>
         <ProductForm initialData={editingProduct} onSubmit={handleSubmit} loading={loading} />
       </Modal>
     </div>

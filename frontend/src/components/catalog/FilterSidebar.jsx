@@ -4,10 +4,10 @@ import client from '../../api/client';
 import { FiX, FiTrash2, FiSliders } from 'react-icons/fi';
 
 const DEFAULT_TYPES = [
-  { label: 'Colección A', value: 'Tinto' },
-  { label: 'Colección B', value: 'Blanco' },
-  { label: 'Colección C', value: 'Rosado' },
-  { label: 'Edición Limitada', value: 'Espumante' },
+  { label: 'Tinto', value: 'Tinto' },
+  { label: 'Blanco', value: 'Blanco' },
+  { label: 'Rosado', value: 'Rosado' },
+  { label: 'Espumante', value: 'Espumante' },
 ];
 
 const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
@@ -31,7 +31,16 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
     fetchCategories();
   }, []);
 
-  const variants = ['Estándar', 'Premium', 'Edición Especial', 'Artesanal', 'Compacto'];
+  const variants = [
+    'Malbec',
+    'Cabernet Sauvignon',
+    'Cabernet Franc',
+    'Chardonnay',
+    'Pinot Noir',
+    'Torrontés',
+    'Syrah',
+    'Blend'
+  ];
 
   // Estado local para los precios para evitar peticiones en cada tecla
   const [localMinPrice, setLocalMinPrice] = useState(filters.minPrice || '');
@@ -81,11 +90,11 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
 
   const content = (
     <div className="space-y-6">
-      {/* 1. Categorías / Líneas */}
+      {/* 1. Categorías / Tipo de Vino */}
       <div>
         <div className="flex items-center justify-between pb-2 mb-3 border-b border-zinc-200">
           <h4 className="font-semibold text-xs text-zinc-900 uppercase tracking-wider">
-            Categorías
+            Tipo de Vino
           </h4>
           {filters.type?.length > 0 && (
             <span className="text-[10px] bg-zinc-900 text-white px-2 py-0.5 rounded-full font-semibold">
@@ -118,11 +127,11 @@ const FilterSidebar = ({ filters, setFilters, isOpen, onClose }) => {
         </div>
       </div>
 
-      {/* 2. Variantes / Atributos */}
+      {/* 2. Varietales / Cepas */}
       <div>
         <div className="pb-2 mb-3 border-b border-zinc-200">
           <h4 className="font-semibold text-xs text-zinc-900 uppercase tracking-wider">
-            Variantes
+            Varietal / Cepa
           </h4>
         </div>
         <div className="flex flex-wrap gap-1.5">

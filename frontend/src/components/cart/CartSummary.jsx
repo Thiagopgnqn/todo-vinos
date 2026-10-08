@@ -75,7 +75,7 @@ const CartSummary = ({ isDrawer = false }) => {
               Continuar al Checkout
             </Button>
             <p className="text-center text-[11px] text-zinc-400 mt-2">
-              Sumá artículos para habilitar el pedido
+              Sumá botellas para habilitar el pedido
             </p>
           </div>
         )}

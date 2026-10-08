@@ -213,19 +213,19 @@ const ProductPage = () => {
               <div className="grid grid-cols-3 gap-3 my-4 p-3 rounded-md bg-zinc-50 border border-zinc-100 text-center text-xs">
                 {product.varietal && (
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-zinc-400 block">Variante</span>
+                    <span className="text-[10px] uppercase tracking-wider text-zinc-400 block">Varietal</span>
                     <strong className="text-zinc-800 font-medium">{product.varietal}</strong>
                   </div>
                 )}
                 {product.year && (
                   <div className="border-x border-zinc-200">
-                    <span className="text-[10px] uppercase tracking-wider text-zinc-400 block">Edición</span>
+                    <span className="text-[10px] uppercase tracking-wider text-zinc-400 block">Añada</span>
                     <strong className="text-zinc-800 font-medium">{product.year}</strong>
                   </div>
                 )}
                 {product.region && (
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-zinc-400 block">Origen</span>
+                    <span className="text-[10px] uppercase tracking-wider text-zinc-400 block">Región / Origen</span>
                     <strong className="text-zinc-800 font-medium">{product.region}</strong>
                   </div>
                 )}
@@ -234,7 +234,7 @@ const ProductPage = () => {
 
             {/* Descripción */}
             <div className="text-zinc-600 text-xs sm:text-sm leading-relaxed mb-6 font-normal">
-              <p>{product.description || 'Artículo diseñado con altos estándares de calidad, resistencia y acabado sobrio para uso diario.'}</p>
+              <p>{product.description || 'Etiqueta elaborada con uvas seleccionadas y crianza cuidada para expresar la calidad de su origen.'}</p>
             </div>
 
             {/* Selector de cantidad y CTA principal */}
@@ -286,7 +286,7 @@ const ProductPage = () => {
                   onClick={() => setOpenTab(openTab === 'notes' ? '' : 'notes')}
                   className="w-full px-5 py-3.5 flex items-center justify-between text-left text-xs font-semibold text-zinc-900 hover:bg-zinc-50 transition-colors"
                 >
-                  <span>Características Destacadas</span>
+                  <span>Notas de Cata</span>
                   {openTab === 'notes' ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
                 </button>
                 {openTab === 'notes' && (
@@ -304,7 +304,7 @@ const ProductPage = () => {
                   onClick={() => setOpenTab(openTab === 'care' ? '' : 'care')}
                   className="w-full px-5 py-3.5 flex items-center justify-between text-left text-xs font-semibold text-zinc-900 hover:bg-zinc-50 transition-colors"
                 >
-                  <span>Recomendaciones y Cuidado</span>
+                  <span>Maridaje Sugerido</span>
                   {openTab === 'care' ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
                 </button>
                 {openTab === 'care' && (
@@ -321,13 +321,14 @@ const ProductPage = () => {
                 onClick={() => setOpenTab(openTab === 'shipping' ? '' : 'shipping')}
                 className="w-full px-5 py-3.5 flex items-center justify-between text-left text-xs font-semibold text-zinc-900 hover:bg-zinc-50 transition-colors"
               >
-                <span>Envíos y Entregas</span>
+                <span>Envíos y Embalaje Seguro</span>
                 {openTab === 'shipping' ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}
               </button>
               {openTab === 'shipping' && (
                 <div className="px-5 pb-4 text-xs text-zinc-600 leading-relaxed space-y-1">
-                  <p>• Despachamos a todas las provincias con embalaje reforzado.</p>
-                  <p>• Los costos y tiempos exactos se coordinan por WhatsApp al confirmar la orden.</p>
+                  <p>• Despachamos en cajas reforzadas con embalaje seguro para proteger cada botella.</p>
+                  <p>• Pedido mínimo de despacho: {themeConfig.brand.minOrderUnits || 6} botellas.</p>
+                  <p>• Los costos de envío y el seguimiento se coordinan de forma personalizada por WhatsApp al confirmar la orden.</p>
                 </div>
               )}
             </div>
