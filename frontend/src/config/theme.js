@@ -104,6 +104,12 @@ export const themeConfig = {
     copyright: `© ${new Date().getFullYear()} Todo Vinos. Todos los derechos reservados.`,
     note: 'Beber con moderación. Prohibida su venta a menores de 18 años.',
   },
+
+  // 8. Créditos de Desarrollo
+  developer: {
+    name: 'Scroll Studio',
+    url: 'https://thiagopgnqn.github.io/ScrollStudio/',
+  },
 };
 
 export default themeConfig;

@@ -123,11 +123,25 @@ const Footer = () => {
         </div>
 
         {/* Barra inferior */}
-        <div className="mt-14 pt-8 border-t border-zinc-800 flex flex-col sm:flex-row items-center justify-between text-[11px] text-zinc-500 gap-3">
-          <p>
-            {themeConfig.legal.copyright}
-          </p>
-          <p className="text-center sm:text-right">
+        <div className="mt-14 pt-8 border-t border-zinc-800 flex flex-col md:flex-row items-center justify-between text-[11px] text-zinc-500 gap-3">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
+            <p>
+              {themeConfig.legal.copyright}
+            </p>
+            <span className="hidden sm:inline text-zinc-700">&bull;</span>
+            <p>
+              Sitio desarrollado por{' '}
+              <a 
+                href={themeConfig.developer?.url || 'https://thiagopgnqn.github.io/ScrollStudio/'} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-zinc-400 hover:text-white transition-colors underline underline-offset-2 font-medium"
+              >
+                {themeConfig.developer?.name || 'Scroll Studio'}
+              </a>
+            </p>
+          </div>
+          <p className="text-center md:text-right">
             {themeConfig.legal.note}
           </p>
         </div>
