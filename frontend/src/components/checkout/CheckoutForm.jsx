@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useCart from '../../hooks/useCart';
 import useAuth from '../../hooks/useAuth';
-import AddressMap from './AddressMap';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import client from '../../api/client';
-import { useState, useEffect } from 'react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { FiCheckCircle, FiLock } from 'react-icons/fi';
 import themeConfig from '../../config/theme';
@@ -227,18 +225,6 @@ const CheckoutForm = () => {
               placeholder="Ej: Calle 50 420, 4B"
             />
           </div>
-          
-          {/* Mapa de geolocalización */}
-          <AddressMap 
-            address={
-              [formData.customerAddress, formData.customerCity, formData.customerPostalCode, formData.customerProvince]
-                .filter(v => v && v.trim().length > 0)
-                .join(', ')
-            }
-            onAddressConfirmed={(data) => {
-              console.log('Dirección confirmada:', data);
-            }}
-          />
         </div>
       </div>
 
