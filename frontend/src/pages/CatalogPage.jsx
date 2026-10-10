@@ -52,6 +52,8 @@ const CatalogPage = () => {
     (filters.varietal ? filters.varietal.split(',').length : 0) + 
     (filters.minPrice || filters.maxPrice ? 1 : 0);
 
+  const PAGE_SIZE = 9;
+
   useEffect(() => {
     const params = { ...filters };
     if (params.type && params.type.length) params.type = params.type.join(',');
@@ -68,8 +70,31 @@ const CatalogPage = () => {
     }
     isFirstRender.current = false;
 
-    fetchProducts(params);
-  }, [filters, fetchProducts]);
+    // Fetch all matching products so we can partition in-stock vs out-of-stock globally across all pages
+    const apiParams = { ...params, limit: 1000 };
+    delete apiParams.page;
+    fetchProducts(apiParams);
+  }, [filters.type, filters.varietal, filters.search, filters.minPrice, filters.maxPrice, filters.sort, fetchProducts]);
+
+  // Global sort: in-stock items first, out-of-stock items at the very end of the entire catalog
+  const sortedProducts = React.useMemo(() => {
+    if (!products || !Array.isArray(products)) return [];
+    return [...products].sort((a, b) => {
+      const aInStock = Number(a?.stock) > 0 ? 1 : 0;
+      const bInStock = Number(b?.stock) > 0 ? 1 : 0;
+      if (aInStock !== bInStock) {
+        return bInStock - aInStock; // In-stock (1) before out-of-stock (0)
+      }
+      return 0; // Keep current ordering
+    });
+  }, [products]);
+
+  const currentPage = filters.page ? Math.max(1, parseInt(filters.page, 10)) : 1;
+  const totalPages = Math.max(1, Math.ceil(sortedProducts.length / PAGE_SIZE));
+  const currentProducts = React.useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return sortedProducts.slice(start, start + PAGE_SIZE);
+  }, [sortedProducts, currentPage]);
 
   const handleSearch = (query) => {
     setFilters(prev => ({ ...prev, search: query, page: 1 }));
@@ -78,7 +103,8 @@ const CatalogPage = () => {
   const handleRemoveType = (t) => {
     setFilters(prev => ({
       ...prev,
-      type: (prev.type || []).filter(item => item !== t)
+      type: (prev.type || []).filter(item => item !== t),
+      page: 1,
     }));
   };
 
@@ -86,7 +112,8 @@ const CatalogPage = () => {
     const current = (filters.varietal || '').split(',').filter(item => item !== v);
     setFilters(prev => ({
       ...prev,
-      varietal: current.length ? current.join(',') : undefined
+      varietal: current.length ? current.join(',') : undefined,
+      page: 1,
     }));
   };
 
@@ -108,7 +135,7 @@ const CatalogPage = () => {
               Catálogo de Vinos
             </h1>
             <p className="text-xs sm:text-sm text-zinc-500 mt-1">
-              {products.length} {products.length === 1 ? 'etiqueta disponible' : 'etiquetas disponibles'}
+              {sortedProducts.length} {sortedProducts.length === 1 ? 'etiqueta disponible' : 'etiquetas disponibles'}
             </p>
           </div>
           
@@ -209,25 +236,25 @@ const CatalogPage = () => {
           onClose={() => setIsMobileFiltersOpen(false)} 
         />
         <div className="flex-1">
-          <ProductGrid products={products} loading={loading} />
+          <ProductGrid products={currentProducts} loading={loading} />
           
           {/* Paginación */}
-          {pagination.totalPages > 1 && (
+          {totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-12 pt-6 border-t border-zinc-200">
               <button
-                onClick={() => handlePageChange(pagination.page - 1)}
-                disabled={pagination.page <= 1}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage <= 1}
                 className="p-2 rounded border border-zinc-200 bg-white text-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-50 transition-colors"
                 aria-label="Página anterior"
               >
                 <FiChevronLeft size={16} />
               </button>
               <span className="text-xs text-zinc-600 px-3">
-                Página <strong className="text-zinc-900 font-semibold">{pagination.page}</strong> de {pagination.totalPages}
+                Página <strong className="text-zinc-900 font-semibold">{currentPage}</strong> de {totalPages}
               </span>
               <button
-                onClick={() => handlePageChange(pagination.page + 1)}
-                disabled={pagination.page >= pagination.totalPages}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
                 className="p-2 rounded border border-zinc-200 bg-white text-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-zinc-50 transition-colors"
                 aria-label="Página siguiente"
               >
