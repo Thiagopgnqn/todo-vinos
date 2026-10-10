@@ -28,9 +28,18 @@ const ProductGrid = ({ products, loading }) => {
     );
   }
 
+  const sortedProducts = React.useMemo(() => {
+    if (!products || !Array.isArray(products)) return [];
+    return [...products].sort((a, b) => {
+      const aInStock = Number(a?.stock) > 0 ? 1 : 0;
+      const bInStock = Number(b?.stock) > 0 ? 1 : 0;
+      return bInStock - aInStock;
+    });
+  }, [products]);
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-      {products.map(product => (
+      {sortedProducts.map(product => (
         <ProductCard key={product.id || product._id} product={product} />
       ))}
     </div>

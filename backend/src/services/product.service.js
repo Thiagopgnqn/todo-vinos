@@ -82,7 +82,7 @@ export const getProducts = async (filters) => {
   const take = parseInt(limit);
 
   const whereInStock = { ...where, stock: { gt: 0 } };
-  const whereOutOfStock = { ...where, stock: { lte: 0 } };
+  const whereOutOfStock = { ...where, NOT: { stock: { gt: 0 } } };
 
   const [inStockCount, outOfStockCount] = await Promise.all([
     prisma.product.count({ where: whereInStock }),
