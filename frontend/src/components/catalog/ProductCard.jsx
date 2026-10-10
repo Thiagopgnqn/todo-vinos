@@ -9,7 +9,7 @@ import themeConfig from '../../config/theme';
 const ProductCard = ({ product }) => {
   const { addToCart } = useCart();
   const [imgError, setImgError] = useState(false);
-  const isOutOfStock = product.stock === 0;
+  const isOutOfStock = !product.stock || product.stock <= 0;
   const productId = product.id || product._id;
   const imageUrl = product.imageUrl || product.image;
   const priceFormatted = Number(product.price).toLocaleString('es-AR');

@@ -160,7 +160,7 @@ const WineTypesPage = () => {
         ) : (
           <div className="divide-y divide-zinc-100">
             {types.map((type) => {
-              const count = type._count?.products || 0;
+              const count = type.productCount ?? type._count?.products ?? 0;
               const isDeleting = deletingId === type.id;
 
               return (

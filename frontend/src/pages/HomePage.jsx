@@ -16,7 +16,7 @@ const HomePage = () => {
   });
 
   useEffect(() => {
-    fetchProducts({ limit: 4 });
+    fetchProducts({ limit: 3 });
   }, [fetchProducts]);
 
   return (
@@ -263,7 +263,7 @@ const HomePage = () => {
             </Link>
           </div>
 
-          <ProductGrid products={products.slice(0, 4)} loading={loading} />
+          <ProductGrid products={products.slice(0, 3)} loading={loading} />
 
           <div className="mt-12 text-center">
             <Link to="/catalogo">

@@ -81,10 +81,57 @@ export const getProducts = async (filters) => {
   const skip = (parseInt(page) - 1) * parseInt(limit);
   const take = parseInt(limit);
 
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({ where, orderBy, skip, take }),
-    prisma.product.count({ where })
+  const whereInStock = { ...where, stock: { gt: 0 } };
+  const whereOutOfStock = { ...where, stock: { lte: 0 } };
+
+  const [inStockCount, outOfStockCount] = await Promise.all([
+    prisma.product.count({ where: whereInStock }),
+    prisma.product.count({ where: whereOutOfStock }),
   ]);
+
+  const total = inStockCount + outOfStockCount;
+
+  let products = [];
+
+  if (total > 0 && take > 0) {
+    if (skip + take <= inStockCount) {
+      // Entire page is within in-stock products
+      products = await prisma.product.findMany({
+        where: whereInStock,
+        orderBy,
+        skip,
+        take,
+      });
+    } else if (skip >= inStockCount) {
+      // Entire page is within out-of-stock products
+      const outOfStockSkip = skip - inStockCount;
+      products = await prisma.product.findMany({
+        where: whereOutOfStock,
+        orderBy,
+        skip: outOfStockSkip,
+        take,
+      });
+    } else {
+      // Page spans the boundary (ends with in-stock, begins out-of-stock)
+      const inStockTake = inStockCount - skip;
+      const outOfStockTake = take - inStockTake;
+      const [inStockItems, outOfStockItems] = await Promise.all([
+        prisma.product.findMany({
+          where: whereInStock,
+          orderBy,
+          skip,
+          take: inStockTake,
+        }),
+        prisma.product.findMany({
+          where: whereOutOfStock,
+          orderBy,
+          skip: 0,
+          take: outOfStockTake,
+        }),
+      ]);
+      products = [...inStockItems, ...outOfStockItems];
+    }
+  }
 
   return { products, total, page: parseInt(page), limit: parseInt(limit) };
 };

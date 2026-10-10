@@ -26,19 +26,27 @@ export const getWineTypes = async () => {
   // Count active products for each type
   const typesWithCount = await Promise.all(
     types.map(async (t) => {
+      const nameVariants = Array.from(new Set([
+        t.name,
+        t.name.trim(),
+        t.name.toUpperCase(),
+        t.name.toLowerCase(),
+        t.name.charAt(0).toUpperCase() + t.name.slice(1).toLowerCase(),
+      ])).filter(Boolean);
+
       const productCount = await prisma.product.count({
         where: {
           active: true,
-          OR: [
-            { type: t.name },
-            { type: t.name.toUpperCase() },
-            { type: t.name.toLowerCase() },
-          ],
+          OR: nameVariants.map(variant => ({ type: variant })),
         },
       });
+
       return {
         ...t,
         productCount,
+        _count: {
+          products: productCount,
+        },
       };
     })
   );
@@ -77,15 +85,19 @@ export const deleteWineType = async (id) => {
     throw new Error('Tipo de vino no encontrado.');
   }
 
+  const nameVariants = Array.from(new Set([
+    wineType.name,
+    wineType.name.trim(),
+    wineType.name.toUpperCase(),
+    wineType.name.toLowerCase(),
+    wineType.name.charAt(0).toUpperCase() + wineType.name.slice(1).toLowerCase(),
+  ])).filter(Boolean);
+
   // Check if any active products are using this type
   const associatedProducts = await prisma.product.count({
     where: {
       active: true,
-      OR: [
-        { type: wineType.name },
-        { type: wineType.name.toUpperCase() },
-        { type: wineType.name.toLowerCase() },
-      ],
+      OR: nameVariants.map(variant => ({ type: variant })),
     },
   });
 
