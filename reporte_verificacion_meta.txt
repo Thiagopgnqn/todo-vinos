@@ -1,0 +1,1759 @@
+================================================================================
+REPORTE DE VERIFICACIÓN — INTEGRACIÓN META PIXEL + API DE CONVERSIONES (CAPI)
+================================================================================
+
+--------------------------------------------------------------------------------
+1. ESTADO Y DIFERENCIAS DEL REPO
+--------------------------------------------------------------------------------
+
+### git status (antes de git add -N .)
+On branch diseno-nuevo
+Your branch is up to date with 'origin/diseno-nuevo'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .env.example
+	modified:   README.md
+	modified:   backend/src/config/env.js
+	modified:   backend/src/index.js
+	modified:   backend/src/middleware/rateLimiter.js
+	modified:   frontend/index.html
+	modified:   frontend/src/App.jsx
+	modified:   frontend/src/components/checkout/CheckoutForm.jsx
+	modified:   frontend/src/context/CartContext.jsx
+	modified:   frontend/src/main.jsx
+	modified:   frontend/src/pages/CheckoutPage.jsx
+	modified:   frontend/src/pages/ProductPage.jsx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	backend/src/routes/meta.routes.js
+	backend/src/services/meta.service.js
+	frontend/.env.example
+	frontend/src/components/MetaPixelTracker.jsx
+	frontend/src/lib/
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+### git status (después de git add -N .)
+On branch diseno-nuevo
+Your branch is up to date with 'origin/diseno-nuevo'.
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   .env.example
+	modified:   README.md
+	modified:   backend/src/config/env.js
+	modified:   backend/src/index.js
+	modified:   backend/src/middleware/rateLimiter.js
+	new file:   backend/src/routes/meta.routes.js
+	new file:   backend/src/services/meta.service.js
+	new file:   frontend/.env.example
+	modified:   frontend/index.html
+	modified:   frontend/src/App.jsx
+	new file:   frontend/src/components/MetaPixelTracker.jsx
+	modified:   frontend/src/components/checkout/CheckoutForm.jsx
+	modified:   frontend/src/context/CartContext.jsx
+	new file:   frontend/src/lib/meta.js
+	modified:   frontend/src/main.jsx
+	modified:   frontend/src/pages/CheckoutPage.jsx
+	modified:   frontend/src/pages/ProductPage.jsx
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+### git diff -- . ':(exclude)package-lock.json' ':(exclude)frontend/package-lock.json' ':(exclude)backend/package-lock.json'
+diff --git a/.env.example b/.env.example
+index 72687b9..64b80c7 100644
+--- a/.env.example
++++ b/.env.example
+@@ -18,3 +18,10 @@ CORS_ORIGIN="http://localhost:5173"
+ ADMIN_EMAIL="admin@vinoteca.com"
+ ADMIN_PASSWORD="Admin123!"
+ 
++# Meta (Píxel + API de Conversiones)
++META_PIXEL_ID="tu-pixel-id"
++META_ACCESS_TOKEN="token-generado-en-administrador-de-eventos"
++META_API_VERSION="v23.0"
++# Solo para probar en "Probar eventos". Eliminar en producción una vez validado.
++META_TEST_EVENT_CODE=""
++
+diff --git a/README.md b/README.md
+index 85fb83c..f2e43eb 100644
+--- a/README.md
++++ b/README.md
+@@ -1,7 +1,6 @@
+ # 🍷 Todo Vinos — Tienda Online de Vinos
+ 
+-Tienda online de vinos con catálogo, carrito de compras y checkout vía WhatsApp.  
+-Panel de administración para gestionar productos y pedidos.
++Tienda online de vinos y cava digital con catálogo interactivo, carrito de compras persistente, cálculo de precios diferenciales (lista y transferencia bancaria) y checkout directo vía WhatsApp. Cuenta con un panel de administración integral para gestionar productos, tipos de vino, pedidos y usuarios.
+ 
+ ---
+ 
+@@ -9,49 +8,84 @@ Panel de administración para gestionar productos y pedidos.
+ 
+ - **Node.js** v18 o superior
+ - **npm** v9 o superior
++- Base de datos **PostgreSQL** o **SQLite** (gestionada con Prisma ORM)
++- Cuenta en **Cloudinary** (para subida y optimización de imágenes)
+ 
+ ---
+ 
+ ## 🚀 Instalación y Configuración
+ 
+-### 1. Clonar el repositorio
++### 1. Clonar el repositorio y verificar la rama
+ 
+ ```bash
+-git clone <url-del-repo>
+-cd vinoteca
++git clone https://github.com/Thiagopgnqn/todo-vinos.git
++cd vinos
++
++# Cambiar a la rama de diseño y desarrollo activo
++git checkout diseno-nuevo
+ ```
+ 
+ ### 2. Configurar variables de entorno
+ 
++Copiar la plantilla de entorno en el backend:
++
+ ```bash
+-# Copiar el archivo de ejemplo
+ cp .env.example backend/.env
+ ```
+ 
+-Editar `backend/.env` con tus valores:
++Editar `backend/.env` con las credenciales correspondientes:
++
++```env
++# Base de datos (PostgreSQL o SQLite)
++DATABASE_URL="postgresql://usuario:password@localhost:5432/todovinos?schema=public"
++# Para SQLite local: "file:./dev.db"
++
++# JWT
++JWT_ACCESS_SECRET="tu-clave-secreta-access-token"
++JWT_REFRESH_SECRET="tu-clave-secreta-refresh-token"
++JWT_ACCESS_EXPIRATION="15m"
++JWT_REFRESH_EXPIRATION="7d"
++
++# WhatsApp — Teléfono del negocio (código de país y área sin espacios ni '+')
++WHATSAPP_PHONE="5492996284585"
++
++# Servidor
++PORT=3001
++CORS_ORIGIN="http://localhost:5173"
++
++# Admin inicial (se crea con prisma db seed)
++ADMIN_EMAIL="admin@todovinos.com"
++ADMIN_PASSWORD="Admin123!"
++
++# Cloudinary (Almacenamiento de imágenes de productos)
++CLOUDINARY_CLOUD_NAME="tu-cloud-name"
++CLOUDINARY_API_KEY="tu-api-key"
++CLOUDINARY_API_SECRET="tu-api-secret"
++
++# Meta (Píxel + API de Conversiones)
++META_PIXEL_ID="tu-pixel-id"
++META_ACCESS_TOKEN="token-generado-en-administrador-de-eventos"
++META_API_VERSION="v23.0"
++# Solo para probar en "Probar eventos". Eliminar en producción una vez validado.
++META_TEST_EVENT_CODE=""
++```
+ 
+-| Variable | Descripción | Ejemplo |
+-|----------|-------------|---------|
+-| `DATABASE_URL` | Ruta a la base de datos SQLite | `file:./dev.db` |
+-| `JWT_ACCESS_SECRET` | Secreto para access tokens | (generar string aleatorio) |
+-| `JWT_REFRESH_SECRET` | Secreto para refresh tokens | (generar string aleatorio) |
+-| `JWT_ACCESS_EXPIRATION` | Duración del access token | `15m` |
+-| `JWT_REFRESH_EXPIRATION` | Duración del refresh token | `7d` |
+-| `WHATSAPP_PHONE` | Número de WhatsApp del dueño | `5491112345678` |
+-| `PORT` | Puerto del servidor backend | `3001` |
+-| `CORS_ORIGIN` | URL del frontend | `http://localhost:5173` |
+-| `ADMIN_EMAIL` | Email del admin inicial | `admin@todovinos.com` |
+-| `ADMIN_PASSWORD` | Contraseña del admin inicial | `Admin123!` |
++Variables del frontend (`frontend/.env`, ver `frontend/.env.example`):
+ 
+-### 3. Instalar dependencias e inicializar la base de datos
++```env
++VITE_API_URL=http://localhost:3001/api   # Opcional en dev (Vite hace proxy de /api)
++VITE_META_PIXEL_ID=tu-pixel-id           # Si falta, el Píxel simplemente no se carga
++```
++
++### 3. Instalar dependencias e inicializar base de datos
+ 
+ ```bash
+ # Backend
+ cd backend
+ npm install
+-npx prisma generate
+-npx prisma migrate dev --name init
+-npx prisma db seed
++npm run prisma:generate
++npm run prisma:push        # Sincroniza el esquema con la base de datos
++npm run prisma:seed        # Crea el usuario administrador y datos iniciales
+ cd ..
+ 
+ # Frontend
+@@ -69,230 +103,301 @@ Abrir **dos terminales**:
+ cd backend
+ npm run dev
+ 
+-# Terminal 2 — Frontend (puerto 5173)
++# Terminal 2 — Frontend (puerto 5173 con Vite)
+ cd frontend
+ npm run dev
+ ```
+ 
+-Abrir el navegador en **http://localhost:5173**
++Abrir la aplicación en el navegador: [http://localhost:5173](http://localhost:5173).
+ 
+ ---
+ 
+-## 👤 Usuarios de Prueba
++## 👤 Credenciales Iniciales
+ 
+ | Rol | Email | Contraseña |
+ |-----|-------|------------|
+-| **Admin** | `admin@todovinos.com` | `Admin123!` |
++| **Administrador** | `admin@todovinos.com` | `Admin123!` |
+ 
+-Los clientes pueden registrarse desde la app o comprar como invitados.
++> Los clientes pueden registrarse directamente desde la plataforma o realizar compras sin necesidad de estar registrados.
+ 
+ ---
+ 
+ ## 📁 Estructura de Archivos del Proyecto
+ 
+ ```text
+-vinoteca/
+-├── backend/                               # Servidor Backend (Node.js + Express + Prisma)
++vinos/
++├── backend/                                   # Servidor Backend (Node.js + Express + Prisma)
+ │   ├── prisma/
+-│   │   ├── schema.prisma                  # Esquema de la base de datos SQLite/PostgreSQL
+-│   │   ├── seed.js                        # Datos iniciales (usuario admin y vinos de prueba)
+-│   │   └── dev.db                         # Base de datos SQLite local
++│   │   ├── schema.prisma                      # Modelos de datos (User, Product, WineType, Order, etc.)
++│   │   └── seed.js                            # Seed inicial (Admin y vinos representativos)
+ │   ├── src/
+ │   │   ├── config/
+-│   │   │   └── env.js                     # Carga y validación de variables de entorno
+-│   │   ├── controllers/                   # Controladores (manejo de requests HTTP)
+-│   │   │   ├── auth.controller.js         # Registro, login, refresh token, perfil
+-│   │   │   ├── order.controller.js        # Creación y gestión de pedidos
+-│   │   │   ├── product.controller.js      # CRUD y catálogo de productos
+-│   │   │   └── user.controller.js         # Gestión de usuarios y roles
+-│   │   ├── middleware/                    # Middlewares de Express
+-│   │   │   ├── admin.js                   # Verificación de rol de administrador
+-│   │   │   ├── auth.js                    # Autenticación JWT y optionalAuth
+-│   │   │   ├── errorHandler.js            # Manejador centralizado de errores
+-│   │   │   ├── rateLimiter.js             # Limitador de peticiones para seguridad
+-│   │   │   └── validate.js                # Validación de schemas con Zod
+-│   │   ├── routes/                        # Definición de endpoints de la API
+-│   │   │   ├── auth.routes.js             # Rutas de autenticación (/api/auth)
+-│   │   │   ├── order.routes.js            # Rutas de pedidos (/api/orders)
+-│   │   │   ├── product.routes.js          # Rutas de productos (/api/products)
+-│   │   │   ├── upload.routes.js           # Subida de imágenes (/api/upload)
+-│   │   │   └── user.routes.js             # Rutas de usuarios (/api/users)
+-│   │   ├── services/                      # Lógica de negocio e interacción con BD
+-│   │   │   ├── auth.service.js            # Lógica de usuarios y tokens
+-│   │   │   ├── order.service.js           # Lógica de pedidos y stock
+-│   │   │   ├── product.service.js         # Filtros, paginación y CRUD de vinos
+-│   │   │   └── user.service.js            # Consultas, actualización de roles y baja de usuarios
++│   │   │   └── env.js                         # Carga centralizada de variables de entorno
++│   │   ├── controllers/                       # Controladores de peticiones HTTP
++│   │   │   ├── auth.controller.js             # Registro, login, refresh tokens, perfil y logout
++│   │   │   ├── order.controller.js            # Creación, consulta y actualización de pedidos
++│   │   │   ├── product.controller.js          # CRUD de productos y catálogo
++│   │   │   ├── user.controller.js             # Listado, edición de roles y baja de usuarios
++│   │   │   └── wineType.controller.js         # Gestión de tipos/categorías de vinos
++│   │   ├── middleware/                        # Middlewares de Express
++│   │   │   ├── admin.js                       # Verificación de permisos de rol ADMIN
++│   │   │   ├── auth.js                        # Validación y decodificación de JWT
++│   │   │   ├── errorHandler.js                # Captura y formateo centralizado de errores
++│   │   │   ├── rateLimiter.js                 # Limitador contra ataques de fuerza bruta
++│   │   │   └── validate.js                    # Validador de schemas con Zod
++│   │   ├── routes/                            # Endpoints de la API
++│   │   │   ├── auth.routes.js                 # Rutas de autenticación (/api/auth)
++│   │   │   ├── meta.routes.js                 # Eventos de conversión para Meta CAPI (/api/meta)
++│   │   │   ├── order.routes.js                # Rutas de pedidos (/api/orders)
++│   │   │   ├── product.routes.js              # Rutas de productos (/api/products)
++│   │   │   ├── upload.routes.js               # Subida de imágenes a Cloudinary (/api/upload)
++│   │   │   ├── user.routes.js                 # Rutas de usuarios (/api/users)
++│   │   │   └── wineType.routes.js             # Rutas de tipos de vino (/api/wine-types)
++│   │   ├── services/                          # Lógica de negocio e interacción con BD
++│   │   │   ├── auth.service.js                # Autenticación, hashing y tokens
++│   │   │   ├── meta.service.js                # Envío de eventos a la API de Conversiones de Meta
++│   │   │   ├── order.service.js               # Procesamiento de órdenes y descuentos
++│   │   │   ├── product.service.js             # Filtros multicriterio, paginado y ordenamiento
++│   │   │   ├── user.service.js                # Operaciones sobre usuarios y permisos
++│   │   │   └── wineType.service.js            # Conteo de productos asociados y categorías
+ │   │   ├── utils/
+-│   │   │   ├── jwt.js                     # Generación y verificación de tokens JWT
+-│   │   │   └── whatsapp.js                # Generador de enlaces y mensaje de WhatsApp
+-│   │   ├── validators/                    # Validaciones de esquemas con Zod
+-│   │   │   ├── auth.validator.js          # Validaciones para registro y login
+-│   │   │   ├── order.validator.js         # Validaciones para órdenes
+-│   │   │   └── product.validator.js       # Validaciones para productos
+-│   │   └── index.js                       # Entrada principal del servidor Express
+-│   ├── uploads/                           # Carpeta de almacenamiento de imágenes subidas
+-│   └── package.json                       # Dependencias y scripts del backend
++│   │   │   ├── cloudinary.js                  # Configuración de SDK Cloudinary
++│   │   │   ├── jwt.js                         # Generación y validación de tokens JWT
++│   │   │   └── whatsapp.js                    # Generación del mensaje y link de WhatsApp
++│   │   ├── validators/                        # Esquemas de validación Zod
++│   │   │   ├── auth.validator.js
++│   │   │   ├── order.validator.js
++│   │   │   ├── product.validator.js
++│   │   │   └── wineType.validator.js
++│   │   ├── firebase.js                        # Configuración de Firebase (opcional/complementario)
++│   │   └── index.js                           # Punto de entrada y montaje de rutas de la API
++│   ├── uploads/                               # Directorio para archivos temporales locales
++│   ├── vercel.json                            # Configuración de despliegue en Vercel
++│   └── package.json                           # Dependencias y scripts de backend
+ │
+-├── frontend/                              # Aplicación Frontend (React + Vite + TailwindCSS)
+-│   ├── public/                            # Recursos estáticos públicos
++├── frontend/                                  # Aplicación Frontend (React 18 + Vite + TailwindCSS)
++│   ├── public/                                # Recursos estáticos, manifest, favicons y SEO
++│   │   ├── android-chrome-*.png               # Iconos PWA para Android
++│   │   ├── apple-touch-icon.png               # Icono para dispositivos Apple
++│   │   ├── favicon.ico / favicon-*.png        # Favicons multiformato
++│   │   ├── logo.png / logo-transparent-*.png  # Logotipos de la marca
++│   │   ├── robots.txt                         # Reglas de indexación para motores de búsqueda
++│   │   ├── site.webmanifest                   # Manifiesto de aplicación web instalable
++│   │   └── sitemap.xml                        # Mapa de sitio para indexación SEO
+ │   ├── src/
+ │   │   ├── api/
+-│   │   │   └── client.js                  # Instancia de Axios configurada con interceptores
+-│   │   ├── components/                    # Componentes modulares y reutilizables
+-│   │   │   ├── admin/                     # Componentes del panel de administración
+-│   │   │   │   ├── AdminSidebar.jsx       # Barra lateral de navegación admin (responsive)
+-│   │   │   │   ├── OrderTable.jsx         # Tabla y tarjetas de pedidos para admin
+-│   │   │   │   ├── ProductForm.jsx        # Formulario de alta/edición de vino con upload de foto
+-│   │   │   │   ├── ProductTable.jsx       # Listado de productos con acciones de edición
+-│   │   │   │   ├── UserForm.jsx           # Formulario para editar usuario y asignar rol
+-│   │   │   │   └── UserTable.jsx          # Listado y tarjetas de usuarios con acciones
+-│   │   │   ├── auth/                      # Formularios de autenticación
+-│   │   │   │   ├── LoginForm.jsx          # Formulario de inicio de sesión
+-│   │   │   │   └── RegisterForm.jsx       # Formulario de registro de cliente
+-│   │   │   ├── cart/                      # Componentes del carrito de compras
+-│   │   │   │   ├── CartDrawer.jsx         # Panel lateral deslizable del carrito
+-│   │   │   │   ├── CartItem.jsx           # Renglón individual de producto en carrito
+-│   │   │   │   └── CartSummary.jsx        # Resumen de subtotales y botón de checkout
+-│   │   │   ├── catalog/                   # Componentes del catálogo de vinos
+-│   │   │   │   ├── FilterSidebar.jsx      # Filtros por tipo, varietal y rango de precio
+-│   │   │   │   ├── ProductCard.jsx        # Tarjeta visual de producto
+-│   │   │   │   ├── ProductGrid.jsx        # Cuadrícula responsive de productos
+-│   │   │   │   └── SearchBar.jsx          # Barra de búsqueda en tiempo real
+-│   │   │   ├── checkout/                  # Proceso de finalización de compra
+-│   │   │   │   ├── AddressMap.jsx         # Mapa interactivo Leaflet para verificar dirección
+-│   │   │   │   └── CheckoutForm.jsx       # Formulario de contacto, entrega y checkout WhatsApp
+-│   │   │   ├── layout/                    # Estructura visual de la app
+-│   │   │   │   ├── Footer.jsx             # Pie de página institucional
+-│   │   │   │   ├── Header.jsx             # Barra superior con navegación y carrito
+-│   │   │   │   └── Layout.jsx             # Envoltura principal de página
+-│   │   │   └── ui/                        # Componentes UI básicos y reutilizables
+-│   │   │       ├── Badge.jsx              # Etiquetas de estado y categorías
+-│   │   │       ├── Button.jsx             # Botones estilizados
+-│   │   │       ├── Input.jsx              # Inputs y campos de formulario
+-│   │   │       ├── Modal.jsx              # Ventana modal reutilizable
+-│   │   │       ├── Select.jsx             # Desplegable estilizado
+-│   │   │       └── Spinner.jsx            # Indicador de carga
+-│   │   ├── context/                       # Contextos globales de React
+-│   │   │   ├── AuthContext.jsx            # Estado de usuario autenticado y token
+-│   │   │   └── CartContext.jsx            # Estado persistente del carrito de compras
+-│   │   ├── hooks/                         # Custom hooks
+-│   │   │   ├── useAuth.js                 # Acceso rápido al contexto de autenticación
+-│   │   │   ├── useCart.js                 # Acceso rápido al carrito
+-│   │   │   └── useProducts.js             # Hook para consulta de productos
+-│   │   ├── pages/                         # Vistas / Páginas de la aplicación
++│   │   │   └── client.js                      # Cliente Axios con interceptor y refresh automático
++│   │   ├── components/
++│   │   │   ├── admin/                         # Componentes del panel administrativo
++│   │   │   │   ├── AdminSidebar.jsx           # Navegación lateral responsive para administración
++│   │   │   │   ├── OrderTable.jsx             # Tabla y tarjetas de pedidos con filtros por estado
++│   │   │   │   ├── ProductForm.jsx            # Formulario de producto con subida a Cloudinary
++│   │   │   │   ├── ProductTable.jsx           # Gestión de catálogo con búsqueda y paginación
++│   │   │   │   ├── UserForm.jsx               # Edición de usuarios y asignación de roles
++│   │   │   │   └── UserTable.jsx              # Listado y control de usuarios
++│   │   │   ├── auth/                          # Formularios de acceso
++│   │   │   │   ├── LoginForm.jsx              # Inicio de sesión con feedback visual
++│   │   │   │   └── RegisterForm.jsx           # Registro de clientes
++│   │   │   ├── cart/                          # Componentes del carrito
++│   │   │   │   ├── CartDrawer.jsx             # Drawer deslizable de carrito lateral
++│   │   │   │   ├── CartItem.jsx               # Fila de producto con control de cantidades
++│   │   │   │   └── CartSummary.jsx            # Desglose de precios (lista vs transferencia)
++│   │   │   ├── catalog/                       # Componentes del catálogo
++│   │   │   │   ├── FilterSidebar.jsx          # Filtros por tipo, varietal, bodega y rango de precio
++│   │   │   │   ├── ProductCard.jsx            # Tarjeta de vino con badges de stock y oferta
++│   │   │   │   ├── ProductGrid.jsx            # Cuadrícula responsive con estados vacíos
++│   │   │   │   └── SearchBar.jsx              # Input de búsqueda interactiva
++│   │   │   ├── checkout/                      # Proceso de finalización de compra
++│   │   │   │   ├── AddressMap.jsx             # Mapa interactivo Leaflet para referencia de entrega
++│   │   │   │   └── CheckoutForm.jsx           # Datos de entrega, método de pago y WhatsApp checkout
++│   │   │   ├── layout/                        # Estructura general de interfaz
++│   │   │   │   ├── Footer.jsx                 # Footer con enlaces, información fiscal y redes
++│   │   │   │   ├── Header.jsx                 # Barra de navegación principal y accesos rápidos
++│   │   │   │   └── Layout.jsx                 # Envoltura de páginas públicas
++│   │   │   ├── ui/                            # Sistema de componentes base reutilizables
++│   │   │   │   ├── Badge.jsx                  # Insignias de estado y etiquetas
++│   │   │   │   ├── Button.jsx                 # Botones con variantes de estilo y estados
++│   │   │   │   ├── Input.jsx                  # Campos de texto estilizados
++│   │   │   │   ├── Modal.jsx                  # Diálogos modales accesibles
++│   │   │   │   ├── Select.jsx                 # Selectores dropdown
++│   │   │   │   ├── Skeleton.jsx               # Placeholders de carga progresiva
++│   │   │   │   ├── Spinner.jsx                # Indicadores de spinner
++│   │   │   │   └── Toast.jsx                  # Notificaciones emergentes
++│   │   │   ├── MetaPixelTracker.jsx           # PageView de Meta en cada cambio de ruta pública
++│   │   │   └── ScrollToTop.jsx                # Reset de scroll automático al cambiar de ruta
++│   │   ├── config/
++│   │   │   └── theme.js                       # Identidad visual, textos, logos y propuesta de valor
++│   │   ├── lib/
++│   │   │   └── meta.js                        # Píxel de Meta + envío espejo al backend (CAPI)
++│   │   ├── context/
++│   │   │   ├── AuthContext.jsx                # Estado global de usuario, token y sesión
++│   │   │   └── CartContext.jsx                # Estado del carrito con persistencia en localStorage
++│   │   ├── hooks/                             # Custom React Hooks
++│   │   │   ├── useAuth.js                     # Hook para consumir AuthContext
++│   │   │   ├── useCart.js                     # Hook para manipular el carrito
++│   │   │   ├── useProducts.js                 # Hook para listar productos y paginación
++│   │   │   └── useSEO.js                      # Actualización dinámica de meta tags y OpenGraph
++│   │   ├── pages/                             # Vistas de la aplicación
+ │   │   │   ├── admin/
+-│   │   │   │   ├── DashboardPage.jsx      # Panel principal con estadísticas y accesos directos
+-│   │   │   │   ├── OrdersPage.jsx         # Gestión de pedidos y estados
+-│   │   │   │   ├── ProductsPage.jsx       # Gestión de inventario de vinos
+-│   │   │   │   └── UsersPage.jsx          # Gestión de usuarios y asignación de roles
+-│   │   │   ├── CartPage.jsx               # Vista completa del carrito
+-│   │   │   ├── CatalogPage.jsx            # Catálogo con filtros y búsqueda
+-│   │   │   ├── CheckoutPage.jsx           # Vista de confirmación de pedido
+-│   │   │   ├── HomePage.jsx               # Página de inicio / Landing
+-│   │   │   ├── LoginPage.jsx              # Vista de login
+-│   │   │   ├── NotFoundPage.jsx           # Vista 404
+-│   │   │   ├── ProductPage.jsx            # Detalle individual de un vino
+-│   │   │   └── RegisterPage.jsx           # Vista de registro de usuario
+-│   │   ├── App.jsx                        # Enrutador principal y rutas protegidas
+-│   │   ├── index.css                      # Estilos globales y directivas Tailwind
+-│   │   └── main.jsx                       # Punto de entrada de React
+-│   ├── index.html                         # Plantilla HTML con fuentes y título
+-│   ├── tailwind.config.js                 # Configuración de colores y tipografías
+-│   ├── vite.config.js                     # Configuración de Vite y proxies
+-│   └── package.json                       # Dependencias y scripts del frontend
++│   │   │   │   ├── DashboardPage.jsx          # Métricas de ventas, stock y accesos directos
++│   │   │   │   ├── OrdersPage.jsx             # Panel de gestión de pedidos
++│   │   │   │   ├── ProductsPage.jsx           # Inventario, edición y alta de vinos
++│   │   │   │   ├── UsersPage.jsx              # Administración de usuarios y roles
++│   │   │   │   └── WineTypesPage.jsx          # Configuración dinámica de tipos de vino
++│   │   │   ├── CartPage.jsx                   # Página dedicada del carrito de compras
++│   │   │   ├── CatalogPage.jsx                # Catálogo completo con ordenamientos y filtros
++│   │   │   ├── CheckoutPage.jsx               # Proceso de orden y confirmación
++│   │   │   ├── HomePage.jsx                   # Landing editorial con destacados y beneficios
++│   │   │   ├── LoginPage.jsx                  # Página de inicio de sesión
++│   │   │   ├── NotFoundPage.jsx               # Página de error 404
++│   │   │   ├── ProductPage.jsx                # Ficha técnica, notas de cata y maridaje
++│   │   │   └── RegisterPage.jsx               # Página de registro
++│   │   ├── App.jsx                            # Definición de rutas y protección de rutas admin
++│   │   ├── index.css                          # Directivas Tailwind, fuentes y estilos base
++│   │   └── main.jsx                           # Inicialización de React en el DOM
++│   ├── index.html                             # Plantilla HTML base con meta tags SEO
++│   ├── tailwind.config.js                     # Configuración de diseño, fuentes y paleta de colores
++│   ├── vercel.json                            # Enrutamiento SPA para despliegue en Vercel
++│   ├── vite.config.js                         # Configuración del bundler Vite
++│   └── package.json                           # Dependencias y scripts de frontend
+ │
+-├── .env.example                           # Plantilla de variables de entorno
+-├── .gitignore                             # Archivos y carpetas ignorados por git
+-└── README.md                              # Documentación del proyecto
++├── .env.example                               # Plantilla de variables de entorno
++├── .gitignore                                 # Reglas de exclusión de Git
++└── README.md                                  # Documentación técnica del proyecto
+ ```
+ 
+ ---
+ 
+-## 🔌 API Endpoints
++## 🔌 Referencia de la API
++
++### Autenticación (`/api/auth`)
+ 
+-### Auth (`/api/auth`)
+ | Método | Ruta | Acceso | Descripción |
+ |--------|------|--------|-------------|
+-| POST | `/register` | Público | Registrar usuario |
+-| POST | `/login` | Público | Iniciar sesión |
+-| POST | `/refresh` | Público | Renovar access token |
+-| POST | `/logout` | Autenticado | Cerrar sesión |
++| `POST` | `/api/auth/register` | Público | Registrar un nuevo usuario cliente |
++| `POST` | `/api/auth/login` | Público | Iniciar sesión (retorna access token y refresh token) |
++| `POST` | `/api/auth/refresh` | Público | Renovar el access token usando refresh token |
++| `POST` | `/api/auth/logout` | Autenticado | Revocar refresh token y cerrar sesión |
++| `GET` | `/api/auth/me` | Autenticado | Obtener información del usuario actual |
++
++### Productos (`/api/products`)
+ 
+-### Products (`/api/products`)
+ | Método | Ruta | Acceso | Descripción |
+ |--------|------|--------|-------------|
+-| GET | `/` | Público | Listar productos (filtros, búsqueda, paginación) |
+-| GET | `/:id` | Público | Detalle de producto |
+-| POST | `/` | Admin | Crear producto |
+-| PUT | `/:id` | Admin | Editar producto |
+-| DELETE | `/:id` | Admin | Eliminar producto (soft delete) |
++| `GET` | `/api/products` | Público | Listar productos con filtros (`type`, `varietal`, `winery`, `region`, `minPrice`, `maxPrice`, `search`, `sort`, `page`, `limit`) |
++| `GET` | `/api/products/:id` | Público | Obtener detalle de una etiqueta de vino |
++| `POST` | `/api/products` | Admin | Crear nueva etiqueta de vino |
++| `PUT` | `/api/products/:id` | Admin | Actualizar etiqueta existente |
++| `DELETE` | `/api/products/:id` | Admin | Desactivar etiqueta (borrado lógico / soft delete) |
++
++### Tipos de Vino (`/api/wine-types`)
+ 
+-### Orders (`/api/orders`)
+ | Método | Ruta | Acceso | Descripción |
+ |--------|------|--------|-------------|
+-| POST | `/` | Público | Crear pedido |
+-| GET | `/` | Admin | Listar pedidos |
+-| GET | `/:id` | Admin | Detalle de pedido |
+-| PATCH | `/:id/status` | Admin | Cambiar estado |
++| `GET` | `/api/wine-types` | Público | Obtener tipos de vino con el conteo de etiquetas activas asociadas |
++| `POST` | `/api/wine-types` | Admin | Crear un nuevo tipo de vino |
++| `DELETE` | `/api/wine-types/:id` | Admin | Eliminar un tipo de vino |
++
++### Pedidos (`/api/orders`)
+ 
+-### Upload (`/api/upload`)
+ | Método | Ruta | Acceso | Descripción |
+ |--------|------|--------|-------------|
+-| POST | `/image` | Admin | Subir imagen |
++| `POST` | `/api/orders` | Público / Auth | Crear un nuevo pedido (calcula stock y totales) |
++| `GET` | `/api/orders` | Admin | Listar pedidos ordenados con filtros por estado |
++| `GET` | `/api/orders/:id` | Admin | Consultar detalle de pedido y renglones |
++| `PATCH` | `/api/orders/:id/status` | Admin | Actualizar estado (`PENDING`, `CONFIRMED`, `DELIVERED`, `CANCELLED`) |
++
++### Subida Multimedia (`/api/upload`)
+ 
+-### Users (`/api/users`)
+ | Método | Ruta | Acceso | Descripción |
+ |--------|------|--------|-------------|
+-| GET | `/` | Admin | Listar todos los usuarios registrados |
+-| GET | `/:id` | Admin | Obtener datos detallados de un usuario |
+-| PUT | `/:id` | Admin | Modificar nombre, email, teléfono o rol (CUSTOMER / ADMIN) |
+-| DELETE | `/:id` | Admin | Eliminar cuenta de usuario (con protecciones de seguridad) |
++| `POST` | `/api/upload/image` | Admin | Subir imagen de vino a Cloudinary (`multipart/form-data`) |
++
++### Meta (`/api/meta`)
++
++| Método | Ruta | Acceso | Descripción |
++|--------|------|--------|-------------|
++| `POST` | `/api/meta/events` | Público | Recibe eventos de conversión del frontend y los reenvía a la API de Conversiones de Meta (responde `202`; `400` si el body es inválido; límite 120 req/min por IP) |
++
++### Usuarios (`/api/users`)
++
++| Método | Ruta | Acceso | Descripción |
++|--------|------|--------|-------------|
++| `GET` | `/api/users` | Admin | Listar usuarios registrados |
++| `GET` | `/api/users/:id` | Admin | Consultar datos de usuario específico |
++| `PUT` | `/api/users/:id` | Admin | Modificar datos y cambiar rol (`CUSTOMER` o `ADMIN`) |
++| `DELETE` | `/api/users/:id` | Admin | Eliminar cuenta de usuario (protege la cuenta del superadmin) |
+ 
+ ---
+ 
+-## 🔒 Seguridad
++## 🗄️ Modelo de Base de Datos (Prisma)
++
++El esquema de datos (`backend/prisma/schema.prisma`) incluye los siguientes modelos:
+ 
+-- Contraseñas hasheadas con **bcrypt** (12 salt rounds)
+-- Autenticación con **JWT** (access token 15min + refresh token 7 días)
+-- **Rate limiting** en login y registro (5 intentos/minuto)
+-- Validación de datos con **Zod** en backend
+-- **Helmet** para headers de seguridad
+-- **CORS** configurado
+-- Queries parametrizadas vía **Prisma** (previene SQL injection)
+-- React escapa HTML por defecto (previene XSS)
+-- Variables sensibles en `.env` (nunca hardcodeadas)
++- **`User`**: Cuentas de clientes y administradores con autenticación por hash.
++- **`Product`**: Etiquetas de vino con precio de lista, precio con descuento por transferencia (`transferPrice`), stock disponible, notas de cata, maridaje, bodega, región y contador de ventas (`soldCount`).
++- **`WineType`**: Categorías dinámicas de vinos (Tinto, Blanco, Rosado, Espumante, etc.).
++- **`Order`**: Pedidos registrados con método de entrega (`PICKUP` o `DELIVERY`), datos del cliente, estado y total.
++- **`OrderItem`**: Detalle de productos por pedido con precio unitario y subtotal congelados al momento de compra.
++- **`RefreshToken`**: Tokens de renovación con fecha de expiración y revocación para control de sesiones seguras.
+ 
+ ---
+ 
+-## 📦 Tecnologías
++## 💡 Características Principales
+ 
+-| Capa | Stack |
+-|------|-------|
+-| Frontend | React 18, Vite, TailwindCSS, React Router v6, Axios |
+-| Backend | Node.js, Express, Prisma ORM |
+-| Base de Datos | SQLite (migrable a PostgreSQL) |
+-| Auth | JWT + bcrypt |
+-| Validación | Zod |
++1. **Doble modalidad de precios**: Soporte para precio estándar y precio bonificado por pago con transferencia bancaria directa.
++2. **Checkout estructurado por WhatsApp**: Notificación automática al dueño con el desglose exacto de productos, método de entrega y dirección.
++3. **Gestión dinámica de tipos de vino**: Posibilidad de agregar o quitar tipos de vinos desde el panel de administración sin tocar código.
++4. **Optimización y SEO**: Meta tags dinámicos por producto con OpenGraph, archivo `robots.txt` configurado y `sitemap.xml`.
++5. **Almacenamiento en Cloudinary**: Carga, recorte y distribución optimizada de imágenes para las botellas y etiquetas.
++6. **Manejo de Stock Inteligente**: Priorización visual en catálogo de etiquetas con stock positivo y prevención de sobreventa.
+ 
+ ---
+ 
+-## 🍇 Datos de Ejemplo (Seed)
++## 🔒 Buenas Prácticas y Seguridad
+ 
+-El seed incluye 8 vinos argentinos de ejemplo cubriendo:
+-- **Tintos**: Malbec, Cabernet Sauvignon, Blend
+-- **Blancos**: Torrontés, Chardonnay
+-- **Rosados**: Malbec Rosé
+-- **Espumantes**: Extra Brut, Brut Rosé
++- **Bcryptjs**: Contraseñas encriptadas con salting seguro.
++- **JWT**: Tokens de acceso de corta duración (15 min) respaldados por refresh tokens revocables almacenados en base de datos.
++- **Rate Limiting**: Protección en endpoints de login y registro contra ataques de fuerza bruta.
++- **Zod**: Validación y tipado estricto en el backend para todos los payloads de entrada.
++- **Helmet & CORS**: Protección de encabezados HTTP y configuración selectiva de orígenes permitidos.
++- **Prisma ORM**: Consultas parametrizadas que mitigan inyecciones SQL.
+ 
+ ---
+ 
+-## 📝 Notas para Producción
++## 📣 Meta Ads (Píxel + API de Conversiones)
++
++Los eventos se envían **por duplicado**: desde el navegador (Píxel, `frontend/src/lib/meta.js`) y desde el servidor (API de Conversiones, vía `POST /api/meta/events` → `backend/src/services/meta.service.js`), **con el mismo `event_id`** para que Meta los deduplique. Los datos personales (email, teléfono, nombre) se envían hasheados con SHA-256 desde el backend. Nada se mide en las rutas `/admin`, y un fallo en el tracking nunca afecta la compra.
++
++| Evento | Cuándo se dispara | Dónde |
++|--------|-------------------|-------|
++| `PageView` | Cada cambio de ruta pública (solo navegador) | `MetaPixelTracker.jsx` |
++| `ViewContent` | Al cargar la ficha de un producto | `ProductPage.jsx` |
++| `AddToCart` | Al agregar unidades efectivamente al carrito (respeta stock) | `CartContext.jsx` |
++| `InitiateCheckout` | Una vez al entrar al checkout con carrito válido | `CheckoutPage.jsx` |
++| `Purchase` | Al crearse el pedido, antes de abrir WhatsApp. `event_id = order-<id>` | `CheckoutForm.jsx` |
++| `Contact` | Soportado por el endpoint; hoy no hay botones de WhatsApp fuera del checkout | — |
++
++**Cómo probar:**
++1. En el Administrador de eventos de Meta → tu Píxel → **Probar eventos**, copiá el código de prueba (ej. `TEST12345`).
++2. Cargalo en `META_TEST_EVENT_CODE` en el backend y reiniciá/redeployá.
++3. Navegá el sitio (con la extensión *Meta Pixel Helper* podés ver los eventos del navegador). En "Probar eventos" deberían aparecer los eventos de **Navegador** y **Servidor**, marcados como deduplicados.
++4. Al terminar, **eliminá `META_TEST_EVENT_CODE`** y redeployá.
++
++---
++
++## 🚢 Despliegue en Producción
++
++El repositorio ya incluye los archivos `vercel.json` en frontend y backend:
+ 
+-- Cambiar `DATABASE_URL` a PostgreSQL (solo modificar el provider en `schema.prisma`)
+-- Generar secretos JWT seguros y aleatorios
+-- Configurar almacenamiento de imágenes en S3 o Cloudinary
+-- Habilitar HTTPS
+-- Configurar un reverse proxy (nginx)
+-- Establecer `CORS_ORIGIN` con el dominio real
+-- Actualizar `WHATSAPP_PHONE` con el número real del dueño
++1. **Frontend (Vercel)**:
++   - Root directory: `frontend`
++   - Build command: `npm run build`
++   - Output directory: `dist`
++   - Configurar `VITE_API_URL` apuntando al backend en producción (terminando en `/api`) y `VITE_META_PIXEL_ID`.
+ 
++2. **Backend (Vercel / Render / Railway)**:
++   - Root directory: `backend`
++   - Configurar variables de entorno (`DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CLOUDINARY_*`, `WHATSAPP_PHONE`, `CORS_ORIGIN`, `META_PIXEL_ID`, `META_ACCESS_TOKEN`, `META_API_VERSION`).
++   - `CORS_ORIGIN` debe coincidir exactamente con el dominio del frontend (ej. `https://www.todo-vinos.online`).
++   - Ejecutar `npx prisma db push` o migraciones sobre la base de datos de producción (PostgreSQL).
+diff --git a/backend/src/config/env.js b/backend/src/config/env.js
+index 151996f..4e033a2 100644
+--- a/backend/src/config/env.js
++++ b/backend/src/config/env.js
+@@ -12,5 +12,10 @@ export const env = {
+   PORT: process.env.PORT || 3001,
+   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
+   ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@todovinos.com',
+-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'Admin123!'
++  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'Admin123!',
++  // Meta (Píxel + API de Conversiones)
++  META_PIXEL_ID: process.env.META_PIXEL_ID || '',
++  META_ACCESS_TOKEN: process.env.META_ACCESS_TOKEN || '',
++  META_API_VERSION: process.env.META_API_VERSION || 'v23.0',
++  META_TEST_EVENT_CODE: process.env.META_TEST_EVENT_CODE || ''
+ };
+diff --git a/backend/src/index.js b/backend/src/index.js
+index 6b71a61..a7dae92 100644
+--- a/backend/src/index.js
++++ b/backend/src/index.js
+@@ -13,9 +13,13 @@ import orderRoutes from './routes/order.routes.js';
+ import uploadRoutes from './routes/upload.routes.js';
+ import userRoutes from './routes/user.routes.js';
+ import wineTypeRoutes from './routes/wineType.routes.js';
++import metaRoutes from './routes/meta.routes.js';
+ 
+ const app = express();
+ 
++// Detrás del proxy de Railway: necesario para obtener la IP real del cliente en req.ip
++app.set('trust proxy', 1);
++
+ // Create uploads directory if it doesn't exist
+ if (!fs.existsSync('uploads')) {
+   fs.mkdirSync('uploads');
+@@ -37,6 +41,7 @@ app.use('/api/orders', orderRoutes);
+ app.use('/api/upload', uploadRoutes);
+ app.use('/api/users', userRoutes);
+ app.use('/api/wine-types', wineTypeRoutes);
++app.use('/api/meta', metaRoutes);
+ 
+ // Error handler
+ app.use(errorHandler);
+diff --git a/backend/src/middleware/rateLimiter.js b/backend/src/middleware/rateLimiter.js
+index b42a297..ee928b8 100644
+--- a/backend/src/middleware/rateLimiter.js
++++ b/backend/src/middleware/rateLimiter.js
+@@ -5,3 +5,12 @@ export const authLimiter = rateLimit({
+   max: 5,
+   message: { error: 'Too many requests, please try again later.' }
+ });
++
++// Límite generoso para eventos de tracking de Meta (no afecta la navegación normal)
++export const metaLimiter = rateLimit({
++  windowMs: 60 * 1000, // 1 minute
++  max: 120,
++  standardHeaders: true,
++  legacyHeaders: false,
++  message: { ok: false }
++});
+diff --git a/backend/src/routes/meta.routes.js b/backend/src/routes/meta.routes.js
+new file mode 100644
+index 0000000..52b86d4
+--- /dev/null
++++ b/backend/src/routes/meta.routes.js
+@@ -0,0 +1,50 @@
++import { Router } from 'express';
++import { z } from 'zod';
++import { sendMetaEvent } from '../services/meta.service.js';
++import { metaLimiter } from '../middleware/rateLimiter.js';
++
++const router = Router();
++
++const schema = z.object({
++  eventName: z.enum([
++    'ViewContent',
++    'AddToCart',
++    'InitiateCheckout',
++    'Purchase',
++    'Contact',
++    'Lead',
++    'Search',
++  ]),
++  eventId: z.string().min(1).max(100),
++  url: z.string().max(2000).optional(),
++  data: z.record(z.string(), z.any()).optional(),
++  user: z
++    .object({
++      email: z.string().max(200).optional(),
++      phone: z.string().max(50).optional(),
++      firstName: z.string().max(100).optional(),
++      lastName: z.string().max(100).optional(),
++    })
++    .optional(),
++  fbp: z.string().max(200).optional(),
++  fbc: z.string().max(300).optional(),
++});
++
++router.post('/events', metaLimiter, (req, res) => {
++  const parsed = schema.safeParse(req.body);
++  if (!parsed.success) {
++    return res.status(400).json({ ok: false });
++  }
++
++  // Respondemos rápido; el envío a Meta continúa en segundo plano
++  res.status(202).json({ ok: true });
++
++  sendMetaEvent({
++    ...parsed.data,
++    ip: req.ip,
++    userAgent: req.headers['user-agent'],
++  }).catch((err) => console.error('[Meta CAPI] Fallo de red', err.message));
++});
++
++export default router;
++
+diff --git a/backend/src/services/meta.service.js b/backend/src/services/meta.service.js
+new file mode 100644
+index 0000000..36ce8e8
+--- /dev/null
++++ b/backend/src/services/meta.service.js
+@@ -0,0 +1,81 @@
++import crypto from 'crypto';
++import { env } from '../config/env.js'; // asegura que dotenv ya cargó las variables
++
++const sha256 = (value) =>
++  crypto.createHash('sha256').update(String(value)).digest('hex');
++
++const clean = (v) => (v ? String(v).trim().toLowerCase() : null);
++const cleanPhone = (v) => (v ? String(v).replace(/\D/g, '') : null);
++
++function buildUserData({ user = {}, ip, userAgent, fbp, fbc }) {
++  const ud = {};
++  const em = clean(user.email);
++  const ph = cleanPhone(user.phone);
++  const fn = clean(user.firstName);
++  const ln = clean(user.lastName);
++
++  if (em) ud.em = [sha256(em)];
++  if (ph) ud.ph = [sha256(ph)];
++  if (fn) ud.fn = [sha256(fn)];
++  if (ln) ud.ln = [sha256(ln)];
++  ud.country = [sha256('ar')];
++  if (ip) ud.client_ip_address = ip;
++  if (userAgent) ud.client_user_agent = userAgent;
++  if (fbp) ud.fbp = fbp;
++  if (fbc) ud.fbc = fbc;
++  return ud;
++}
++
++export async function sendMetaEvent({
++  eventName,
++  eventId,
++  url,
++  data = {},
++  user,
++  ip,
++  userAgent,
++  fbp,
++  fbc,
++}) {
++  const pixelId = process.env.META_PIXEL_ID || env.META_PIXEL_ID;
++  const token = process.env.META_ACCESS_TOKEN || env.META_ACCESS_TOKEN;
++  const version = process.env.META_API_VERSION || env.META_API_VERSION || 'v23.0';
++  const testCode = process.env.META_TEST_EVENT_CODE || env.META_TEST_EVENT_CODE;
++
++  if (!pixelId || !token) {
++    console.warn('[Meta CAPI] Falta META_PIXEL_ID o META_ACCESS_TOKEN, evento omitido');
++    return;
++  }
++
++  const payload = {
++    data: [
++      {
++        event_name: eventName,
++        event_time: Math.floor(Date.now() / 1000),
++        event_id: eventId,
++        action_source: 'website',
++        event_source_url: url,
++        user_data: buildUserData({ user, ip, userAgent, fbp, fbc }),
++        custom_data: data,
++      },
++    ],
++  };
++
++  // Solo para probar en "Probar eventos" de Meta. Se elimina de las variables al terminar de probar.
++  if (testCode) payload.test_event_code = testCode;
++
++  const res = await fetch(
++    `https://graph.facebook.com/${version}/${pixelId}/events?access_token=${encodeURIComponent(token)}`,
++    {
++      method: 'POST',
++      headers: { 'Content-Type': 'application/json' },
++      body: JSON.stringify(payload),
++    }
++  );
++
++  if (!res.ok) {
++    const body = await res.text();
++    console.error('[Meta CAPI] Error', res.status, body);
++  }
++}
++
+diff --git a/frontend/.env.example b/frontend/.env.example
+new file mode 100644
+index 0000000..4d2f210
+--- /dev/null
++++ b/frontend/.env.example
+@@ -0,0 +1,3 @@
++VITE_API_URL=http://localhost:3001/api
++VITE_META_PIXEL_ID=tu-pixel-id
++
+diff --git a/frontend/index.html b/frontend/index.html
+index 80dc792..bb7f1c0 100644
+--- a/frontend/index.html
++++ b/frontend/index.html
+@@ -16,6 +16,9 @@
+     <title>TODO VINOS — Cava Online & Bodegas Seleccionadas</title>
+     <meta name="description" content="Colección curada de bodegas seleccionadas y etiquetas de autor de Argentina. Envíos con embalaje seguro a todo el país." />
+     <meta name="robots" content="index, follow" />
++
++    <!-- Reemplazar CODIGO_QUE_TE_DA_META por el código de verificación de dominio de Meta Business -->
++    <meta name="facebook-domain-verification" content="CODIGO_QUE_TE_DA_META" />
+     
+     <!-- Color de tema para móviles y navegadores -->
+     <meta name="theme-color" content="#111111" />
+diff --git a/frontend/src/App.jsx b/frontend/src/App.jsx
+index 5d01523..b77f772 100644
+--- a/frontend/src/App.jsx
++++ b/frontend/src/App.jsx
+@@ -23,6 +23,7 @@ import WineTypesPage from './pages/admin/WineTypesPage';
+ import OrdersPage from './pages/admin/OrdersPage';
+ import UsersPage from './pages/admin/UsersPage';
+ import ScrollToTop from './components/ScrollToTop';
++import MetaPixelTracker from './components/MetaPixelTracker';
+ import themeConfig from './config/theme';
+ 
+ const ProtectedAdminRoute = ({ children }) => {
+@@ -96,6 +97,7 @@ function App() {
+   return (
+     <BrowserRouter>
+       <ScrollToTop />
++      <MetaPixelTracker />
+       <AuthProvider>
+         <CartProvider>
+           <Routes>
+diff --git a/frontend/src/components/MetaPixelTracker.jsx b/frontend/src/components/MetaPixelTracker.jsx
+new file mode 100644
+index 0000000..9d44ee9
+--- /dev/null
++++ b/frontend/src/components/MetaPixelTracker.jsx
+@@ -0,0 +1,15 @@
++import { useEffect } from 'react';
++import { useLocation } from 'react-router-dom';
++import { trackPageView } from '../lib/meta';
++
++export default function MetaPixelTracker() {
++  const { pathname, search } = useLocation();
++
++  useEffect(() => {
++    if (pathname.startsWith('/admin')) return; // no medir el panel de administración
++    trackPageView();
++  }, [pathname, search]);
++
++  return null;
++}
++
+diff --git a/frontend/src/components/checkout/CheckoutForm.jsx b/frontend/src/components/checkout/CheckoutForm.jsx
+index 619b01d..349c165 100644
+--- a/frontend/src/components/checkout/CheckoutForm.jsx
++++ b/frontend/src/components/checkout/CheckoutForm.jsx
+@@ -5,6 +5,7 @@ import useAuth from '../../hooks/useAuth';
+ import Input from '../ui/Input';
+ import Button from '../ui/Button';
+ import client from '../../api/client';
++import { trackMeta, buildContents } from '../../lib/meta';
+ import { FaWhatsapp } from 'react-icons/fa';
+ import { FiCheckCircle, FiLock } from 'react-icons/fi';
+ import themeConfig from '../../config/theme';
+@@ -82,6 +83,34 @@ const CheckoutForm = () => {
+ 
+       const res = await client.post('/orders', orderData);
+       const link = res.data?.whatsappLink;
++
++      // Meta: Purchase (antes de abrir WhatsApp y de vaciar el carrito)
++      try {
++        const order = res.data?.order;
++        if (order?.id) {
++          const cartValue = items.reduce((acc, item) => acc + (Number(item.product.price) || 0) * item.quantity, 0);
++          const [firstName, ...restName] = orderData.customerName.split(/\s+/).filter(Boolean);
++          trackMeta(
++            'Purchase',
++            {
++              ...buildContents(items),
++              value: Number(order.total ?? cartValue) || cartValue,
++              currency: 'ARS',
++            },
++            {
++              eventId: `order-${order.id}`, // mismo id siempre para ese pedido: evita duplicados
++              user: {
++                email: orderData.customerEmail,
++                phone: orderData.customerPhone,
++                firstName,
++                lastName: restName.join(' '),
++              },
++            }
++          );
++        }
++      } catch {
++        // El tracking nunca debe romper el checkout
++      }
+       
+       if (link) {
+         setWhatsappUrl(link);
+diff --git a/frontend/src/context/CartContext.jsx b/frontend/src/context/CartContext.jsx
+index f86e075..d7c2493 100644
+--- a/frontend/src/context/CartContext.jsx
++++ b/frontend/src/context/CartContext.jsx
+@@ -1,5 +1,6 @@
+ import React, { createContext, useState, useEffect, useCallback } from 'react';
+ import Toast from '../components/ui/Toast';
++import { trackMeta } from '../lib/meta';
+ 
+ export const CartContext = createContext();
+ 
+@@ -46,6 +47,24 @@ export const CartProvider = ({ children }) => {
+         winery: product.winery,
+       },
+     });
++
++    // Meta: AddToCart solo por las unidades efectivamente agregadas (respeta el tope de stock)
++    try {
++      const existingItem = items.find((item) => (item.product.id || item.product._id) === productId);
++      const prevQty = existingItem ? existingItem.quantity : 0;
++      const addedQty = Math.min(prevQty + quantity, product.stock) - prevQty;
++      if (addedQty > 0) {
++        trackMeta('AddToCart', {
++          content_type: 'product',
++          content_ids: [String(productId)],
++          content_name: product.name,
++          value: (Number(product.price) || 0) * addedQty,
++          currency: 'ARS',
++        });
++      }
++    } catch {
++      // El tracking nunca debe romper el carrito
++    }
+   };
+ 
+   const removeFromCart = (productId) => {
+diff --git a/frontend/src/lib/meta.js b/frontend/src/lib/meta.js
+new file mode 100644
+index 0000000..5206bd0
+--- /dev/null
++++ b/frontend/src/lib/meta.js
+@@ -0,0 +1,145 @@
++/**
++ * Integración Meta Pixel (navegador) + API de Conversiones (vía backend).
++ * Todo es "best effort": si falta configuración o algo falla, nunca rompe la UI.
++ */
++
++const PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID;
++
++// Mismo criterio que api/client.js (VITE_API_URL || '/api').
++// Tolera que VITE_API_URL termine o no en /api. Sin variable -> ruta relativa (proxy de Vite en dev).
++const API_BASE = (import.meta.env.VITE_API_URL || '')
++  .replace(/\/$/, '')
++  .replace(/\/api$/, '');
++
++const CURRENCY = 'ARS';
++
++const getCookie = (name) => {
++  try {
++    return document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`))?.[1];
++  } catch {
++    return undefined;
++  }
++};
++
++const generateId = () => {
++  try {
++    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
++  } catch {
++    // randomUUID solo existe en contextos seguros (https / localhost)
++  }
++  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
++};
++
++const isAdminRoute = () => {
++  try {
++    return window.location.pathname.startsWith('/admin');
++  } catch {
++    return false;
++  }
++};
++
++/** Carga el script del píxel. Llamar una sola vez al iniciar la app. */
++export function initMetaPixel() {
++  try {
++    if (!PIXEL_ID || window.fbq) return;
++
++    /* eslint-disable */
++    !(function (f, b, e, v, n, t, s) {
++      if (f.fbq) return;
++      n = f.fbq = function () {
++        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
++      };
++      if (!f._fbq) f._fbq = n;
++      n.push = n;
++      n.loaded = !0;
++      n.version = '2.0';
++      n.queue = [];
++      t = b.createElement(e);
++      t.async = !0;
++      t.src = v;
++      s = b.getElementsByTagName(e)[0];
++      s.parentNode.insertBefore(t, s);
++    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
++    /* eslint-enable */
++
++    window.fbq('init', PIXEL_ID);
++  } catch {
++    // El tracking nunca debe romper la UI
++  }
++}
++
++/** PageView (solo navegador). Se llama en cada cambio de ruta. */
++export function trackPageView() {
++  try {
++    if (isAdminRoute()) return;
++    window.fbq?.('track', 'PageView');
++  } catch {
++    // noop
++  }
++}
++
++/**
++ * Evento estándar: se envía al píxel (navegador) y a la API de Conversiones (backend)
++ * con el mismo event_id para que Meta lo deduplique.
++ *
++ * @param {string} eventName  ViewContent | AddToCart | InitiateCheckout | Purchase | Contact | Lead
++ * @param {object} data       custom_data (value, currency, content_ids, etc.)
++ * @param {object} options    { eventId, user: { email, phone, firstName, lastName } }
++ */
++export function trackMeta(eventName, data = {}, { eventId, user } = {}) {
++  try {
++    if (isAdminRoute()) return;
++
++    const id = eventId || generateId();
++
++    window.fbq?.('track', eventName, data, { eventID: id });
++
++    // Limpia campos vacíos del usuario para no enviar strings vacíos
++    const cleanUser = user
++      ? Object.fromEntries(Object.entries(user).filter(([, v]) => v && String(v).trim()))
++      : undefined;
++
++    fetch(`${API_BASE}/api/meta/events`, {
++      method: 'POST',
++      headers: { 'Content-Type': 'application/json' },
++      keepalive: true, // sigue funcionando aunque el usuario salga hacia WhatsApp
++      body: JSON.stringify({
++        eventName,
++        eventId: id,
++        url: window.location.href,
++        data,
++        user: cleanUser && Object.keys(cleanUser).length ? cleanUser : undefined,
++        fbp: getCookie('_fbp'),
++        fbc: getCookie('_fbc'),
++      }),
++    }).catch(() => {});
++  } catch {
++    // El tracking nunca debe romper la UI
++  }
++}
++
++/**
++ * Arma content_ids / contents / num_items a partir de los ítems del carrito.
++ * Forma real de los ítems en CartContext: { product, quantity }.
++ * Se usa product.price, que es el precio con el que el backend calcula el total del pedido.
++ */
++export function buildContents(items = []) {
++  const contents = (items || []).map((i) => {
++    const p = i.product || i;
++    return {
++      id: String(p.id || p._id),
++      quantity: Number(i.quantity) || 1,
++      item_price: Number(p.price) || 0,
++    };
++  });
++
++  return {
++    content_type: 'product',
++    content_ids: contents.map((c) => c.id),
++    contents,
++    num_items: contents.reduce((sum, c) => sum + c.quantity, 0),
++  };
++}
++
++export { CURRENCY as META_CURRENCY };
++
+diff --git a/frontend/src/main.jsx b/frontend/src/main.jsx
+index d05e378..3b8ef18 100644
+--- a/frontend/src/main.jsx
++++ b/frontend/src/main.jsx
+@@ -2,6 +2,9 @@ import React from 'react';
+ import ReactDOM from 'react-dom/client';
+ import App from './App.jsx';
+ import './index.css';
++import { initMetaPixel } from './lib/meta';
++
++initMetaPixel();
+ 
+ ReactDOM.createRoot(document.getElementById('root')).render(
+   <React.StrictMode>
+diff --git a/frontend/src/pages/CheckoutPage.jsx b/frontend/src/pages/CheckoutPage.jsx
+index 56b7c44..0058f8e 100644
+--- a/frontend/src/pages/CheckoutPage.jsx
++++ b/frontend/src/pages/CheckoutPage.jsx
+@@ -1,6 +1,7 @@
+-import React, { useEffect } from 'react';
++import React, { useEffect, useRef } from 'react';
+ import { useNavigate } from 'react-router-dom';
+ import useCart from '../hooks/useCart';
++import { trackMeta, buildContents } from '../lib/meta';
+ import CheckoutForm from '../components/checkout/CheckoutForm';
+ import { FiLock, FiShoppingBag } from 'react-icons/fi';
+ import themeConfig from '../config/theme';
+@@ -16,6 +17,18 @@ const CheckoutPage = () => {
+     }
+   }, [items, cartCount, minUnits, navigate]);
+ 
++  // Meta: InitiateCheckout (una sola vez al entrar con el carrito válido)
++  const checkoutTracked = useRef(false);
++  useEffect(() => {
++    if (checkoutTracked.current || !items?.length || cartCount < minUnits) return;
++    checkoutTracked.current = true;
++    trackMeta('InitiateCheckout', {
++      ...buildContents(items),
++      value: Number(cartTotal) || 0,
++      currency: 'ARS',
++    });
++  }, [items, cartCount, cartTotal, minUnits]);
++
+   if (items.length === 0 || cartCount < minUnits) return null;
+ 
+   return (
+diff --git a/frontend/src/pages/ProductPage.jsx b/frontend/src/pages/ProductPage.jsx
+index 3dee308..27b3319 100644
+--- a/frontend/src/pages/ProductPage.jsx
++++ b/frontend/src/pages/ProductPage.jsx
+@@ -1,6 +1,7 @@
+-import React, { useEffect, useState } from 'react';
++import React, { useEffect, useRef, useState } from 'react';
+ import { useParams, Link } from 'react-router-dom';
+ import client from '../api/client';
++import { trackMeta } from '../lib/meta';
+ import useCart from '../hooks/useCart';
+ import useSEO from '../hooks/useSEO';
+ import Button from '../components/ui/Button';
+@@ -47,6 +48,22 @@ const ProductPage = () => {
+   const imageUrl = product?.imageUrl || product?.image;
+   const priceFormatted = Number(product?.price || 0).toLocaleString('es-AR');
+ 
++  // Meta: ViewContent (una sola vez por producto)
++  const viewTrackedId = useRef(null);
++  useEffect(() => {
++    if (!product) return;
++    const productId = String(product.id || product._id);
++    if (viewTrackedId.current === productId) return;
++    viewTrackedId.current = productId;
++    trackMeta('ViewContent', {
++      content_type: 'product',
++      content_ids: [productId],
++      content_name: product.name,
++      value: Number(product.price) || 0,
++      currency: 'ARS',
++    });
++  }, [product]);
++
+   // Dynamic SEO & Google Product Rich Snippets
+   useSEO(product ? {
+     title: `${product.name} ${product.winery ? `- ${product.winery}` : ''}`,
+
+
+--------------------------------------------------------------------------------
+2. CONTENIDO COMPLETO DE LOS ARCHIVOS NUEVOS
+--------------------------------------------------------------------------------
+
+### backend/src/services/meta.service.js
+import crypto from 'crypto';
+import { env } from '../config/env.js'; // asegura que dotenv ya cargó las variables
+
+const sha256 = (value) =>
+  crypto.createHash('sha256').update(String(value)).digest('hex');
+
+const clean = (v) => (v ? String(v).trim().toLowerCase() : null);
+const cleanPhone = (v) => (v ? String(v).replace(/\D/g, '') : null);
+
+function buildUserData({ user = {}, ip, userAgent, fbp, fbc }) {
+  const ud = {};
+  const em = clean(user.email);
+  const ph = cleanPhone(user.phone);
+  const fn = clean(user.firstName);
+  const ln = clean(user.lastName);
+
+  if (em) ud.em = [sha256(em)];
+  if (ph) ud.ph = [sha256(ph)];
+  if (fn) ud.fn = [sha256(fn)];
+  if (ln) ud.ln = [sha256(ln)];
+  ud.country = [sha256('ar')];
+  if (ip) ud.client_ip_address = ip;
+  if (userAgent) ud.client_user_agent = userAgent;
+  if (fbp) ud.fbp = fbp;
+  if (fbc) ud.fbc = fbc;
+  return ud;
+}
+
+export async function sendMetaEvent({
+  eventName,
+  eventId,
+  url,
+  data = {},
+  user,
+  ip,
+  userAgent,
+  fbp,
+  fbc,
+}) {
+  const pixelId = process.env.META_PIXEL_ID || env.META_PIXEL_ID;
+  const token = process.env.META_ACCESS_TOKEN || env.META_ACCESS_TOKEN;
+  const version = process.env.META_API_VERSION || env.META_API_VERSION || 'v23.0';
+  const testCode = process.env.META_TEST_EVENT_CODE || env.META_TEST_EVENT_CODE;
+
+  if (!pixelId || !token) {
+    console.warn('[Meta CAPI] Falta META_PIXEL_ID o META_ACCESS_TOKEN, evento omitido');
+    return;
+  }
+
+  const payload = {
+    data: [
+      {
+        event_name: eventName,
+        event_time: Math.floor(Date.now() / 1000),
+        event_id: eventId,
+        action_source: 'website',
+        event_source_url: url,
+        user_data: buildUserData({ user, ip, userAgent, fbp, fbc }),
+        custom_data: data,
+      },
+    ],
+  };
+
+  // Solo para probar en "Probar eventos" de Meta. Se elimina de las variables al terminar de probar.
+  if (testCode) payload.test_event_code = testCode;
+
+  const res = await fetch(
+    `https://graph.facebook.com/${version}/${pixelId}/events?access_token=${encodeURIComponent(token)}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }
+  );
+
+  if (!res.ok) {
+    const body = await res.text();
+    console.error('[Meta CAPI] Error', res.status, body);
+  }
+}
+
+### backend/src/routes/meta.routes.js
+import { Router } from 'express';
+import { z } from 'zod';
+import { sendMetaEvent } from '../services/meta.service.js';
+import { metaLimiter } from '../middleware/rateLimiter.js';
+
+const router = Router();
+
+const schema = z.object({
+  eventName: z.enum([
+    'ViewContent',
+    'AddToCart',
+    'InitiateCheckout',
+    'Purchase',
+    'Contact',
+    'Lead',
+    'Search',
+  ]),
+  eventId: z.string().min(1).max(100),
+  url: z.string().max(2000).optional(),
+  data: z.record(z.string(), z.any()).optional(),
+  user: z
+    .object({
+      email: z.string().max(200).optional(),
+      phone: z.string().max(50).optional(),
+      firstName: z.string().max(100).optional(),
+      lastName: z.string().max(100).optional(),
+    })
+    .optional(),
+  fbp: z.string().max(200).optional(),
+  fbc: z.string().max(300).optional(),
+});
+
+router.post('/events', metaLimiter, (req, res) => {
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({ ok: false });
+  }
+
+  // Respondemos rápido; el envío a Meta continúa en segundo plano
+  res.status(202).json({ ok: true });
+
+  sendMetaEvent({
+    ...parsed.data,
+    ip: req.ip,
+    userAgent: req.headers['user-agent'],
+  }).catch((err) => console.error('[Meta CAPI] Fallo de red', err.message));
+});
+
+export default router;
+
+### frontend/src/lib/meta.js
+/**
+ * Integración Meta Pixel (navegador) + API de Conversiones (vía backend).
+ * Todo es "best effort": si falta configuración o algo falla, nunca rompe la UI.
+ */
+
+const PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID;
+
+// Mismo criterio que api/client.js (VITE_API_URL || '/api').
+// Tolera que VITE_API_URL termine o no en /api. Sin variable -> ruta relativa (proxy de Vite en dev).
+const API_BASE = (import.meta.env.VITE_API_URL || '')
+  .replace(/\/$/, '')
+  .replace(/\/api$/, '');
+
+const CURRENCY = 'ARS';
+
+const getCookie = (name) => {
+  try {
+    return document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`))?.[1];
+  } catch {
+    return undefined;
+  }
+};
+
+const generateId = () => {
+  try {
+    if (window.crypto?.randomUUID) return window.crypto.randomUUID();
+  } catch {
+    // randomUUID solo existe en contextos seguros (https / localhost)
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+};
+
+const isAdminRoute = () => {
+  try {
+    return window.location.pathname.startsWith('/admin');
+  } catch {
+    return false;
+  }
+};
+
+/** Carga el script del píxel. Llamar una sola vez al iniciar la app. */
+export function initMetaPixel() {
+  try {
+    if (!PIXEL_ID || window.fbq) return;
+
+    /* eslint-disable */
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = !0;
+      n.version = '2.0';
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+    /* eslint-enable */
+
+    window.fbq('init', PIXEL_ID);
+  } catch {
+    // El tracking nunca debe romper la UI
+  }
+}
+
+/** PageView (solo navegador). Se llama en cada cambio de ruta. */
+export function trackPageView() {
+  try {
+    if (isAdminRoute()) return;
+    window.fbq?.('track', 'PageView');
+  } catch {
+    // noop
+  }
+}
+
+/**
+ * Evento estándar: se envía al píxel (navegador) y a la API de Conversiones (backend)
+ * con el mismo event_id para que Meta lo deduplique.
+ *
+ * @param {string} eventName  ViewContent | AddToCart | InitiateCheckout | Purchase | Contact | Lead
+ * @param {object} data       custom_data (value, currency, content_ids, etc.)
+ * @param {object} options    { eventId, user: { email, phone, firstName, lastName } }
+ */
+export function trackMeta(eventName, data = {}, { eventId, user } = {}) {
+  try {
+    if (isAdminRoute()) return;
+
+    const id = eventId || generateId();
+
+    window.fbq?.('track', eventName, data, { eventID: id });
+
+    // Limpia campos vacíos del usuario para no enviar strings vacíos
+    const cleanUser = user
+      ? Object.fromEntries(Object.entries(user).filter(([, v]) => v && String(v).trim()))
+      : undefined;
+
+    fetch(`${API_BASE}/api/meta/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true, // sigue funcionando aunque el usuario salga hacia WhatsApp
+      body: JSON.stringify({
+        eventName,
+        eventId: id,
+        url: window.location.href,
+        data,
+        user: cleanUser && Object.keys(cleanUser).length ? cleanUser : undefined,
+        fbp: getCookie('_fbp'),
+        fbc: getCookie('_fbc'),
+      }),
+    }).catch(() => {});
+  } catch {
+    // El tracking nunca debe romper la UI
+  }
+}
+
+/**
+ * Arma content_ids / contents / num_items a partir de los ítems del carrito.
+ * Forma real de los ítems en CartContext: { product, quantity }.
+ * Se usa product.price, que es el precio con el que el backend calcula el total del pedido.
+ */
+export function buildContents(items = []) {
+  const contents = (items || []).map((i) => {
+    const p = i.product || i;
+    return {
+      id: String(p.id || p._id),
+      quantity: Number(i.quantity) || 1,
+      item_price: Number(p.price) || 0,
+    };
+  });
+
+  return {
+    content_type: 'product',
+    content_ids: contents.map((c) => c.id),
+    contents,
+    num_items: contents.reduce((sum, c) => sum + c.quantity, 0),
+  };
+}
+
+export { CURRENCY as META_CURRENCY };
+
+### frontend/src/components/MetaPixelTracker.jsx
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { trackPageView } from '../lib/meta';
+
+export default function MetaPixelTracker() {
+  const { pathname, search } = useLocation();
+
+  useEffect(() => {
+    if (pathname.startsWith('/admin')) return; // no medir el panel de administración
+    trackPageView();
+  }, [pathname, search]);
+
+  return null;
+}
+
+
+--------------------------------------------------------------------------------
+3. DÓNDE QUEDÓ CADA EVENTO
+--------------------------------------------------------------------------------
+
+### grep -rn "trackMeta\|trackPageView\|initMetaPixel\|buildContents\|fbq" frontend/src
+frontend/src/components/checkout/CheckoutForm.jsx:8:import { trackMeta, buildContents } from '../../lib/meta';
+frontend/src/components/checkout/CheckoutForm.jsx:93:          trackMeta(
+frontend/src/components/checkout/CheckoutForm.jsx:96:              ...buildContents(items),
+frontend/src/components/MetaPixelTracker.jsx:3:import { trackPageView } from '../lib/meta';
+frontend/src/components/MetaPixelTracker.jsx:10:    trackPageView();
+frontend/src/context/CartContext.jsx:3:import { trackMeta } from '../lib/meta';
+frontend/src/context/CartContext.jsx:57:        trackMeta('AddToCart', {
+frontend/src/lib/meta.js:42:export function initMetaPixel() {
+frontend/src/lib/meta.js:44:    if (!PIXEL_ID || window.fbq) return;
+frontend/src/lib/meta.js:48:      if (f.fbq) return;
+frontend/src/lib/meta.js:49:      n = f.fbq = function () {
+frontend/src/lib/meta.js:52:      if (!f._fbq) f._fbq = n;
+frontend/src/lib/meta.js:65:    window.fbq('init', PIXEL_ID);
+frontend/src/lib/meta.js:72:export function trackPageView() {
+frontend/src/lib/meta.js:75:    window.fbq?.('track', 'PageView');
+frontend/src/lib/meta.js:89:export function trackMeta(eventName, data = {}, { eventId, user } = {}) {
+frontend/src/lib/meta.js:95:    window.fbq?.('track', eventName, data, { eventID: id });
+frontend/src/lib/meta.js:126:export function buildContents(items = []) {
+frontend/src/main.jsx:5:import { initMetaPixel } from './lib/meta';
+frontend/src/main.jsx:7:initMetaPixel();
+frontend/src/pages/CheckoutPage.jsx:4:import { trackMeta, buildContents } from '../lib/meta';
+frontend/src/pages/CheckoutPage.jsx:25:    trackMeta('InitiateCheckout', {
+frontend/src/pages/CheckoutPage.jsx:26:      ...buildContents(items),
+frontend/src/pages/ProductPage.jsx:4:import { trackMeta } from '../lib/meta';
+frontend/src/pages/ProductPage.jsx:58:    trackMeta('ViewContent', {
+
+### grep -rn "meta\|trust proxy" backend/src/index.js
+16:import metaRoutes from './routes/meta.routes.js';
+21:app.set('trust proxy', 1);
+44:app.use('/api/meta', metaRoutes);
+
+### grep -rn "wa.me\|api.whatsapp.com\|whatsapp" frontend/src --include=*.jsx --include=*.js -il
+frontend/src/components/admin/UserForm.jsx
+frontend/src/components/auth/RegisterForm.jsx
+frontend/src/components/cart/CartSummary.jsx
+frontend/src/components/checkout/CheckoutForm.jsx
+frontend/src/config/theme.js
+frontend/src/lib/meta.js
+frontend/src/pages/CheckoutPage.jsx
+frontend/src/pages/HomePage.jsx
+frontend/src/pages/ProductPage.jsx
+
+
+--------------------------------------------------------------------------------
+4. PRUEBAS
+--------------------------------------------------------------------------------
+
+### cd frontend && npm run build
+> vinoteca-frontend@0.0.0 build
+> vite build
+
+vite v4.5.14 building for production...
+transforming...
+✓ 145 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   2.36 kB │ gzip:   0.95 kB
+dist/assets/index-fd6f64b1.css   46.48 kB │ gzip:   8.45 kB
+dist/assets/index-86ed3d62.js   384.33 kB │ gzip: 110.17 kB
+✓ built in 7.94s
+
+### Backend levantado SIN variables META_* + pruebas con curl
+[BACKEND STDOUT] Server running on port 3001
+--- CURL a) VALID BODY ---
+HTTP/1.1 202 Accepted
+Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=15552000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+Access-Control-Allow-Origin: http://localhost:5173
+Vary: Origin
+RateLimit-Policy: 120;w=60
+RateLimit-Limit: 120
+RateLimit-Remaining: 119
+RateLimit-Reset: 60
+Content-Type: application/json; charset=utf-8
+Content-Length: 11
+ETag: W/"b-Ai2R8hgEarLmHKwesT1qcY913ys"
+Date: Fri, 16 Oct 2026 00:37:43 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"ok":true}
+--- CURL b) INVALID BODY ---
+HTTP/1.1 400 Bad Request
+Content-Security-Policy: default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests
+Cross-Origin-Opener-Policy: same-origin
+Origin-Agent-Cluster: ?1
+Referrer-Policy: no-referrer
+Strict-Transport-Security: max-age=15552000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-DNS-Prefetch-Control: off
+X-Download-Options: noopen
+X-Frame-Options: SAMEORIGIN
+X-Permitted-Cross-Domain-Policies: none
+X-XSS-Protection: 0
+Access-Control-Allow-Origin: http://localhost:5173
+Vary: Origin
+RateLimit-Policy: 120;w=60
+RateLimit-Limit: 120
+RateLimit-Remaining: 118
+RateLimit-Reset: 60
+Content-Type: application/json; charset=utf-8
+Content-Length: 12
+ETag: W/"c-NsyIKrDf6fQ7+609QlCVGoC3ovk"
+Date: Fri, 16 Oct 2026 00:37:43 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+
+{"ok":false}
+[BACKEND STDERR] [Meta CAPI] Falta META_PIXEL_ID o META_ACCESS_TOKEN, evento omitido
+[BACKEND STDOUT] POST /api/meta/events 202 303.243 ms - 11
+POST /api/meta/events 400 3.157 ms - 12
+
+
+--------------------------------------------------------------------------------
+5. SECRETOS Y VARIABLES
+--------------------------------------------------------------------------------
+
+### grep -rn "EAAB\|META_ACCESS_TOKEN\|META_PIXEL_ID\|VITE_META_PIXEL_ID" . --include=* --exclude-dir=node_modules --exclude-dir=.git
+./.env.example:22:META_PIXEL_ID="tu-pixel-id"
+./.env.example:23:META_ACCESS_TOKEN="token-generado-en-administrador-de-eventos"
+./backend/src/config/env.js:17:  META_PIXEL_ID: process.env.META_PIXEL_ID || '',
+./backend/src/config/env.js:18:  META_ACCESS_TOKEN: process.env.META_ACCESS_TOKEN || '',
+./backend/src/services/meta.service.js:40:  const pixelId = process.env.META_PIXEL_ID || env.META_PIXEL_ID;
+./backend/src/services/meta.service.js:41:  const token = process.env.META_ACCESS_TOKEN || env.META_ACCESS_TOKEN;
+./backend/src/services/meta.service.js:46:    console.warn('[Meta CAPI] Falta META_PIXEL_ID o META_ACCESS_TOKEN, evento omitido');
+./frontend/.env.example:2:VITE_META_PIXEL_ID=tu-pixel-id
+./frontend/src/lib/meta.js:6:const PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID;
+./README.md:66:META_PIXEL_ID="tu-pixel-id"
+./README.md:67:META_ACCESS_TOKEN="token-generado-en-administrador-de-eventos"
+./README.md:77:VITE_META_PIXEL_ID=tu-pixel-id           # Si falta, el Píxel simplemente no se carga
+./README.md:397:   - Configurar `VITE_API_URL` apuntando al backend en producción (terminando en `/api`) y `VITE_META_PIXEL_ID`.
+./README.md:401:   - Configurar variables de entorno (`DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `CLOUDINARY_*`, `WHATSAPP_PHONE`, `CORS_ORIGIN`, `META_PIXEL_ID`, `META_ACCESS_TOKEN`, `META_API_VERSION`).
+
+### Contenido de .env.example (raíz / backend)
+# Base de datos
+DATABASE_URL="file:./dev.db"
+
+# JWT
+JWT_ACCESS_SECRET="cambiar-este-secreto-en-produccion-access"
+JWT_REFRESH_SECRET="cambiar-este-secreto-en-produccion-refresh"
+JWT_ACCESS_EXPIRATION="15m"
+JWT_REFRESH_EXPIRATION="7d"
+
+# WhatsApp — Número del dueño (con código de país, sin +)
+WHATSAPP_PHONE="5491112345678"
+
+# Server
+PORT=3001
+CORS_ORIGIN="http://localhost:5173"
+
+# Admin seed (usuario administrador inicial)
+ADMIN_EMAIL="admin@vinoteca.com"
+ADMIN_PASSWORD="Admin123!"
+
+# Meta (Píxel + API de Conversiones)
+META_PIXEL_ID="tu-pixel-id"
+META_ACCESS_TOKEN="token-generado-en-administrador-de-eventos"
+META_API_VERSION="v23.0"
+# Solo para probar en "Probar eventos". Eliminar en producción una vez validado.
+META_TEST_EVENT_CODE=""
+
+### Contenido de frontend/.env.example
+VITE_API_URL=http://localhost:3001/api
+VITE_META_PIXEL_ID=tu-pixel-id
+
+Confirmado: solo hay placeholders ("tu-pixel-id", "token-generado-en-administrador-de-eventos", ""), sin ningún token ni ID real.
+
+
+--------------------------------------------------------------------------------
+6. RESPUESTAS EXACTAS A LAS PREGUNTAS
+--------------------------------------------------------------------------------
+
+1. ¿En qué archivo y línea disparaste Purchase? ¿Se dispara antes de abrir WhatsApp y antes de vaciar el carrito?
+   - Se dispara en frontend/src/components/checkout/CheckoutForm.jsx (bloque en líneas 86–112), con la llamada a trackMeta('Purchase', ...) en la línea 92 (línea 93 del archivo tras los imports).
+   - Sí, se ejecuta inmediatamente después de const res = await client.post('/orders', orderData) (línea 83) y antes de window.open(link, '_blank') (línea 116) y antes de clearCart() (línea 119).
+
+2. ¿Qué nombres reales usaste para: items del carrito, total, order.id, y los campos del formulario (email, teléfono, nombre, apellido)?
+   - Items del carrito: items (de useCart()), donde cada elemento tiene la estructura { product, quantity } y el ID del producto es product.id || product._id y su precio es product.price.
+   - Total del carrito: cartTotal en CheckoutPage.jsx (de useCart()); en CheckoutForm.jsx se usa res.data?.order?.total (con fallback a cartValue calculado sobre items).
+   - ID del pedido: order.id tomado de const order = res.data?.order (ya que POST /api/orders devuelve { order, whatsappLink }), formando eventId: `order-${order.id}`.
+   - Campos del formulario: el formulario en CheckoutForm.jsx usa formData.customerName (un único campo de "Nombre y Apellido"), formData.customerEmail y formData.customerPhone (que al enviarse se normalizan con .trim() en orderData). Para Meta se separa orderData.customerName.split(/\s+/).filter(Boolean) asignando la primera palabra a firstName y el resto (restName.join(' ')) a lastName, junto con email: orderData.customerEmail y phone: orderData.customerPhone.
+
+3. ¿Qué valor usás como value en Purchase cuando el cliente elige precio por transferencia?
+   - En el estado actual del proyecto (CheckoutForm.jsx y backend/src/services/order.service.js), el checkout no tiene un selector entre precio de lista y transferencia: el backend siempre crea el pedido tomando unitPrice = product.price (order.service.js línea 28) y guarda la suma en order.total. Por lo tanto, Purchase envía Number(order.total ?? cartValue) || cartValue, que coincide exactamente con order.total calculado con product.price.
+
+4. ¿En qué archivos agregaste el evento Contact?
+   - En ninguno, porque al inspeccionar todo frontend/src no existen botones ni enlaces (wa.me, api.whatsapp.com, etc.) que abran WhatsApp fuera del flujo de checkout (las únicas menciones a WhatsApp fuera de CheckoutForm.jsx son textos informativos en HomePage.jsx, ProductPage.jsx y CartSummary.jsx). El evento Contact quedó habilitado y validado en backend/src/routes/meta.routes.js y en trackMeta para cuando se agregue un botón de contacto directo.
+
+5. ¿Hubo algo que no pudiste hacer o que decidiste hacer distinto a lo que te pedí?
+   - API_BASE en frontend/src/lib/meta.js: en lugar de usar 'http://localhost:3001' como fallback cuando VITE_API_URL no está definida, usé '' (ruta relativa /api/meta/events), siguiendo el mismo criterio que frontend/src/api/client.js (VITE_API_URL || '/api') para que aproveche el proxy de Vite en desarrollo y funcione si algún entorno sirve frontend y /api bajo el mismo origen; si VITE_API_URL está definida (con o sin /api al final), la normaliza igual que en tu especificación.
+   - Chequeo de ruta /admin y crypto.randomUUID() en frontend/src/lib/meta.js: además del filtro en MetaPixelTracker.jsx, agregué una guarda isAdminRoute() dentro de trackPageView() y trackMeta(), y un fallback para crypto.randomUUID() por si el navegador corre en un contexto HTTP no seguro.
+   - AddToCart en CartContext.jsx: calcula addedQty = Math.min(prevQty + quantity, product.stock) - prevQty para enviar el valor real de las unidades efectivamente sumadas y no disparar el evento si el producto ya había alcanzado el tope de stock.
+   - Evento Contact: como se detalló en el punto 4, no había enlaces a WhatsApp fuera del checkout en el código actual, por lo que no se modificó Footer.jsx ni ProductPage.jsx para no alterar el diseño existente (Regla 4).
+

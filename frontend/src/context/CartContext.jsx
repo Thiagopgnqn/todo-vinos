@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import Toast from '../components/ui/Toast';
+import { trackMeta } from '../lib/meta';
 
 export const CartContext = createContext();
 
@@ -46,6 +47,24 @@ export const CartProvider = ({ children }) => {
         winery: product.winery,
       },
     });
+
+    // Meta: AddToCart solo por las unidades efectivamente agregadas (respeta el tope de stock)
+    try {
+      const existingItem = items.find((item) => (item.product.id || item.product._id) === productId);
+      const prevQty = existingItem ? existingItem.quantity : 0;
+      const addedQty = Math.min(prevQty + quantity, product.stock) - prevQty;
+      if (addedQty > 0) {
+        trackMeta('AddToCart', {
+          content_type: 'product',
+          content_ids: [String(productId)],
+          content_name: product.name,
+          value: (Number(product.price) || 0) * addedQty,
+          currency: 'ARS',
+        });
+      }
+    } catch {
+      // El tracking nunca debe romper el carrito
+    }
   };
 
   const removeFromCart = (productId) => {

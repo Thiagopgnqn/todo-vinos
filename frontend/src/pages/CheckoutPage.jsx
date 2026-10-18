@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useCart from '../hooks/useCart';
+import { trackMeta, buildContents } from '../lib/meta';
 import CheckoutForm from '../components/checkout/CheckoutForm';
 import { FiLock, FiShoppingBag } from 'react-icons/fi';
 import themeConfig from '../config/theme';
@@ -15,6 +16,18 @@ const CheckoutPage = () => {
       navigate('/carrito');
     }
   }, [items, cartCount, minUnits, navigate]);
+
+  // Meta: InitiateCheckout (una sola vez al entrar con el carrito válido)
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (checkoutTracked.current || !items?.length || cartCount < minUnits) return;
+    checkoutTracked.current = true;
+    trackMeta('InitiateCheckout', {
+      ...buildContents(items),
+      value: Number(cartTotal) || 0,
+      currency: 'ARS',
+    });
+  }, [items, cartCount, cartTotal, minUnits]);
 
   if (items.length === 0 || cartCount < minUnits) return null;
 

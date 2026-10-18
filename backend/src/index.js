@@ -13,8 +13,12 @@ import orderRoutes from './routes/order.routes.js';
 import uploadRoutes from './routes/upload.routes.js';
 import userRoutes from './routes/user.routes.js';
 import wineTypeRoutes from './routes/wineType.routes.js';
+import metaRoutes from './routes/meta.routes.js';
 
 const app = express();
+
+// Detrás del proxy de Railway: necesario para obtener la IP real del cliente en req.ip
+app.set('trust proxy', 1);
 
 // Create uploads directory if it doesn't exist
 if (!fs.existsSync('uploads')) {
@@ -37,6 +41,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/wine-types', wineTypeRoutes);
+app.use('/api/meta', metaRoutes);
 
 // Error handler
 app.use(errorHandler);

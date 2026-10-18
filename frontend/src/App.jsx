@@ -23,6 +23,7 @@ import WineTypesPage from './pages/admin/WineTypesPage';
 import OrdersPage from './pages/admin/OrdersPage';
 import UsersPage from './pages/admin/UsersPage';
 import ScrollToTop from './components/ScrollToTop';
+import MetaPixelTracker from './components/MetaPixelTracker';
 import themeConfig from './config/theme';
 
 const ProtectedAdminRoute = ({ children }) => {
@@ -96,6 +97,7 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <MetaPixelTracker />
       <AuthProvider>
         <CartProvider>
           <Routes>

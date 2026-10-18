@@ -5,6 +5,7 @@ import useAuth from '../../hooks/useAuth';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import client from '../../api/client';
+import { trackMeta, buildContents } from '../../lib/meta';
 import { FaWhatsapp } from 'react-icons/fa';
 import { FiCheckCircle, FiLock } from 'react-icons/fi';
 import themeConfig from '../../config/theme';
@@ -82,6 +83,34 @@ const CheckoutForm = () => {
 
       const res = await client.post('/orders', orderData);
       const link = res.data?.whatsappLink;
+
+      // Meta: Purchase (antes de abrir WhatsApp y de vaciar el carrito)
+      try {
+        const order = res.data?.order;
+        if (order?.id) {
+          const cartValue = items.reduce((acc, item) => acc + (Number(item.product.price) || 0) * item.quantity, 0);
+          const [firstName, ...restName] = orderData.customerName.split(/\s+/).filter(Boolean);
+          trackMeta(
+            'Purchase',
+            {
+              ...buildContents(items),
+              value: Number(order.total ?? cartValue) || cartValue,
+              currency: 'ARS',
+            },
+            {
+              eventId: `order-${order.id}`, // mismo id siempre para ese pedido: evita duplicados
+              user: {
+                email: orderData.customerEmail,
+                phone: orderData.customerPhone,
+                firstName,
+                lastName: restName.join(' '),
+              },
+            }
+          );
+        }
+      } catch {
+        // El tracking nunca debe romper el checkout
+      }
       
       if (link) {
         setWhatsappUrl(link);

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import client from '../api/client';
+import { trackMeta } from '../lib/meta';
 import useCart from '../hooks/useCart';
 import useSEO from '../hooks/useSEO';
 import Button from '../components/ui/Button';
@@ -46,6 +47,22 @@ const ProductPage = () => {
 
   const imageUrl = product?.imageUrl || product?.image;
   const priceFormatted = Number(product?.price || 0).toLocaleString('es-AR');
+
+  // Meta: ViewContent (una sola vez por producto)
+  const viewTrackedId = useRef(null);
+  useEffect(() => {
+    if (!product) return;
+    const productId = String(product.id || product._id);
+    if (viewTrackedId.current === productId) return;
+    viewTrackedId.current = productId;
+    trackMeta('ViewContent', {
+      content_type: 'product',
+      content_ids: [productId],
+      content_name: product.name,
+      value: Number(product.price) || 0,
+      currency: 'ARS',
+    });
+  }, [product]);
 
   // Dynamic SEO & Google Product Rich Snippets
   useSEO(product ? {

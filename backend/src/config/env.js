@@ -12,5 +12,10 @@ export const env = {
   PORT: process.env.PORT || 3001,
   CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:5173',
   ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'admin@todovinos.com',
-  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'Admin123!'
+  ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'Admin123!',
+  // Meta (Píxel + API de Conversiones)
+  META_PIXEL_ID: process.env.META_PIXEL_ID || '',
+  META_ACCESS_TOKEN: process.env.META_ACCESS_TOKEN || '',
+  META_API_VERSION: process.env.META_API_VERSION || 'v23.0',
+  META_TEST_EVENT_CODE: process.env.META_TEST_EVENT_CODE || ''
 };
